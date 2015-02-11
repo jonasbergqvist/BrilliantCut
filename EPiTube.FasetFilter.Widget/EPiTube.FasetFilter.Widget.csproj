@@ -193,9 +193,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="EPiTube.FasetFilter.nuspec">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="module.config">
       <SubType>Designer</SubType>
     </None>

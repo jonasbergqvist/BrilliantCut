@@ -334,7 +334,7 @@
     <Compile Include="DataAnnotation\CheckboxFilterAttribute.cs" />
     <Compile Include="DataAnnotation\FasetFilterAttribute.cs" />
     <Compile Include="DescendetLinksOfCatalogRoot.cs" />
-    <Compile Include="EPiServerFindModule.cs" />
+    <Compile Include="FasetFilterInitializationModule.cs" />
     <Compile Include="EPiTubeModel.cs" />
     <Compile Include="FilterContentBase.cs" />
     <Compile Include="FilterContentFactory.cs" />
