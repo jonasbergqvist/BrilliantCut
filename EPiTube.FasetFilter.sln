@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{AA967148-797A-41BC-B544-9FBBDD75D134}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPiServer.Find.IndexConfiguration", "EPiServer.Find.IndexConfiguration\EPiServer.Find.IndexConfiguration.csproj", "{4383D57F-DF83-4367-A689-15E47354DAE3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FindRunner", "FindRunner\FindRunner.csproj", "{29383CD0-54F1-4C77-A7C3-4FBCB8D02DC5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSupport", "TestSupport\TestSupport.csproj", "{1499B8EB-F27C-4F38-861D-2132B0AC190C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPiTube.FasetFilter.Core", "EPiTube.FasetFilter.Core\EPiTube.FasetFilter.Core.csproj", "{BF5ED046-8B29-4991-8479-DB2D8E36B978}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPiTube.FasetFilter.Fasets", "EPiTube.FasetFilter.Fasets\EPiTube.FasetFilter.Fasets.csproj", "{4AA5EED9-61A5-465C-9DDA-40BB2EA22B78}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPiTube.FasetFilter.Widget", "EPiTube.FasetFilter.Widget\EPiTube.FasetFilter.Widget.csproj", "{A0CF0C1F-0C97-4A3B-BDAC-7AD2DA018119}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4383D57F-DF83-4367-A689-15E47354DAE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4383D57F-DF83-4367-A689-15E47354DAE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4383D57F-DF83-4367-A689-15E47354DAE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4383D57F-DF83-4367-A689-15E47354DAE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29383CD0-54F1-4C77-A7C3-4FBCB8D02DC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29383CD0-54F1-4C77-A7C3-4FBCB8D02DC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29383CD0-54F1-4C77-A7C3-4FBCB8D02DC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29383CD0-54F1-4C77-A7C3-4FBCB8D02DC5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1499B8EB-F27C-4F38-861D-2132B0AC190C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1499B8EB-F27C-4F38-861D-2132B0AC190C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1499B8EB-F27C-4F38-861D-2132B0AC190C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1499B8EB-F27C-4F38-861D-2132B0AC190C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF5ED046-8B29-4991-8479-DB2D8E36B978}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF5ED046-8B29-4991-8479-DB2D8E36B978}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF5ED046-8B29-4991-8479-DB2D8E36B978}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF5ED046-8B29-4991-8479-DB2D8E36B978}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AA5EED9-61A5-465C-9DDA-40BB2EA22B78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AA5EED9-61A5-465C-9DDA-40BB2EA22B78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AA5EED9-61A5-465C-9DDA-40BB2EA22B78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AA5EED9-61A5-465C-9DDA-40BB2EA22B78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0CF0C1F-0C97-4A3B-BDAC-7AD2DA018119}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0CF0C1F-0C97-4A3B-BDAC-7AD2DA018119}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0CF0C1F-0C97-4A3B-BDAC-7AD2DA018119}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0CF0C1F-0C97-4A3B-BDAC-7AD2DA018119}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4383D57F-DF83-4367-A689-15E47354DAE3} = {AA967148-797A-41BC-B544-9FBBDD75D134}
+		{29383CD0-54F1-4C77-A7C3-4FBCB8D02DC5} = {AA967148-797A-41BC-B544-9FBBDD75D134}
+		{1499B8EB-F27C-4F38-861D-2132B0AC190C} = {AA967148-797A-41BC-B544-9FBBDD75D134}
+	EndGlobalSection
+EndGlobal

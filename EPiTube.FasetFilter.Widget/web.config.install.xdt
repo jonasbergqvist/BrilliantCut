@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <episerver.shell xdt:Transform="InsertIfMissing">
+    <protectedModules xdt:Transform="InsertIfMissing">
+      <add name="EPiTube.FasetFilter.Widget" resourcePath="/modules/EPiTube.FasetFilter.Widget/" xdt:Transform="InsertIfMissing" xdt:Locator="Match(name)">
+        <assemblies>
+          <add assembly="EPiTube.FasetFilter.Widget" />
+        </assemblies>
+      </add>
+    </protectedModules>
+  </episerver.shell>
+</configuration>
