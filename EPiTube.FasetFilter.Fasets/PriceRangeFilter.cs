@@ -20,6 +20,8 @@ namespace EPiTube.FasetFilter.Fasets
 
         public override ITypeSearch<VariationContent> Filter(IContent currentCntent, ITypeSearch<VariationContent> query, IEnumerable<double> values)
         {
+            //query = query.StatisticalFacetFor(x => x.DefaultPrice());
+
             var selectedValueArray = values.ToArray();
             if (!selectedValueArray.Any())
             {
@@ -35,17 +37,35 @@ namespace EPiTube.FasetFilter.Fasets
             return query;
         }
 
-        public override IDictionary<string, double> GetFilterOptions(IContent currentContent)
+        public override IDictionary<string, double> GetFilterOptionsFromResult(SearchResults<EPiTubeModel> searchResults)
         {
-            var searchResults = SearchClient.Instance.Search<CatalogContentBase>()
-                .StatisticalFacetFor(x => x.DefaultPrice())
-                .Take(0)
-                .GetResult();
-
             var authorCounts = searchResults
-                .StatisticalFacetFor(x => x.DefaultPrice());
+                .StatisticalFacetFor<VariationContent>(x => x.DefaultPrice());
 
-            return new Dictionary<string, double>() { { "pricemin", authorCounts.Min }, { "pricemax", authorCounts.Max } };
+            return new Dictionary<string, double>() { { "pricemin", authorCounts.Min }, { "pricemax", authorCounts.Max } }; 
         }
+
+        public override ITypeSearch<VariationContent> AddFasetToQuery(ITypeSearch<VariationContent> query)
+        {
+            return query.StatisticalFacetFor(x => x.DefaultPrice());
+        }
+
+        //public override IDictionary<string, double> GetDefaultFilterOptions()
+        //{
+        //    var searchResults = SearchClient.Instance.Search<VariationContent>()
+        //        .StatisticalFacetFor(x => x.DefaultPrice())
+        //        .Take(0)
+        //        .GetResult();
+
+        //    var authorCounts = searchResults
+        //        .StatisticalFacetFor(x => x.DefaultPrice());
+
+        //    return new Dictionary<string, double>() { { "pricemin", authorCounts.Min }, { "pricemax", authorCounts.Max } };
+        //}
+
+        //public override ITypeSearch<VariationContent> AddFasetToQuery(ITypeSearch<VariationContent> query)
+        //{
+        //    return query.StatisticalFacetFor(x => x.DefaultPrice());
+        //}
     }
 }

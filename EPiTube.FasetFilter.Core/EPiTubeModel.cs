@@ -27,28 +27,30 @@ namespace EPiTube.FasetFilter.Core
         public virtual string ThumbnailPath { get; set; }
         public virtual double DefaultPrice { get; set; }
 
-        public void Initialize(
-            IEnumerable<ContentReference> nodeLinks,
-            IEnumerable<ContentReference> productLinks,
-            IEnumerable<ContentReference> variationLinks,
-            IEnumerable<Price> prices,
-            IEnumerable<Inventory> inventories)
-        {
-            NodeLinks = nodeLinks;
-            ProductLinks = productLinks;
-            VariationLinks = variationLinks;
-            Prices = prices;
-            Inventories = inventories;
-        }
+        //public void Initialize(
+        //    IEnumerable<ContentReference> nodeLinks,
+        //    IEnumerable<ContentReference> productLinks,
+        //    IEnumerable<ContentReference> variationLinks,
+        //    IEnumerable<Price> prices,
+        //    IEnumerable<Inventory> inventories)
+        //{
+        //    NodeLinks = nodeLinks;
+        //    ProductLinks = productLinks;
+        //    VariationLinks = variationLinks;
+        //    Prices = prices;
+        //    Inventories = inventories;
+        //}
 
-        public IEnumerable<ContentReference> NodeLinks { get; private set; }
+        public IEnumerable<ContentReference> NodeLinks { get; internal set; }
 
-        public IEnumerable<ContentReference> ProductLinks { get; private set; }
+        public IEnumerable<ContentReference> ProductLinks { get; internal set; }
 
-        public IEnumerable<ContentReference> VariationLinks { get; private set; }
+        public IEnumerable<ContentReference> VariationLinks { get; internal set; }
 
-        public IEnumerable<Price> Prices { get; private set; }
+        public IEnumerable<Price> Prices { get; internal set; }
 
-        public IEnumerable<Inventory> Inventories { get; private set; } 
+        public IEnumerable<Inventory> Inventories { get; internal set; }
+
+        public PropertyDataCollection PropertyCollection { get { return Property; } internal set { Property = value; } }
     }
 }

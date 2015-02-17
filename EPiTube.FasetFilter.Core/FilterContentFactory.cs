@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Castle.Core.Internal;
 using EPiServer;
+using EPiServer.Cms.Shell.UI.Rest.ContentQuery;
 using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
+using EPiServer.Editor.TinyMCE.Plugins;
 using EPiServer.Find;
+using EPiServer.Find.Api.Querying;
 using EPiServer.Find.Cms;
 using EPiServer.Find.Framework;
 using EPiServer.Framework.Cache;
@@ -45,46 +49,58 @@ namespace EPiTube.FasetFilter.Core
 
         public IClient Client { get { return _client ?? (_client = SearchClient.Instance); } }
 
-        public IEnumerable<FilterContentWithOptions> GetFilters(ContentReference contentLink)
+        public IEnumerable<FilterContentWithOptions> GetFilters(ContentQueryParameters parameters)
         {
-            var cacheKey = "EPiTube:GetFilters" + contentLink;
-            var filters = _synchronizedObjectInstanceCache.Get(cacheKey) as IEnumerable<FilterContentWithOptions>;
-            if (filters != null)
-            {
-                return filters;
-            }
+            var result = GetFilteredChildren(parameters);
+            
+            //var allSupportedFilters = GetFilters(parameters.ReferenceId, result.Filters);
+            //result.AddFilters(allSupportedFilters);
 
-            var contentTypes = GetContentTypes(contentLink);
-
-            var supportedFilters = new List<FilterContentModelType>();
-            foreach (var supportedType in contentTypes)
-            {
-                supportedFilters.AddRange(
-                    _filterContentsWithGenericTypes.Value
-                    .Where(x => 
-                        x.ContentType.IsAssignableFrom(supportedType) && 
-                        !supportedFilters.Select(y => y.Filter.Name).Contains(x.Filter.Name)));
-            }
-
-            filters = supportedFilters
-                .Select(x => new FilterContentWithOptions()
-                {
-                    FilterContent = x.Filter,
-                    FilterOptions = x.Filter.GetFilterOptions(contentLink).ToArray()
-                }).OrderBy(x => x.FilterContent.Name).ToList();
-
-            _synchronizedObjectInstanceCache.Insert(
-                cacheKey, 
-                filters, 
-                new CacheEvictionPolicy(null, null, new []
-                {
-                    DataFactoryCache.RootKeyName
-                }, 
-                new TimeSpan(1, 0, 0), 
-                CacheTimeoutType.Sliding));
-
-            return filters;
+            return result.Filters;
         }
+
+        //public IEnumerable<FilterContentWithOptions> GetFilters(ContentReference contentLink, IEnumerable<FilterContentWithOptions> excludeFilters)
+        //{
+        //    var cacheKey = "EPiTube:GetFilters" + contentLink;
+        //    var filters = _synchronizedObjectInstanceCache.Get(cacheKey) as IEnumerable<FilterContentWithOptions>;
+        //    if (filters != null)
+        //    {
+        //        return filters;
+        //    }
+
+        //    var excludeFiltersNamed = excludeFilters.Select(x => x.FilterContent.Name).ToArray();
+        //    var contentTypes = GetContentTypes(contentLink);
+
+        //    var supportedFilters = new List<FilterContentModelType>();
+        //    foreach (var supportedType in contentTypes)
+        //    {
+        //        supportedFilters.AddRange(
+        //            _filterContentsWithGenericTypes.Value
+        //            .Where(x =>
+        //                !excludeFiltersNamed.Contains(x.Filter.Name) &&
+        //                x.ContentType.IsAssignableFrom(supportedType) &&
+        //                !supportedFilters.Select(y => y.Filter.Name).Contains(x.Filter.Name)));
+        //    }
+
+        //    filters = supportedFilters
+        //        .Select(x => new FilterContentWithOptions()
+        //        {
+        //            FilterContent = x.Filter,
+        //            FilterOptions = x.Filter.GetFilterOptions().ToArray()
+        //        }).OrderBy(x => x.FilterContent.Name).ToList();
+
+        //    _synchronizedObjectInstanceCache.Insert(
+        //        cacheKey,
+        //        filters,
+        //        new CacheEvictionPolicy(null, null, new[]
+        //        {
+        //            DataFactoryCache.RootKeyName
+        //        },
+        //        new TimeSpan(1, 0, 0),
+        //        CacheTimeoutType.Sliding));
+
+        //    return filters;
+        //}
 
         protected virtual IEnumerable<Type> GetContentTypes(ContentReference contentLink)
         {
@@ -105,23 +121,122 @@ namespace EPiTube.FasetFilter.Core
             return childTypes;
         }
 
-        private ITypeSearch<TSource> OrderBy<TSource, TProperty>(
-            ITypeSearch<TSource> search,
-            Expression<Func<TSource, TProperty>> fieldSelector)
+        //private ITypeSearch<TSource> OrderBy<TSource, TProperty>(
+        //    ITypeSearch<TSource> search,
+        //    Expression<Func<TSource, TProperty>> fieldSelector)
+        //{
+        //    return search.OrderBy(fieldSelector);
+        //}
+
+        public EPiTubeModelCollection GetFilteredChildren(ContentQueryParameters parameters)
         {
-            return search.OrderBy(fieldSelector);
+            var filterModelString = parameters.AllParameters["filterModel"];
+            var productGroupedString = parameters.AllParameters["productGrouped"];
+
+            // TODO: Market and other parameters needs to be considered.
+
+            var content = _contentRepository.Get<CatalogContentBase>(parameters.ReferenceId);
+            bool productGrouped;
+            Boolean.TryParse(productGroupedString, out productGrouped);
+
+            var filter = GetFilterModel(filterModelString);
+
+            return GetFilteredChildren(
+                    content,
+                    filter,
+                    productGrouped,
+                    parameters.SortColumns != null ? parameters.SortColumns.FirstOrDefault() : new SortColumn(),
+                    parameters.Range);
         }
 
-        public IEnumerable<EPiTubeModel> GetFilteredChildren(
+        private static FilterModel GetFilterModel(string filterModelString)
+        {
+            if (filterModelString == null)
+            {
+                return new FilterModel();
+            }
+
+            var filterModel = new FilterModel() { Value = new List<FilterContentModel>() };
+            FilterContentModel filterContentModel = null;
+
+            var items = filterModelString.Split(new[] { "==" }, StringSplitOptions.RemoveEmptyEntries);
+            for (var i = 0; i < items.Length; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    filterContentModel = new FilterContentModel()
+                    {
+                        Name = items[i].Replace("==", string.Empty),
+                        Value = new List<FilterContentOptionModel>()
+                    };
+
+                    filterModel.Value.Add(filterContentModel);
+                }
+                else
+                {
+                    var options = items[i].Split(new[] { ",," }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var option in options)
+                    {
+                        filterContentModel.Value.Add(new FilterContentOptionModel()
+                        {
+                            Value = option.Replace(",,", string.Empty)
+                        });
+                    }
+                }
+            }
+
+            return filterModel;
+        }
+
+        //private static object _lock = new object();
+        public EPiTubeModelCollection GetFilteredChildren(
             IContent content,
-            Type contentType,
-            IDictionary<string, IEnumerable<object>> values,
+            FilterModel filter,
             bool productGrouped,
             SortColumn sortColumn,
             ItemRange range)
         {
+            var searchType = typeof(CatalogContentBase);
+            var filters = new Dictionary<string, IEnumerable<object>>();
+            if (filter != null && filter.Value != null)
+            {
+                filters = filter.Value.Where(x => x.Value != null)
+                    .ToDictionary(k => k.Name, v => v.Value.Select(x => x.Value));
+
+                var receivedSearchType = GetSearchType(filter);
+                if (receivedSearchType != null)
+                {
+                    searchType = receivedSearchType;
+                }
+            }
+
             var includeProductVariationRelations = productGrouped && !(content is ProductContent);
-            var query = CreateSearchQuery(contentType);
+            var supportedFilters = SupportedFilters(searchType).ToList();
+            var query = CreateSearchQuery(searchType);
+
+            var possibleFasetQueries = searchType == typeof (CatalogContentBase)
+                ? _filterContentsWithGenericTypes.Value
+                : _filterContentsWithGenericTypes.Value.Where(x => x.ContentType.IsAssignableFrom(searchType));
+
+            var subQueries = new Dictionary<FilterContentModelType, ITypeSearch<CatalogContentBase>>();
+            foreach (var filterContentModelType in possibleFasetQueries)
+            {
+                //if (supportedFilters.Select(x => x.Name).Contains(filterContentModelType.Filter.Name))
+                //{
+                //    continue;
+                //}
+
+                if (subQueries.ContainsKey(filterContentModelType))
+                {
+                    subQueries[filterContentModelType] = filterContentModelType.Filter.AddFasetToQuery(subQueries[filterContentModelType]);
+                    continue;
+                }
+
+                var subQuery = CreateSearchQuery(filterContentModelType.ContentType);
+                subQuery = filterContentModelType.Filter.AddFasetToQuery(subQuery);
+
+                subQueries.Add(filterContentModelType, subQuery);
+            }
 
             var startIndex = range.Start ?? 0;
             var endIndex = includeProductVariationRelations ? MaxItems : range.End ?? MaxItems;
@@ -135,35 +250,58 @@ namespace EPiTube.FasetFilter.Core
             {
                 cacheKey += startIndex + endIndex;
             }
-            
-            foreach (var supportedFilter in SupportedFilters(contentType))
+
+            foreach (var supportedFilter in supportedFilters)
             {
-                var filterValues = (values.ContainsKey(supportedFilter.Name)
-                                       ? values[supportedFilter.Name]
+                var filterValues = (filters.ContainsKey(supportedFilter.Filter.Name)
+                                       ? filters[supportedFilter.Filter.Name]
                                        : Enumerable.Empty<object>()).ToArray();
 
-                query = supportedFilter.Filter(content, query, filterValues);
+                query = supportedFilter.Filter.Filter(content, query, filterValues);
+                //query = supportedFilter.AddFasetToQuery(query);
+
+                var subQueryFilterContentModelTypes = subQueries.Keys.ToList();
+                foreach (var subQueryKey in subQueryFilterContentModelTypes.Where(x => 
+                    supportedFilter.Filter.Name != x.Filter.Name &&
+                    supportedFilter.ContentType.IsAssignableFrom(x.ContentType)))
+                {
+                    // TODO: Problem. We need to exclude the once that is not instancable.
+
+                    subQueries[subQueryKey] = supportedFilter.Filter.Filter(content, subQueries[subQueryKey], filterValues);
+                    //subQueries[subQueryKey] = Sort(sortColumn, subQueries[subQueryKey]);
+                }
 
                 cacheKey += String.Join(";", filterValues);
             }
 
             query = Sort(sortColumn, query);
 
-            var cachedItems = GetCachedContent(cacheKey);
-            if (cachedItems != null)
-            {
-                range.Total = cachedItems.Item2;
-                return cachedItems.Item1;
-            }
+            //lock (_lock)
+            //{
+                var cachedItems = GetCachedContent(cacheKey);
+                if (cachedItems != null)
+                {
+                    range.Total = cachedItems.Item2;
+                    return cachedItems.Item1;
+                }
 
-            var contentList = new List<EPiTubeModel>();
-            var linkedProductLinks = new List<ContentReference>();
+                //foreach (var filterContentModelType in _filterContentsWithGenericTypes.Value)
+                //{
+                //    filterContentModelType.Filter.AddFasetToQuery(query);
+                //}
 
-            var total = AddFilteredChildren(query, contentList, linkedProductLinks, includeProductVariationRelations, startIndex, endIndex);
-            range.Total = includeProductVariationRelations ? contentList.Count : total;
+                var properties = _contentRepository.GetDefault<EPiTubeModel>(content.ContentLink).Property;
 
-            Cache(cacheKey, new Tuple<List<EPiTubeModel>, int>(contentList, total));
-            return contentList;
+                var contentList = new EPiTubeModelCollection();
+                var linkedProductLinks = new List<ContentReference>();
+
+                var total = AddFilteredChildren(query, subQueries, searchType, content, contentList, linkedProductLinks,
+                    supportedFilters, properties, includeProductVariationRelations, startIndex, endIndex);
+                range.Total = includeProductVariationRelations ? contentList.Count : total;
+
+                Cache(cacheKey, new Tuple<EPiTubeModelCollection, int>(contentList, total));
+                return contentList;
+            //}
         }
 
         private static ITypeSearch<CatalogContentBase> Sort(SortColumn sortColumn, ITypeSearch<CatalogContentBase> query)
@@ -206,12 +344,12 @@ namespace EPiTube.FasetFilter.Core
             }
         }
 
-        private Tuple<List<EPiTubeModel>, int> GetCachedContent(string cacheKey)
+        private Tuple<EPiTubeModelCollection, int> GetCachedContent(string cacheKey)
         {
-            return _synchronizedObjectInstanceCache.Get(cacheKey) as Tuple<List<EPiTubeModel>, int>;
+            return _synchronizedObjectInstanceCache.Get(cacheKey) as Tuple<EPiTubeModelCollection, int>;
         }
 
-        private void Cache(string cacheKey, Tuple<List<EPiTubeModel>, int> result)
+        private void Cache(string cacheKey, Tuple<EPiTubeModelCollection, int> result)
         {
             _synchronizedObjectInstanceCache.Insert(
                 cacheKey, 
@@ -227,9 +365,14 @@ namespace EPiTube.FasetFilter.Core
         }
 
         private int AddFilteredChildren(
-            ITypeSearch<CatalogContentBase> query, 
-            List<EPiTubeModel> contentList,
+            ITypeSearch<CatalogContentBase> query,
+            Dictionary<FilterContentModelType, ITypeSearch<CatalogContentBase>> subQueries,
+            Type searchType,
+            IContent content,
+            EPiTubeModelCollection contentList,
             List<ContentReference> linkedProductLinks,
+            IEnumerable<FilterContentModelType> supportedFilters,
+            PropertyDataCollection properties,
             bool includeProductVariationRelations, 
             int startIndex, 
             int take)
@@ -237,22 +380,23 @@ namespace EPiTube.FasetFilter.Core
             try
             {
                 var queryResult = query
-                .Select(x => new
+                .Select(x => new EPiTubeModel
                 {
-                    x.Name,
-                    x.ContentGuid,
-                    x.ContentLink,
-                    x.IsDeleted,
+                    PropertyCollection = properties,
+                    Name = x.Name,
+                    ContentGuid = x.ContentGuid,
+                    ContentLink = x.ContentLink,
+                    IsDeleted = x.IsDeleted,
                     //StartPublishedNormalized = x.StartPublishedNormalized(),
                     ////LanguageName = x.LanguageName(),
                     VariationLinks = x.VariationLinks(),
-                    x.ParentLink,
-                    x.StartPublish,
-                    x.StopPublish,
+                    ParentLink = x.ParentLink,
+                    StartPublish = x.StartPublish,
+                    StopPublish = x.StopPublish,
                     Code = x.Code(),
-                    Price = x.DefaultPrice(),
-                    x.ContentTypeID,
-                    x.ApplicationId,
+                    DefaultPrice = x.DefaultPrice(),
+                    ContentTypeID = x.ContentTypeID,
+                    ApplicationId = x.ApplicationId,
                     MetaClassId = x.MetaClassId(),
                     ProductLinks = x.ProductLinks(),
                     NodeLinks = x.NodeLinks(),
@@ -261,12 +405,37 @@ namespace EPiTube.FasetFilter.Core
                     WeightBase = x.WeightBase(),
                     LengthBase = x.LengthBase(),
                     Prices = x.Prices(),
-                    Inventires = x.Inventories()
+                    Inventories = x.Inventories()
                 })
                 .Skip(startIndex)
                 .Take(take + 2)
                 .GetResult();
 
+                //contentList.AddFilters(supportedFilters.Select(supportedFilter => new FilterContentWithOptions()
+                //{
+                //    FilterContent = supportedFilter,
+                //    FilterOptions = supportedFilter.GetFilterOptions(queryResult).ToArray()
+                //}));
+
+                // TODO: Make as few searches as possible, and do them in a multisearch-query
+                foreach (var subQuery in subQueries)
+                {
+                    var result = subQuery.Value.Select(x => new EPiTubeModel()).Take(0).GetResult();
+                    foreach(var filterContentModelType in _filterContentsWithGenericTypes.Value.Where(x => x.Filter.Name == subQuery.Key.Filter.Name))
+                    {
+                        if (contentList.Filters.Select(x => x.FilterContent.Name).Contains(filterContentModelType.Filter.Name))
+                        {
+                            continue;
+                        }
+
+                        contentList.AddFilter(new FilterContentWithOptions()
+                        {
+                            FilterContent = filterContentModelType.Filter,
+                            FilterOptions = filterContentModelType.Filter.GetFilterOptions(result).ToArray()
+                        });
+                    }
+                }
+                
                 var total = queryResult.TotalMatching;
                 foreach (var resultItem in queryResult)
                 {
@@ -287,31 +456,7 @@ namespace EPiTube.FasetFilter.Core
                         }
                     }
 
-                    // Add model for content
-                    var model = _contentRepository.GetDefault<EPiTubeModel>(resultItem.ParentLink);
-                    model.Initialize(resultItem.NodeLinks, resultItem.ProductLinks, resultItem.VariationLinks,
-                        resultItem.Prices, resultItem.Inventires);
-
-                    model.Name = resultItem.Name;
-                    model.ContentGuid = resultItem.ContentGuid;
-                    model.ContentLink = resultItem.ContentLink;
-                    model.IsDeleted = resultItem.IsDeleted;
-                    model.ParentLink = resultItem.ParentLink;
-                    model.StartPublish = resultItem.StartPublish;
-                    model.StopPublish = resultItem.StopPublish;
-                    model.ContentTypeId = resultItem.ContentTypeID;
-                    model.MetaClassId = resultItem.MetaClassId;
-                    model.Code = resultItem.Code;
-                    model.ApplicationId = resultItem.ApplicationId;
-                    model.ThumbnailPath = resultItem.ThumbnailPath;
-                    model.HasChildren = resultItem.VariationLinks != null && resultItem.VariationLinks.Any();
-                    model.DefaultPrice = resultItem.Price;
-
-                    model.WeightBase = resultItem.WeightBase;
-                    model.LengthBase = resultItem.LengthBase;
-                    model.DefaultCurrency = resultItem.DefaultCurrency;
-
-                    contentList.Add(model);
+                    contentList.Add(resultItem);
                 }
 
                 if (includeProductVariationRelations)
@@ -326,30 +471,7 @@ namespace EPiTube.FasetFilter.Core
                             queryResult.FirstOrDefault(x => x.ContentLink.CompareToIgnoreWorkID(linkedProductLink));
                         if (resultItem != null)
                         {
-                            var model = _contentRepository.GetDefault<EPiTubeModel>(resultItem.ParentLink);
-                            model.Initialize(resultItem.NodeLinks, resultItem.ProductLinks, resultItem.VariationLinks,
-                                resultItem.Prices, resultItem.Inventires);
-
-                            model.Name = resultItem.Name;
-                            model.ContentGuid = resultItem.ContentGuid;
-                            model.ContentLink = resultItem.ContentLink;
-                            model.IsDeleted = resultItem.IsDeleted;
-                            model.ParentLink = resultItem.ParentLink;
-                            model.StartPublish = resultItem.StartPublish;
-                            model.StopPublish = resultItem.StopPublish;
-                            model.ContentTypeId = resultItem.ContentTypeID;
-                            model.MetaClassId = resultItem.MetaClassId;
-                            model.Code = resultItem.Code;
-                            model.ApplicationId = resultItem.ApplicationId;
-                            model.ThumbnailPath = resultItem.ThumbnailPath;
-                            model.HasChildren = resultItem.VariationLinks != null && resultItem.VariationLinks.Any();
-                            model.DefaultPrice = resultItem.Price;
-
-                            model.WeightBase = resultItem.WeightBase;
-                            model.LengthBase = resultItem.LengthBase;
-                            model.DefaultCurrency = resultItem.DefaultCurrency;
-
-                            contentList.Add(model);
+                            contentList.Add(resultItem);
                         }
                     }
 
@@ -362,7 +484,7 @@ namespace EPiTube.FasetFilter.Core
                             (current, reference) => current.Or(x => x.ContentLink.Match(reference)));
 
                         var productQuery = SearchClient.Instance.Search<ProductContent>().Filter(filterBuilder);
-                        total += AddFilteredChildren(productQuery, contentList, linkedProductLinks, false, 0, MaxItems);
+                        total += AddFilteredChildren(productQuery, subQueries, searchType, content, contentList, linkedProductLinks, Enumerable.Empty<FilterContentModelType>(), properties, false, 0, MaxItems);
                     }
                 }
 
@@ -372,30 +494,6 @@ namespace EPiTube.FasetFilter.Core
             {
                 return 0;
             }
-        }
-
-        public IEnumerable<GetChildrenReferenceResult> GetFilteredChildrenReferences(IContent currentCntent, Type contentType, IDictionary<string, IEnumerable<object>> values, Func<ITypeSearch<CatalogContentBase>, ITypeSearch<CatalogContentBase>> typeSearchModifyerFunc, bool? isLeafNode)
-        {
-            var query = CreateSearchQuery(contentType);
-            foreach (var supportedFilter in SupportedFilters(contentType))
-            {
-                var filterValues = values.ContainsKey(supportedFilter.Name)
-                                       ? values[supportedFilter.Name]
-                                       : Enumerable.Empty<object>();
-
-                query = supportedFilter.Filter(currentCntent, query, filterValues);
-            }
-
-            query = typeSearchModifyerFunc(query);
-
-            // Here we want to return prices and inventories if the returned object is an variation. How can we do that?
-            var queryResult = query.Select(x => new { x.ContentLink, x.ContentTypeID }).GetResult();
-
-            var contentRepository = ServiceLocator.Current.GetInstance<IContentTypeRepository>();
-            return
-                queryResult.Select(
-                    x => new GetChildrenReferenceResult() { ContentLink = x.ContentLink, ModelType = contentRepository.Load(x.ContentTypeID).ModelType, IsLeafNode = isLeafNode });
-            
         }
 
         public Type GetSearchType(FilterModel filterModel)
@@ -433,9 +531,10 @@ namespace EPiTube.FasetFilter.Core
             return genericMethod.Invoke(Client, null) as ITypeSearch<CatalogContentBase>;
         }
 
-        private IEnumerable<IFilterContent<CatalogContentBase>> SupportedFilters(Type queryType)
+        private IEnumerable<FilterContentModelType> SupportedFilters(Type queryType)
         {
             var supportedTypes = _filterContentsWithGenericTypes.Value.Where(x => x.ContentType.IsAssignableFrom(queryType)).ToArray(); //.OrderBy(x => x.Filter.Name)
+            //var supportedTypes = _filterContentsWithGenericTypes.Value.Where(x => queryType.IsAssignableFrom(x.ContentType)).ToArray();
             for (var i = 0; i < supportedTypes.Length; i++)
             {
                 for (var j = i; j < supportedTypes.Length; j++)
@@ -449,7 +548,7 @@ namespace EPiTube.FasetFilter.Core
                 }
             }
 
-            return supportedTypes.Select(x => x.Filter);
+            return supportedTypes;
         }
 
         private IEnumerable<FilterContentModelType> FilterContentsWithGenericTypesValueFactory()
@@ -463,156 +562,3 @@ namespace EPiTube.FasetFilter.Core
         }
     }
 }
-
-//if (includeProductVariationRelations)
-//{
-//    var hits = total;
-//    while (endIndex < 1000) //  && hits > 0 && contentList.Count < (endIndex - startIndex)
-//    {
-//        startIndex += MaxItems;
-//        endIndex += MaxItems;
-
-//        hits = AddFilteredChildren(query, contentList, linkedProductLinks, includeProductVariationRelations,
-//            startIndex, endIndex);
-//    }
-//}
-
-
-//foreach (var resultItem in queryResult)
-//{
-//    if (contentList.Select(x => x.ContentLink).Contains(resultItem.ContentLink))
-//    {
-//        continue;
-//    }
-
-//    if (includeProductVariationRelations)
-//    {
-//        var type = _contentTypeRepository.Load(resultItem.ContentTypeID).ModelType;
-//        if (resultItem.ProductLinks != null && resultItem.ProductLinks.Any())
-//        {
-//            if (typeof(VariationContent).IsAssignableFrom(type))
-//            {
-//                linkedProductLinks.AddRange(resultItem.ProductLinks);
-//            }
-//        }
-//    }
-//}
-
-//var productLinksToReceive = linkedProductLinks.Except(queryResult.Select(x => x.ContentLink)).ToList();
-//if (productLinksToReceive.Any())
-//{
-//    var filterBuilder = new FilterBuilder<ProductContent>(SearchClient.Instance);
-//    filterBuilder = productLinksToReceive.Aggregate(filterBuilder, (current, reference) => current.Or(x => x.ContentLink.Match(reference)));
-
-//    var productQuery = SearchClient.Instance.Search<ProductContent>()
-//        .Filter(filterBuilder);
-
-//    contentList.AddRange(GetFilteredChildren(productQuery, contentList, linkedProductLinks, false, 0, null));
-//}
-
-//foreach (var resultItem in queryResult)
-//{
-//    var contentLinks = contentList.Select(x => x.ContentLink);
-//    if (resultItem.ProductLinks != null && resultItem.ProductLinks.All(contentLinks.Contains))
-//    {
-//        continue;
-//    }
-
-//    var model = _contentRepository.GetDefault<EPiTubeModel>(resultItem.ParentLink);
-//    model.Initialize(resultItem.NodeLinks, resultItem.ProductLinks, resultItem.VariationLinks, resultItem.Prices, resultItem.Inventires);
-
-//    model.Name = resultItem.Name;
-//    model.ContentGuid = resultItem.ContentGuid;
-//    model.ContentLink = resultItem.ContentLink;
-//    model.IsDeleted = resultItem.IsDeleted;
-//    model.ParentLink = resultItem.ParentLink;
-//    model.StartPublish = resultItem.StartPublish;
-//    model.StopPublish = resultItem.StopPublish;
-//    model.ContentTypeId = resultItem.ContentTypeID;
-//    model.MetaClassId = resultItem.MetaClassId;
-//    model.Code = resultItem.Code;
-//    model.ApplicationId = resultItem.ApplicationId;
-//    model.ThumbnailPath = resultItem.ThumbnailPath;
-//    model.HasChildren = resultItem.VariationLinks != null && resultItem.VariationLinks.Any();
-//    model.DefaultPrice = resultItem.Price;
-
-//    model.WeightBase = resultItem.WeightBase;
-//    model.LengthBase = resultItem.LengthBase;
-//    model.DefaultCurrency = resultItem.DefaultCurrency;
-
-//    contentList.Add(model);
-//}
-
-//return contentList;
-
-// --------------
-
-//var variationLinksToReceive = linkedVariationLinks.Except(contentList.Select(x => x.ContentLink)).ToList();
-//if (variationLinksToReceive.Any())
-//{
-//    var filterBuilder = new FilterBuilder<VariationContent>(SearchClient.Instance);
-//    filterBuilder = productLinksToReceive.Aggregate(filterBuilder,
-//        (filter, link) => filter.Or(x => x.ContentLink.Match(link)));
-
-//    var variationQuery = SearchClient.Instance.Search<VariationContent>()
-//        .Filter(filterBuilder);
-
-//    contentList.AddRange(GetFilteredChildren(variationQuery, false, 0));
-//}
-
-
-//var type = _contentTypeRepository.Load(resultItem.ContentTypeID).ModelType;
-////var catalogContentBase = ServiceLocator.Current.GetInstance(type) as CatalogContentBase;
-
-//var getDefaultMethod = contentRepositoryType.GetMethod("GetDefault", new[] { typeof(ContentReference) }).MakeGenericMethod(type);
-//var catalogContentBase = getDefaultMethod.Invoke(_contentRepository, new object[] { resultItem.ParentLink }) as CatalogContentBase;
-
-//if (catalogContentBase == null)
-//{
-//    continue;
-//}
-
-//catalogContentBase.Name = resultItem.Name;
-//catalogContentBase.ContentGuid = resultItem.ContentGuid;
-//catalogContentBase.ContentLink = resultItem.ContentLink;
-//catalogContentBase.IsDeleted = resultItem.IsDeleted;
-//catalogContentBase.ParentLink = resultItem.ParentLink;
-//catalogContentBase.StartPublish = resultItem.StartPublish;
-//catalogContentBase.StopPublish = resultItem.StopPublish;
-//catalogContentBase.ContentTypeID = resultItem.ContentTypeID;
-//catalogContentBase.ApplicationId = resultItem.ApplicationId;
-
-////if (!String.IsNullOrEmpty(resultItem.LanguageName))
-////{
-////    catalogContentBase.Language = CultureInfo.GetCultureInfo(resultItem.LanguageName);
-////}
-
-////if (resultItem.StartPublishedNormalized != null)
-////{
-////    catalogContentBase.Status = VersionStatus.Published;
-////}
-
-//var entryContentBase = catalogContentBase as EntryContentBase;
-//if (entryContentBase != null)
-//{
-//    entryContentBase.MetaClassId = resultItem.MetaClassId;
-//    entryContentBase.Code = resultItem.Code;
-//}
-
-//var catalogContent = catalogContentBase as CatalogContent;
-//if (catalogContent != null)
-//{
-//    //catalogContent.DefaultCurrency = resultItem.DefaultCurrency;
-//    //catalogContent.WeightBase = resultItem.WeightBase;
-//    //catalogContent.LengthBase = resultItem.LengthBase;
-//}
-
-//contentList.Add(catalogContentBase);
-
-//if (resultItem.VariationLinks != null && resultItem.VariationLinks.Any())
-//{
-//    if (typeof(ProductContent).IsAssignableFrom(type))
-//    {
-//        linkedVariationLinks.AddRange(resultItem.VariationLinks);
-//    }
-//}

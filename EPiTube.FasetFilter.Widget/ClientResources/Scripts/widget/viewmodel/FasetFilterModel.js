@@ -55,10 +55,30 @@
             //		protected
             this.context = context;
 
-            return when(this._fasetFilterStore.refresh(context.id), lang.hitch(this, function (filters) {
-                // TODO: Order the filters by filters.filterContent.name
+            var filterModel = this.profile.get("epitubefilter");
+            var queryOptions = { ignore: ["query"], parentId: context.id, sort: [{ attribute: "name" }] };
+
+            var queryParameters = {
+                referenceId: context.id,
+                query: "getchildren",
+                includeProperties: true,
+                allLanguages: true,
+                keepversion: true,
+                filterModel: filterModel.valueString,
+                filterEnabled: filterModel.enabled,
+                productGrouped: filterModel.productGrouped
+            };
+
+            //this.grid.set("query", queryParameters, queryOptions);
+
+            return when(this._fasetFilterStore.query(queryParameters), lang.hitch(this, function (filters) {
                 return filters;
             }));
+
+            //return when(this._fasetFilterStore.refresh(context.id), lang.hitch(this, function (filters) {
+            //    // TODO: Order the filters by filters.filterContent.name
+            //    return filters;
+            //}));
         },
 
         getCheckedItems: function (id) {

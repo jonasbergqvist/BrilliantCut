@@ -40,9 +40,19 @@ namespace EPiTube.FasetFilter.Fasets
             return query.Filter(x => x.ParentLink.Match(currentCntent.ContentLink.ToReferenceWithoutVersion()));
         }
 
-        public override IDictionary<string, string> GetFilterOptions(IContent currentContent)
+        public override ITypeSearch<CatalogContentBase> AddFasetToQuery(ITypeSearch<CatalogContentBase> query)
+        {
+            return query;
+        }
+
+        public override IDictionary<string, string> GetFilterOptionsFromResult(SearchResults<EPiTubeModel> searchResults)
         {
             return new Dictionary<string, string>() { { "Children", "Children" }, { "Descendents", "Descendents" } };
         }
+
+        //public override IDictionary<string, string> GetDefaultFilterOptions()
+        //{
+        //    return new Dictionary<string, string>() { { "Children", "Children" }, { "Descendents", "Descendents" } };
+        //}
     }
 }

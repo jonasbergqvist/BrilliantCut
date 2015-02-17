@@ -9,12 +9,14 @@ namespace EPiTube.FasetFilter.Core
     {
         String Name { get; }
         String Description { get; }
-        IDictionary<string, object> GetFilterOptions(ContentReference contentLink);
+        IDictionary<string, object> GetFilterOptions(SearchResults<EPiTubeModel> searchResults);
+        //IDictionary<string, object> GetFilterOptions();
     }
 
     public interface IFilterContent<out TContentData> : IFilterContent
         where TContentData : IContent
     {
         ITypeSearch<TContentData> Filter(IContent content, ISearch query, IEnumerable<object> values);
+        ITypeSearch<TContentData> AddFasetToQuery(ISearch query);
     }
 }

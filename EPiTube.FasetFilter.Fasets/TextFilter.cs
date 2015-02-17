@@ -37,9 +37,19 @@ namespace EPiTube.FasetFilter.Fasets
                 .Include(x => x.Code().AnyWordBeginsWith(value));
         }
 
-        public override IDictionary<string, string> GetFilterOptions(IContent currentContent)
+        public override IDictionary<string, string> GetFilterOptionsFromResult(SearchResults<EPiTubeModel> searchResults)
         {
-            return new Dictionary<string, string>() { { "test", string.Empty } };
+            return new Dictionary<string, string>() { { "FreeTextFilter", string.Empty } };
+        }
+
+        //public override IDictionary<string, string> GetDefaultFilterOptions()
+        //{
+        //    return new Dictionary<string, string>() { { "FreeTextFilter", string.Empty } };
+        //}
+
+        public override ITypeSearch<CatalogContentBase> AddFasetToQuery(ITypeSearch<CatalogContentBase> query)
+        {
+            return query;
         }
     }
 }

@@ -66,83 +66,47 @@ namespace EPiTube.FasetFilter.Core.Rest.Query
 
         protected override IEnumerable<IContent> GetContent(ContentQueryParameters parameters)
         {
-            var filterModelString = parameters.AllParameters["filterModel"];
-            var productGroupedString = parameters.AllParameters["productGrouped"];
+            return _filterContentFactory.GetFilteredChildren(parameters);
 
-            // TODO: Market and other parameters needs to be considered.
+            //var filterModelString = parameters.AllParameters["filterModel"];
+            //var productGroupedString = parameters.AllParameters["productGrouped"];
 
-            var content = _contentRepository.Get<CatalogContentBase>(parameters.ReferenceId);
-            //var filter = JsonConvert.DeserializeObject<FilterModel>(filterModelJson);
-            bool productGrouped;
-            Boolean.TryParse(productGroupedString, out productGrouped);
+            //// TODO: Market and other parameters needs to be considered.
 
-            var filter = GetFilterModel(filterModelString);
+            //var content = _contentRepository.Get<CatalogContentBase>(parameters.ReferenceId);
+            ////var filter = JsonConvert.DeserializeObject<FilterModel>(filterModelJson);
+            //bool productGrouped;
+            //Boolean.TryParse(productGroupedString, out productGrouped);
 
-            var searchType = typeof(CatalogContentBase);
-            var filters = new Dictionary<string, IEnumerable<object>>();
-            if (filter != null && filter.Value != null)
-            {
-                filters = filter.Value.Where(x => x.Value != null)
-                    .ToDictionary(k => k.Name, v => v.Value.Select(x => x.Value));
+            //var filter = GetFilterModel(filterModelString);
 
-                var receivedSearchType = _filterContentFactory.GetSearchType(filter);
-                if (receivedSearchType != null)
-                {
-                    searchType = receivedSearchType;
-                }
-            }
+            ////var searchType = typeof(CatalogContentBase);
+            ////var filters = new Dictionary<string, IEnumerable<object>>();
+            ////if (filter != null && filter.Value != null)
+            ////{
+            ////    filters = filter.Value.Where(x => x.Value != null)
+            ////        .ToDictionary(k => k.Name, v => v.Value.Select(x => x.Value));
 
-            var items = _filterContentFactory
-                .GetFilteredChildren(
-                 content,
-                    searchType, 
-                    filters,
-                    productGrouped,
-                    parameters.SortColumns != null ? parameters.SortColumns.FirstOrDefault() : new SortColumn(),
-                    parameters.Range)
-                .ToList();
+            ////    var receivedSearchType = _filterContentFactory.GetSearchType(filter);
+            ////    if (receivedSearchType != null)
+            ////    {
+            ////        searchType = receivedSearchType;
+            ////    }
+            ////}
 
-            return items;
+            //var items = _filterContentFactory
+            //    .GetFilteredChildren(
+            //        content,
+            //        filter,
+            //        productGrouped,
+            //        parameters.SortColumns != null ? parameters.SortColumns.FirstOrDefault() : new SortColumn(),
+            //        parameters.Range)
+            //    .ToList();
+
+            //return items;
         }
 
-        private static FilterModel GetFilterModel(string filterModelString)
-        {
-            if (filterModelString == null)
-            {
-                return new FilterModel();
-            }
-
-            var filterModel = new FilterModel() { Value = new List<FilterContentModel>() };
-            FilterContentModel filterContentModel = null;
-
-            var items = filterModelString.Split(new[] { "==" }, StringSplitOptions.RemoveEmptyEntries);
-            for (var i = 0; i < items.Length; i++)
-            {
-                if (i%2 == 0)
-                {
-                    filterContentModel = new FilterContentModel()
-                    {
-                        Name = items[i].Replace("==", string.Empty),
-                        Value = new List<FilterContentOptionModel>()
-                    };
-
-                    filterModel.Value.Add(filterContentModel);
-                }
-                else
-                {
-                    var options = items[i].Split(new[] {",,"}, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (var option in options)
-                    {
-                        filterContentModel.Value.Add(new FilterContentOptionModel()
-                        {
-                            Value = option.Replace(",,", string.Empty)
-                        });
-                    }
-                }
-            }
-
-            return filterModel;
-        }
+        
          
         protected override IEnumerable<IContent> Sort(IEnumerable<IContent> items, ContentQueryParameters parameters)
         {

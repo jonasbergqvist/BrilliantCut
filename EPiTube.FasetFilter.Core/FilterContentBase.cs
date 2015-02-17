@@ -15,7 +15,10 @@ namespace EPiTube.FasetFilter.Core
 
         public abstract ITypeSearch<TContentData> Filter(IContent currentCntent, ITypeSearch<TContentData> query, IEnumerable<TValueType> values);
 
-        public abstract IDictionary<string, TValueType> GetFilterOptions(IContent currentContent);
+        public abstract IDictionary<string, TValueType> GetFilterOptionsFromResult(SearchResults<EPiTubeModel> searchResults);
+
+        public abstract ITypeSearch<TContentData> AddFasetToQuery(ITypeSearch<TContentData> query);
+        //public abstract IDictionary<string, TValueType> GetDefaultFilterOptions();
 
         public virtual string Description
         {
@@ -27,12 +30,19 @@ namespace EPiTube.FasetFilter.Core
             return Filter(currentCntent, (ITypeSearch<TContentData>)query, values.Select(x => Convert.ChangeType(x, typeof(TValueType))).Cast<TValueType>());
         }
 
-        public IDictionary<string, object> GetFilterOptions(ContentReference contentLink)
+        public IDictionary<string, object> GetFilterOptions(SearchResults<EPiTubeModel> searchResults)
         {
+            return GetFilterOptionsFromResult(searchResults).ToDictionary<KeyValuePair<string, TValueType>, string, object>(filterOption => filterOption.Key, filterOption => filterOption.Value);
+        }
 
-            var content = ServiceLocator.Current.GetInstance<IContentLoader>().Get<IContent>(contentLink);
+        //public IDictionary<string, object> GetFilterOptions()
+        //{
+        //    return GetDefaultFilterOptions().ToDictionary<KeyValuePair<string, TValueType>, string, object>(filterOption => filterOption.Key, filterOption => filterOption.Value);
+        //}
 
-            return GetFilterOptions(content).ToDictionary<KeyValuePair<string, TValueType>, string, object>(filterOption => filterOption.Key, filterOption => filterOption.Value);
+        public ITypeSearch<TContentData> AddFasetToQuery(ISearch query)
+        {
+            return AddFasetToQuery((ITypeSearch<TContentData>)query);
         }
     }
 }
