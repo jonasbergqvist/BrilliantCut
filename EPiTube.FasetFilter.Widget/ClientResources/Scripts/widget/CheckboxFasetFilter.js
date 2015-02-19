@@ -24,15 +24,19 @@
     return declare([FasetFilterBase], {
         CreateDijitForm: function (filterOption, checked, filterContentName, attribute, updateList) {
             return new CheckBox({
-                name: filterOption.key,
+                name: filterOption.value,
                 value: filterOption.value,
                 checked: checked,
                 onChange: updateList
             }, filterContentName);
         },
 
-        GetId: function (name, value) {
+        GetText: function (name, value) {
             return name;
-        }
+        },
+
+        //GetId: function (name, value) {
+        //    return name;
+        //}
     });
 });

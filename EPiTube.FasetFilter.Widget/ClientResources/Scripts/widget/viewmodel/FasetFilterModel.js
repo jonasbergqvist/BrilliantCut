@@ -71,9 +71,12 @@
 
             //this.grid.set("query", queryParameters, queryOptions);
 
-            return when(this._fasetFilterStore.query(queryParameters), lang.hitch(this, function (filters) {
+            var def = when(this._fasetFilterStore.query(queryParameters)).then(lang.hitch(this, function (filters) {
                 return filters;
             }));
+
+            //def.resolve();
+            return def;
 
             //return when(this._fasetFilterStore.refresh(context.id), lang.hitch(this, function (filters) {
             //    // TODO: Order the filters by filters.filterContent.name
@@ -118,7 +121,7 @@
                 modelFilters.forEach(function(modelFilter) {
                     var options = [];
                     modelFilter.filter.filterOptions.forEach(function(filterOption) {
-                        if (modelFilter.IsChecked(filterOption.key)) {
+                        if (modelFilter.IsChecked(modelFilter.GetId(filterOption.key, filterOption.value))) {
 
                             if (options.length === 0) {
                                 modelsString += modelFilter.filter.filterContent.name + "==";

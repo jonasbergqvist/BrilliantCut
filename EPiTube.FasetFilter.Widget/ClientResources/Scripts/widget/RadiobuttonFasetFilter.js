@@ -24,9 +24,8 @@
     return declare([FasetFilterBase], {
         CreateDijitForm: function (filterOption, checked, filterContentName, attribute, updateList) {
             return new RadioButton({
-                //id: filterOption.key,
                 name: filterContentName,
-                value: filterOption.key,
+                value: filterOption.value,
                 checked: checked,
                 onChange: updateList
             }, filterContentName);

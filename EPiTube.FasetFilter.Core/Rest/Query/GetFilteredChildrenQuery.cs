@@ -66,7 +66,7 @@ namespace EPiTube.FasetFilter.Core.Rest.Query
 
         protected override IEnumerable<IContent> GetContent(ContentQueryParameters parameters)
         {
-            return _filterContentFactory.GetFilteredChildren(parameters);
+            return _filterContentFactory.GetFilteredChildren(parameters, true, false);
 
             //var filterModelString = parameters.AllParameters["filterModel"];
             //var productGroupedString = parameters.AllParameters["productGrouped"];

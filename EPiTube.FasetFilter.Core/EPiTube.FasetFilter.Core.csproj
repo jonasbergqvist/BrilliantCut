@@ -335,6 +335,7 @@
     <Compile Include="DataAnnotation\FasetFilterAttribute.cs" />
     <Compile Include="DescendetLinksOfCatalogRoot.cs" />
     <Compile Include="EPiTubeModelCollection.cs" />
+    <Compile Include="FilterOptionModel.cs" />
     <Compile Include="HasFacetResultsExtensions.cs" />
     <Compile Include="FasetFilterInitializationModule.cs" />
     <Compile Include="EPiTubeModel.cs" />
