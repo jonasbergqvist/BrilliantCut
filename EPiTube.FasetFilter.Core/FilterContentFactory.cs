@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using Castle.Core.Internal;
 using EPiServer;
 using EPiServer.Cms.Shell.UI.Rest.ContentQuery;
 using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
-using EPiServer.Editor.TinyMCE.Plugins;
 using EPiServer.Find;
-using EPiServer.Find.Api.Querying;
 using EPiServer.Find.Cms;
 using EPiServer.Find.Framework;
 using EPiServer.Framework.Cache;
@@ -52,55 +48,8 @@ namespace EPiTube.FasetFilter.Core
         public IEnumerable<FilterContentWithOptions> GetFilters(ContentQueryParameters parameters)
         {
             var result = GetFilteredChildren(parameters, false, true);
-            
-            //var allSupportedFilters = GetFilters(parameters.ReferenceId, result.Filters);
-            //result.AddFilters(allSupportedFilters);
-
             return result.Filters;
         }
-
-        //public IEnumerable<FilterContentWithOptions> GetFilters(ContentReference contentLink, IEnumerable<FilterContentWithOptions> excludeFilters)
-        //{
-        //    var cacheKey = "EPiTube:GetFilters" + contentLink;
-        //    var filters = _synchronizedObjectInstanceCache.Get(cacheKey) as IEnumerable<FilterContentWithOptions>;
-        //    if (filters != null)
-        //    {
-        //        return filters;
-        //    }
-
-        //    var excludeFiltersNamed = excludeFilters.Select(x => x.FilterContent.Name).ToArray();
-        //    var contentTypes = GetContentTypes(contentLink);
-
-        //    var supportedFilters = new List<FilterContentModelType>();
-        //    foreach (var supportedType in contentTypes)
-        //    {
-        //        supportedFilters.AddRange(
-        //            _filterContentsWithGenericTypes.Value
-        //            .Where(x =>
-        //                !excludeFiltersNamed.Contains(x.Filter.Name) &&
-        //                x.ContentType.IsAssignableFrom(supportedType) &&
-        //                !supportedFilters.Select(y => y.Filter.Name).Contains(x.Filter.Name)));
-        //    }
-
-        //    filters = supportedFilters
-        //        .Select(x => new FilterContentWithOptions()
-        //        {
-        //            FilterContent = x.Filter,
-        //            FilterOptions = x.Filter.GetFilterOptions().ToArray()
-        //        }).OrderBy(x => x.FilterContent.Name).ToList();
-
-        //    _synchronizedObjectInstanceCache.Insert(
-        //        cacheKey,
-        //        filters,
-        //        new CacheEvictionPolicy(null, null, new[]
-        //        {
-        //            DataFactoryCache.RootKeyName
-        //        },
-        //        new TimeSpan(1, 0, 0),
-        //        CacheTimeoutType.Sliding));
-
-        //    return filters;
-        //}
 
         protected virtual IEnumerable<Type> GetContentTypes(ContentReference contentLink)
         {
@@ -120,13 +69,6 @@ namespace EPiTube.FasetFilter.Core
 
             return childTypes;
         }
-
-        //private ITypeSearch<TSource> OrderBy<TSource, TProperty>(
-        //    ITypeSearch<TSource> search,
-        //    Expression<Func<TSource, TProperty>> fieldSelector)
-        //{
-        //    return search.OrderBy(fieldSelector);
-        //}
 
         public EPiTubeModelCollection GetFilteredChildren(ContentQueryParameters parameters, bool includeMainSearch, bool includeFasets)
         {
@@ -220,20 +162,11 @@ namespace EPiTube.FasetFilter.Core
                 x.ContentType.IsAssignableFrom(searchType) ||
                 searchType.IsAssignableFrom(x.ContentType));
 
-            //var possibleFasetQueries = searchType == typeof (CatalogContentBase)
-            //    ? _filterContentsWithGenericTypes.Value
-            //    : _filterContentsWithGenericTypes.Value.Where(x => x.ContentType.IsAssignableFrom(searchType));
-
             var subQueries = new Dictionary<FilterContentModelType, ITypeSearch<CatalogContentBase>>();
             if (includeFasets)
             {
                 foreach (var filterContentModelType in possibleFasetQueries)
                 {
-                    //if (supportedFilters.Select(x => x.Name).Contains(filterContentModelType.Filter.Name))
-                    //{
-                    //    continue;
-                    //}
-
                     if (subQueries.ContainsKey(filterContentModelType))
                     {
                         subQueries[filterContentModelType] =
@@ -268,7 +201,6 @@ namespace EPiTube.FasetFilter.Core
                                        : Enumerable.Empty<object>()).ToArray();
 
                 query = supportedFilter.Filter.Filter(content, query, filterValues);
-                //query = supportedFilter.AddFasetToQuery(query);
 
                 var subQueryFilterContentModelTypes = subQueries.Keys.ToList();
                 foreach (var subQueryKey in subQueryFilterContentModelTypes.Where(x => 
@@ -278,7 +210,6 @@ namespace EPiTube.FasetFilter.Core
                     // TODO: Problem. We need to exclude the once that is not instancable.
 
                     subQueries[subQueryKey] = supportedFilter.Filter.Filter(content, subQueries[subQueryKey], filterValues);
-                    //subQueries[subQueryKey] = Sort(sortColumn, subQueries[subQueryKey]);
                 }
 
                 cacheKey += String.Join(";", filterValues);
@@ -286,32 +217,24 @@ namespace EPiTube.FasetFilter.Core
 
             query = Sort(sortColumn, query);
 
-            //lock (_lock)
-            //{
-                var cachedItems = GetCachedContent(cacheKey);
-                if (cachedItems != null)
-                {
-                    range.Total = cachedItems.Item2;
-                    return cachedItems.Item1;
-                }
+            var cachedItems = GetCachedContent(cacheKey);
+            if (cachedItems != null)
+            {
+                range.Total = cachedItems.Item2;
+                return cachedItems.Item1;
+            }
 
-                //foreach (var filterContentModelType in _filterContentsWithGenericTypes.Value)
-                //{
-                //    filterContentModelType.Filter.AddFasetToQuery(query);
-                //}
+            var properties = _contentRepository.GetDefault<EPiTubeModel>(content.ContentLink).Property;
 
-                var properties = _contentRepository.GetDefault<EPiTubeModel>(content.ContentLink).Property;
+            var contentList = new EPiTubeModelCollection();
+            var linkedProductLinks = new List<ContentReference>();
 
-                var contentList = new EPiTubeModelCollection();
-                var linkedProductLinks = new List<ContentReference>();
+            var total = AddFilteredChildren(query, subQueries, contentList, linkedProductLinks,
+                properties, includeMainSearch, includeProductVariationRelations, startIndex, endIndex);
+            range.Total = includeProductVariationRelations ? contentList.Count : total;
 
-                var total = AddFilteredChildren(query, subQueries, contentList, linkedProductLinks,
-                    properties, includeMainSearch, includeProductVariationRelations, startIndex, endIndex);
-                range.Total = includeProductVariationRelations ? contentList.Count : total;
-
-                Cache(cacheKey, new Tuple<EPiTubeModelCollection, int>(contentList, total));
-                return contentList;
-            //}
+            Cache(cacheKey, new Tuple<EPiTubeModelCollection, int>(contentList, total));
+            return contentList;
         }
 
         private static ITypeSearch<CatalogContentBase> Sort(SortColumn sortColumn, ITypeSearch<CatalogContentBase> query)
@@ -388,20 +311,33 @@ namespace EPiTube.FasetFilter.Core
             try
             {
                 var total = 0;
-                foreach (var subQuery in subQueries)
-                {
-                    var result = subQuery.Value.Select(x => new EPiTubeModel()).Take(0).GetResult();
-                    foreach (var filterContentModelType in _filterContentsWithGenericTypes.Value.Where(x => x.Filter.Name == subQuery.Key.Filter.Name))
-                    {
-                        if (contentList.Filters.Select(x => x.FilterContent.Name).Contains(filterContentModelType.Filter.Name))
-                        {
-                            continue;
-                        }
 
+                if (subQueries.Any())
+                {
+                    var multSearch = SearchClient.Instance.MultiSearch<EPiTubeModel>();
+                    var filterListInResultOrder = new List<IFilterContent<CatalogContentBase>>();
+                    foreach (var subQuery in subQueries.OrderBy(x => x.Key.Filter.Name))
+                    {
+                        multSearch.Searches.Add(subQuery.Value.Select(x => new EPiTubeModel()).Take(0));
+
+                        foreach (var filterContentModelType in _filterContentsWithGenericTypes.Value.Where(x => x.Filter.Name == subQuery.Key.Filter.Name))
+                        {
+                            if (contentList.Filters.Select(x => x.FilterContent.Name).Contains(filterContentModelType.Filter.Name))
+                            {
+                                continue;
+                            }
+
+                            filterListInResultOrder.Add(filterContentModelType.Filter);
+                        }
+                    }
+
+                    var multiResult = multSearch.GetResult().ToList();
+                    for(var i = 0;  i< multiResult.Count; i++)
+                    {
                         contentList.AddFilter(new FilterContentWithOptions()
                         {
-                            FilterContent = filterContentModelType.Filter,
-                            FilterOptions = filterContentModelType.Filter.GetFilterOptions(result).ToArray()
+                            FilterContent = filterListInResultOrder[i],
+                            FilterOptions = filterListInResultOrder[i].GetFilterOptions(multiResult[i]).ToArray()
                         });
                     }
                 }
@@ -439,9 +375,6 @@ namespace EPiTube.FasetFilter.Core
                         .Skip(startIndex)
                         .Take(take + 2)
                         .GetResult();
-
-                    // TODO: Make as few searches as possible, and do them in a multisearch-query
-
 
                     total = queryResult.TotalMatching;
                     foreach (var resultItem in queryResult)
@@ -544,7 +477,6 @@ namespace EPiTube.FasetFilter.Core
         private IEnumerable<FilterContentModelType> SupportedFilters(Type queryType)
         {
             var supportedTypes = _filterContentsWithGenericTypes.Value.Where(x => x.ContentType.IsAssignableFrom(queryType)).ToArray(); //.OrderBy(x => x.Filter.Name)
-            //var supportedTypes = _filterContentsWithGenericTypes.Value.Where(x => queryType.IsAssignableFrom(x.ContentType)).ToArray();
             for (var i = 0; i < supportedTypes.Length; i++)
             {
                 for (var j = i; j < supportedTypes.Length; j++)

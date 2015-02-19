@@ -6,8 +6,8 @@
     <title>FasetFilter</title>
     <authors>Jonas Bergqvist</authors>
     <owners>Jonas Bergqvist</owners>
-    <licenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</licenseUrl>
-    <projectUrl>http://PROJECT_URL_HERE_OR_DELETE_THIS_LINE</projectUrl>
+    <licenseUrl>https://github.com/epitube/epitubefilter</licenseUrl>
+    <projectUrl>https://github.com/epitube/epitubefilter</projectUrl>
     <iconUrl>http://www.episerver.com/Framework/Styles/Images/Products/Integration.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Faset support in commerce UI</description>
@@ -17,14 +17,15 @@
     <dependencies>
       <dependency id="EPiServer.Commerce.Core" version="[7,9)" />
       <dependency id="EPiServer.Commerce.UI" version="[7,9)" />
-      <dependency id="EPiServer.Find.Cms" version="[7,9)" />
+      <dependency id="EPiServer.Find.Commerce" version="[8,10)" />
       <dependency id="DotNetZip" version="[1.9.1.8]" />
       <dependency id="AuthorizeNet" version="[1.8.2,2)" />
       <dependency id="log4net" version="[1.2.10]" />
     </dependencies>
   </metadata>
   <files>
-    <file src="EPiTube.FasetFilter.Widget\bin\debug\EPiTube.FasetFilter.Core.dll" target="lib\net45" />
+    <file src="EPiTube.FasetFilter.Core\bin\debug\EPiTube.FasetFilter.Core.dll" target="lib\net45" />
+    <file src="EPiTube.FasetFilter.Fasets\bin\Debug\EPiTube.FasetFilter.Fasets.dll" target="lib\net45" />
     <file src="EPiTube.FasetFilter.Widget\bin\debug\EPiTube.FasetFilter.Widget.dll" target="lib\net45" />
     <file src="EPiTube.FasetFilter.Widget\bin\debug\EPiTube.FasetFilter.Widget.dll" target="content\net45\modulesbin" />
     <file src="EPiTube.FasetFilter.Widget\ClientResources\**\*.*" target="content\net45\modules\EPiTube.FasetFilter.Widget" />

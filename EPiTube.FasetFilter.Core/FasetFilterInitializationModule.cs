@@ -35,7 +35,7 @@ namespace EPiTube.FasetFilter.Core
         public void Initialize(InitializationEngine context)
         {
             ClientConventions(SearchClient.Instance);
-            RegisterUnifiedSearch(SearchClient.Instance);
+            //RegisterUnifiedSearch(SearchClient.Instance);
         }
 
         public void Preload(string[] parameters)
