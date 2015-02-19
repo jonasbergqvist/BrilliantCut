@@ -370,7 +370,8 @@ namespace EPiTube.FasetFilter.Core
                             WeightBase = x.WeightBase(),
                             LengthBase = x.LengthBase(),
                             Prices = x.Prices(),
-                            Inventories = x.Inventories()
+                            Inventories = x.Inventories(),
+                            ContentTypeId = x.ContentTypeID
                         })
                         .Skip(startIndex)
                         .Take(take + 2)
