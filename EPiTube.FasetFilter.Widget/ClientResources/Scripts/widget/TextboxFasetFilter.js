@@ -44,8 +44,8 @@
 
         GetValue: function (name, value) {
             this.dijitForms.forEach(lang.hitch(this, function(dijitForm) {
-                if (dijitForm.name === name) {
-                    value = dijitForm.value;
+                if (dijitForm.form.name === name) {
+                    value = dijitForm.form.value;
                 }
             }));
 

@@ -74,12 +74,9 @@
         IsChecked: function (name) {
             var returnValue = false;
             this.defaultValue.forEach(lang.hitch(this, function (defaultKeyValue) {
-                if (this.GetValue(defaultKeyValue.key) !== defaultKeyValue.value) {
+                if (this.GetValue(defaultKeyValue.key, defaultKeyValue.value) !== defaultKeyValue.value) {
                     returnValue = true;
                 }
-                //if (keyValue.key === name) {
-                //    return this.GetValue(name) != keyValue.value;
-                //}
             }));
 
             return returnValue;
@@ -91,8 +88,8 @@
 
         GetValue: function (name, value) {
             this.dijitForms.forEach(lang.hitch(this, function (existingItem) {
-                if (existingItem.name === name) {
-                    value = existingItem.value;
+                if (existingItem.form.name === name) {
+                    value = existingItem.form.value;
                 }
             }));
 

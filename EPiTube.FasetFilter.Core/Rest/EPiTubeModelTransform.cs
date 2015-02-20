@@ -50,7 +50,7 @@ namespace EPiTube.FasetFilter.Core.Rest
                     properties["StartPublish"] = epiTubeModel.StartPublish;
                     properties["StopPublish"] = epiTubeModel.StopPublish;
 
-                    var contentType = _contentTypeRepository.Load(epiTubeModel.ContentTypeId);
+                    var contentType = _contentTypeRepository.Load(epiTubeModel.ContentTypeID);
                     var contentTypeModel = _contentTypeModelRepository.List()
                         .FirstOrDefault(x => x.ExistingContentType == contentType);
                     if (contentTypeModel == null)
@@ -129,7 +129,7 @@ namespace EPiTube.FasetFilter.Core.Rest
                 return;
             }
 
-            structureStoreContentDataModel.HasChildren = source.HasChildren;
+            structureStoreContentDataModel.HasChildren = source.VariationLinks != null && source.VariationLinks.Any();
         }
 
         private static void SetCurrentCategoryRelation(IModelTransformContext context, PropertyDictionary properties, EPiTubeModel source)

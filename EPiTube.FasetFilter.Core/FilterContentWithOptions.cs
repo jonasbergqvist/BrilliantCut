@@ -9,7 +9,7 @@ namespace EPiTube.FasetFilter.Core
     {
         private FasetFilterAttribute _attribute;
 
-        public IFilterContent<IContent> FilterContent { get; set; }
+        public IFilterContent<object> FilterContent { get; set; }
         public IEnumerable<KeyValuePair<string, object>> FilterOptions { get; set; }
 
         public FasetFilterAttribute Attribute

@@ -14,7 +14,6 @@ namespace EPiTube.FasetFilter.Core
     }
 
     public interface IFilterContent<out TContentData> : IFilterContent
-        where TContentData : IContent
     {
         ITypeSearch<TContentData> Filter(IContent content, ISearch query, IEnumerable<object> values);
         ITypeSearch<TContentData> AddFasetToQuery(ISearch query);

@@ -240,9 +240,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChildrenDescendentsFilters.cs" />
+    <Compile Include="ActiveFilter.cs" />
     <Compile Include="MarketingFilter.cs" />
     <Compile Include="PriceRangeFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="CodeFilter.cs" />
     <Compile Include="TextFilter.cs" />
   </ItemGroup>
   <ItemGroup>

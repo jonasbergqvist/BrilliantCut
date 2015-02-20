@@ -13,6 +13,7 @@ using EPiServer.Framework.Cache;
 using EPiServer.Framework.TypeScanner;
 using EPiServer.ServiceLocation;
 using EPiServer.Shell.Services.Rest;
+using EPiServer.UI.Report;
 
 namespace EPiTube.FasetFilter.Core
 {
@@ -77,7 +78,7 @@ namespace EPiTube.FasetFilter.Core
 
             // TODO: Market and other parameters needs to be considered.
 
-            var content = _contentRepository.Get<CatalogContentBase>(parameters.ReferenceId);
+            var content = _contentRepository.Get<IContent>(parameters.ReferenceId);
             bool productGrouped;
             Boolean.TryParse(productGroupedString, out productGrouped);
 
@@ -140,7 +141,7 @@ namespace EPiTube.FasetFilter.Core
             bool includeMainSearch,
             bool includeFasets)
         {
-            var searchType = typeof(CatalogContentBase);
+            var searchType = typeof(object);
             var filters = new Dictionary<string, IEnumerable<object>>();
             if (filter != null && filter.Value != null)
             {
@@ -162,7 +163,7 @@ namespace EPiTube.FasetFilter.Core
                 x.ContentType.IsAssignableFrom(searchType) ||
                 searchType.IsAssignableFrom(x.ContentType));
 
-            var subQueries = new Dictionary<FilterContentModelType, ITypeSearch<CatalogContentBase>>();
+            var subQueries = new Dictionary<FilterContentModelType, ITypeSearch<object>>();
             if (includeFasets)
             {
                 foreach (var filterContentModelType in possibleFasetQueries)
@@ -237,43 +238,91 @@ namespace EPiTube.FasetFilter.Core
             return contentList;
         }
 
-        private static ITypeSearch<CatalogContentBase> Sort(SortColumn sortColumn, ITypeSearch<CatalogContentBase> query)
+        private static ITypeSearch<object> Sort(SortColumn sortColumn, ITypeSearch<object> query)
         {
             if (String.IsNullOrEmpty(sortColumn.ColumnName))
             {
                 return query;
             }
 
+            var catalogContentSearch = query as ITypeSearch<CatalogContentBase>;
+            if (catalogContentSearch != null)
+            {
+                return GetSortedSearch(sortColumn, catalogContentSearch);
+            }
+
+            var otherSupportedModel = query as ITypeSearch<IEPiFasetModel>;
+            if (otherSupportedModel == null)
+            {
+                throw new NotSupportedException("The type needs to inherit from CatalogContentBase, or implement IEPiFasetModel");
+            }
+
+            return GetSortedSearch(sortColumn, otherSupportedModel); 
+        }
+
+        private static ITypeSearch<object> GetSortedSearch(SortColumn sortColumn, ITypeSearch<CatalogContentBase> query)
+        {
             switch (sortColumn.ColumnName)
             {
                 case "name":
-                {
-                    return sortColumn.SortDescending ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
-                }
+                    {
+                        return sortColumn.SortDescending ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
+                    }
                 case "code":
-                {
-                    return sortColumn.SortDescending ? query.OrderByDescending(x => x.Code()) : query.OrderBy(x => x.Code());
-                }
+                    {
+                        return sortColumn.SortDescending ? query.OrderByDescending(x => x.Code()) : query.OrderBy(x => x.Code());
+                    }
                 case "isPendingPublish":
-                {
-                    return sortColumn.SortDescending ? query.OrderByDescending(x => x.Status) : query.OrderBy(x => x.Status);
-                }
+                    {
+                        return sortColumn.SortDescending ? query.OrderByDescending(x => x.Status) : query.OrderBy(x => x.Status);
+                    }
                 case "startPublish":
-                {
-                    return sortColumn.SortDescending ? query.OrderByDescending(x => x.StartPublish) : query.OrderBy(x => x.StartPublish);
-                }
+                    {
+                        return sortColumn.SortDescending ? query.OrderByDescending(x => x.StartPublish) : query.OrderBy(x => x.StartPublish);
+                    }
                 case "stopPublish":
-                {
-                    return sortColumn.SortDescending ? query.OrderByDescending(x => x.StopPublish) : query.OrderBy(x => x.StopPublish);
-                }
+                    {
+                        return sortColumn.SortDescending ? query.OrderByDescending(x => x.StopPublish) : query.OrderBy(x => x.StopPublish);
+                    }
                 case "metaClassName":
-                {
-                    return sortColumn.SortDescending ? query.OrderByDescending(x => x.MetaClassId()) : query.OrderBy(x => x.MetaClassId());
-                }
+                    {
+                        return sortColumn.SortDescending ? query.OrderByDescending(x => x.MetaClassId()) : query.OrderBy(x => x.MetaClassId());
+                    }
                 default:
-                {
-                    return sortColumn.SortDescending ? query.OrderByDescending(x => x.ContentTypeID) : query.OrderBy(x => x.ContentTypeID);
-                }
+                    {
+                        return sortColumn.SortDescending ? query.OrderByDescending(x => x.ContentTypeID) : query.OrderBy(x => x.ContentTypeID);
+                    }
+            }
+        }
+
+        private static ITypeSearch<object> GetSortedSearch(SortColumn sortColumn, ITypeSearch<IEPiFasetModel> query)
+        {
+            switch (sortColumn.ColumnName)
+            {
+                case "name":
+                    {
+                        return sortColumn.SortDescending ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
+                    }
+                case "code":
+                    {
+                        return sortColumn.SortDescending ? query.OrderByDescending(x => x.Code) : query.OrderBy(x => x.Code);
+                    }
+                case "startPublish":
+                    {
+                        return sortColumn.SortDescending ? query.OrderByDescending(x => x.StartPublish) : query.OrderBy(x => x.StartPublish);
+                    }
+                case "stopPublish":
+                    {
+                        return sortColumn.SortDescending ? query.OrderByDescending(x => x.StopPublish) : query.OrderBy(x => x.StopPublish);
+                    }
+                case "metaClassName":
+                    {
+                        return sortColumn.SortDescending ? query.OrderByDescending(x => x.MetaClassId) : query.OrderBy(x => x.MetaClassId);
+                    }
+                default:
+                    {
+                        return sortColumn.SortDescending ? query.OrderByDescending(x => x.ContentTypeID) : query.OrderBy(x => x.ContentTypeID);
+                    }
             }
         }
 
@@ -298,8 +347,8 @@ namespace EPiTube.FasetFilter.Core
         }
 
         private int AddFilteredChildren(
-            ITypeSearch<CatalogContentBase> query,
-            Dictionary<FilterContentModelType, ITypeSearch<CatalogContentBase>> subQueries,
+            ITypeSearch<object> query,
+            Dictionary<FilterContentModelType, ITypeSearch<object>> subQueries,
             EPiTubeModelCollection contentList,
             List<ContentReference> linkedProductLinks,
             PropertyDataCollection properties,
@@ -315,7 +364,7 @@ namespace EPiTube.FasetFilter.Core
                 if (subQueries.Any())
                 {
                     var multSearch = SearchClient.Instance.MultiSearch<EPiTubeModel>();
-                    var filterListInResultOrder = new List<IFilterContent<CatalogContentBase>>();
+                    var filterListInResultOrder = new List<IFilterContent<object>>();
                     foreach (var subQuery in subQueries.OrderBy(x => x.Key.Filter.Name))
                     {
                         multSearch.Searches.Add(subQuery.Value.Select(x => new EPiTubeModel()).Take(0));
@@ -344,38 +393,22 @@ namespace EPiTube.FasetFilter.Core
 
                 if (includeMainSearch)
                 {
-                    var queryResult = query
-                        .Select(x => new EPiTubeModel
+                    SearchResults<EPiTubeModel> queryResult;
+                    var catalogContentSearch = query as ITypeSearch<CatalogContentBase>;
+                    if (catalogContentSearch != null)
+                    {
+                        queryResult = GetSearchResults(catalogContentSearch, properties, startIndex, take + 2);
+                    }
+                    else
+                    {
+                        var otherSupportedModel = query as ITypeSearch<IEPiFasetModel>;
+                        if (otherSupportedModel == null)
                         {
-                            PropertyCollection = properties,
-                            Name = x.Name,
-                            ContentGuid = x.ContentGuid,
-                            ContentLink = x.ContentLink,
-                            IsDeleted = x.IsDeleted,
-                            //StartPublishedNormalized = x.StartPublishedNormalized(),
-                            ////LanguageName = x.LanguageName(),
-                            VariationLinks = x.VariationLinks(),
-                            ParentLink = x.ParentLink,
-                            StartPublish = x.StartPublish,
-                            StopPublish = x.StopPublish,
-                            Code = x.Code(),
-                            DefaultPrice = x.DefaultPrice(),
-                            ContentTypeID = x.ContentTypeID,
-                            ApplicationId = x.ApplicationId,
-                            MetaClassId = x.MetaClassId(),
-                            ProductLinks = x.ProductLinks(),
-                            NodeLinks = x.NodeLinks(),
-                            ThumbnailPath = x.ThumbnailPath(),
-                            DefaultCurrency = x.DefaultCurrency(),
-                            WeightBase = x.WeightBase(),
-                            LengthBase = x.LengthBase(),
-                            Prices = x.Prices(),
-                            Inventories = x.Inventories(),
-                            ContentTypeId = x.ContentTypeID
-                        })
-                        .Skip(startIndex)
-                        .Take(take + 2)
-                        .GetResult();
+                            throw new NotSupportedException("The type needs to inherit from CatalogContentBase, or implement IEPiFasetModel");
+                        }
+
+                        queryResult = GetSearchResults(otherSupportedModel, properties, startIndex, take + 2);
+                    }
 
                     total = queryResult.TotalMatching;
                     foreach (var resultItem in queryResult)
@@ -440,6 +473,72 @@ namespace EPiTube.FasetFilter.Core
             }
         }
 
+        private static SearchResults<EPiTubeModel> GetSearchResults(ITypeSearch<CatalogContentBase> query, PropertyDataCollection properties, int skip, int take)
+        {
+            return query
+                .Select(x => new EPiTubeModel
+                {
+                    PropertyCollection = properties,
+                    Name = x.Name,
+                    ContentGuid = x.ContentGuid,
+                    ContentLink = x.ContentLink,
+                    IsDeleted = x.IsDeleted,
+                    VariationLinks = x.VariationLinks(),
+                    ParentLink = x.ParentLink,
+                    StartPublish = x.StartPublish,
+                    StopPublish = x.StopPublish,
+                    Code = x.Code(),
+                    DefaultPrice = x.DefaultPrice(),
+                    ContentTypeID = x.ContentTypeID,
+                    ApplicationId = x.ApplicationId,
+                    MetaClassId = x.MetaClassId(),
+                    ProductLinks = x.ProductLinks(),
+                    NodeLinks = x.NodeLinks(),
+                    ThumbnailPath = x.ThumbnailPath(),
+                    DefaultCurrency = x.DefaultCurrency(),
+                    WeightBase = x.WeightBase(),
+                    LengthBase = x.LengthBase(),
+                    Prices = x.Prices(),
+                    Inventories = x.Inventories()
+                })
+                .Skip(skip)
+                .Take(take)
+                .GetResult();
+        }
+
+        private static SearchResults<EPiTubeModel> GetSearchResults(ITypeSearch<IEPiFasetModel> query, PropertyDataCollection properties, int skip, int take)
+        {
+            return query
+                .Select(x => new EPiTubeModel
+                {
+                    PropertyCollection = properties,
+                    Name = x.Name,
+                    ContentGuid = x.ContentGuid,
+                    ContentLink = x.ContentLink,
+                    IsDeleted = x.IsDeleted,
+                    VariationLinks = x.VariationLinks,
+                    ParentLink = x.ParentLink,
+                    StartPublish = x.StartPublish,
+                    StopPublish = x.StopPublish,
+                    Code = x.Code,
+                    DefaultPrice = x.DefaultPrice,
+                    ContentTypeID = x.ContentTypeID,
+                    ApplicationId = x.ApplicationId,
+                    MetaClassId = x.MetaClassId,
+                    ProductLinks = x.ProductLinks,
+                    NodeLinks = x.NodeLinks,
+                    ThumbnailPath = x.ThumbnailPath,
+                    DefaultCurrency = x.DefaultCurrency,
+                    WeightBase = x.WeightBase,
+                    LengthBase = x.LengthBase,
+                    Prices = x.Prices,
+                    Inventories = x.Inventories
+                })
+                .Skip(skip)
+                .Take(take)
+                .GetResult();
+        }
+
         public Type GetSearchType(FilterModel filterModel)
         {
             Type selectedType = null;
@@ -467,12 +566,12 @@ namespace EPiTube.FasetFilter.Core
             return selectedType;
         }
 
-        private ITypeSearch<CatalogContentBase> CreateSearchQuery(Type contentType)
+        private ITypeSearch<object> CreateSearchQuery(Type contentType)
         {
             // Consider another way of creating an instance of the generic search. Invoke is pretty slow.
             var method = typeof(Client).GetMethod(SearchMethodName, Type.EmptyTypes);
             var genericMethod = method.MakeGenericMethod(contentType);
-            return genericMethod.Invoke(Client, null) as ITypeSearch<CatalogContentBase>;
+            return genericMethod.Invoke(Client, null) as ITypeSearch<object>;
         }
 
         private IEnumerable<FilterContentModelType> SupportedFilters(Type queryType)
@@ -498,8 +597,7 @@ namespace EPiTube.FasetFilter.Core
         {
             foreach (var filterContentType in _typeScannerLookup.AllTypes.Where(x => typeof(IFilterContent).IsAssignableFrom(x)))
             {
-                // TODO: Replace activator.CreateInstance with fast lambdaexpression with precompilation and cache
-                var filterContent = Activator.CreateInstance(filterContentType) as IFilterContent<CatalogContentBase>;
+                var filterContent = Activator.CreateInstance(filterContentType) as IFilterContent<object>;
                 yield return new FilterContentModelType { Filter = filterContent, ContentType = filterContentType.GetInterface(typeof(IFilterContent<>).Name).GetGenericArguments()[0] };
             }
         }
