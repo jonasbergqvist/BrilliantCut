@@ -141,7 +141,7 @@ namespace EPiTube.FasetFilter.Core
             bool includeMainSearch,
             bool includeFasets)
         {
-            var searchType = typeof(object);
+            var searchType = typeof(CatalogContentBase); // make this selectable using Conventions api
             var filters = new Dictionary<string, IEnumerable<object>>();
             if (filter != null && filter.Value != null)
             {
@@ -252,12 +252,12 @@ namespace EPiTube.FasetFilter.Core
             }
 
             var otherSupportedModel = query as ITypeSearch<IEPiFasetModel>;
-            if (otherSupportedModel == null)
+            if (otherSupportedModel != null)
             {
-                throw new NotSupportedException("The type needs to inherit from CatalogContentBase, or implement IEPiFasetModel");
+                return GetSortedSearch(sortColumn, otherSupportedModel); 
             }
 
-            return GetSortedSearch(sortColumn, otherSupportedModel); 
+            return query;
         }
 
         private static ITypeSearch<object> GetSortedSearch(SortColumn sortColumn, ITypeSearch<CatalogContentBase> query)

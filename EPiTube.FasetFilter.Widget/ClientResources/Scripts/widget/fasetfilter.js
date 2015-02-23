@@ -5,6 +5,7 @@
     "dojo/Deferred",
     "dojo/_base/lang",
     "dojo/html",
+    "dojo/when",
     "dojo/_base/array",
     "dojox/layout/ScrollPane",
     "dojo/parser",
@@ -31,6 +32,7 @@
     Deferred,
     lang,
     html,
+    when,
     array,
     ScrollPane,
     parser,
@@ -97,6 +99,8 @@
             dojo.connect(this.productGroupingPoint, "change", lang.hitch(this, function () {
                 this.updateList();
             }));
+
+            when(this.getCurrentContext(), lang.hitch(this, this.contextChanged));
         },
 
 
@@ -118,7 +122,7 @@
                         require([filter.attribute.filterPath], lang.hitch(this, function(filterClass) {
                             modelFilter = new filterClass();
 
-                            modelFilter.SetFilter(filter, checkedItems);
+                            modelFilter.setFilter(filter, checkedItems);
                             modelFilter.Write(lang.hitch(this, this.updateList));
 
                             this.faset.appendChild(modelFilter.domNode);
@@ -126,7 +130,7 @@
                             this.modelFilters.push(modelFilter);
                         }));
                     } else {
-                        modelFilter.SetFilter(filter, checkedItems);
+                        modelFilter.setFilter(filter, checkedItems);
                         modelFilter.Write(lang.hitch(this, this.updateList));
                     }
 

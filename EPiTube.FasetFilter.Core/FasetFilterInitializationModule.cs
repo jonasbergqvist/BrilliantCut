@@ -62,6 +62,12 @@ namespace EPiTube.FasetFilter.Core
                 .IncludeField(x => x.Prices())
                 .IncludeField(x => x.Inventories())
                 .IncludeField(x => x.StartPublishedNormalized());
+
+            client.Conventions.ForInstancesOf<EntryContentBase>()
+                .IncludeField(x => x.SelectedMarkets());
+
+            client.Conventions.ForInstancesOf<VariationContent>()
+                .IncludeField(x => x.TotalInStock());
         }
 
         #endregion

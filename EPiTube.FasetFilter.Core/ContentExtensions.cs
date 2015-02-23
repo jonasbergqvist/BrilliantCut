@@ -7,6 +7,7 @@ using EPiServer.Commerce.SpecializedProperties;
 using EPiServer.Core;
 using EPiServer.ServiceLocation;
 using Mediachase.Commerce.Inventory;
+using Mediachase.Commerce.Markets;
 
 namespace EPiTube.FasetFilter.Core
 {
@@ -128,6 +129,17 @@ namespace EPiTube.FasetFilter.Core
             return Convert.ToDouble(price.UnitPrice.Amount);
         }
 
+        public static double TotalInStock(this VariationContent content)
+        {
+            var warehouseInventoryService = ServiceLocator.Current.GetInstance<IWarehouseInventoryService>();
+            var totalInStock = warehouseInventoryService.ListAll()
+                .Where(x => x.CatalogKey.CatalogEntryCode == content.Code)
+                .Select(x => x.InStockQuantity)
+                .Sum();
+
+            return Convert.ToDouble(totalInStock);
+        }
+
         public static IEnumerable<Inventory> Inventories(this CatalogContentBase content)
         {
             var stockPlacement = content as VariationContent;
@@ -170,6 +182,12 @@ namespace EPiTube.FasetFilter.Core
 
             return ServiceLocator.Current.GetInstance<ThumbnailUrlResolver>()
                 .GetThumbnailUrl(assetContainer, "Thumbnail");
+        }
+
+        public static IEnumerable<string> SelectedMarkets(this EntryContentBase content)
+        {
+            var marketService = ServiceLocator.Current.GetInstance<IMarketService>();
+            return marketService.GetAllMarkets().Select(x => x.MarketId.Value).Except(content.MarketFilter);
         }
     }
 }

@@ -56,7 +56,7 @@
             this.context = context;
 
             var filterModel = this.profile.get("epitubefilter");
-            var queryOptions = { ignore: ["query"], parentId: context.id, sort: [{ attribute: "name" }] };
+            //var queryOptions = { ignore: ["query"], parentId: context.id, sort: [{ attribute: "name" }] };
 
             var queryParameters = {
                 referenceId: context.id,

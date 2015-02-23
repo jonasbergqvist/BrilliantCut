@@ -87,7 +87,7 @@
         //    });
         },
 
-        SetFilter: function (filter, checkedItems) {
+        setFilter: function (filter, checkedItems) {
 
             if (this.filter === null) {
                 //var toggler = new Toggler({

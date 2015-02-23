@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>EPiTube.FasetFilter.Widget</id>
+    <version>0.1</version>
+    <title>Green Line Faset Widget</title>
+    <authors>Jonas Bergqvist</authors>
+    <owners>Green Line EPiDevelopment</owners>
+    <licenseUrl>https://github.com/epitube/epitubefilter</licenseUrl>
+    <projectUrl>https://github.com/epitube/epitubefilter</projectUrl>
+    <iconUrl>http://www.episerver.com/Framework/Styles/Images/Products/Integration.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Faset support in commerce UI</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright Jonas Berqvist 2015</copyright>
+    <tags>EPiServerModulePackage</tags>
+    <dependencies>
+      <dependency id="EPiTube.FasetFilter.Core" version="[0,1)" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="EPiTube.FasetFilter.Widget\bin\debug\EPiTube.FasetFilter.Widget.dll" target="lib\net45" />
+    <file src="EPiTube.FasetFilter.Widget\bin\debug\EPiTube.FasetFilter.Widget.dll" target="content\net45\modulesbin" />
+    <file src="EPiTube.FasetFilter.Widget\ClientResources\**\*.*" target="content\net45\modules\EPiTube.FasetFilter.Widget" />
+    <file src="EPiTube.FasetFilter.Widget\module.config" target="content\net45\modules\EPiTube.FasetFilter.Widget" />
+    <file src="EPiTube.FasetFilter.Widget\Web.Config.install.xdt" target="content\net45" />
+  </files>
+</package>
