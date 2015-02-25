@@ -7,5 +7,7 @@ namespace EPiTube.FasetFilter.Core
     {
         public IFilterContent<object> Filter { get; set; }
         public Type ContentType { get; set; }
+        public Type QueryContentType { get; set; }
+        public bool FasetAdded { get; set; }
     }
 }

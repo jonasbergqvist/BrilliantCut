@@ -161,7 +161,7 @@ namespace EPiTube.FasetFilter.Core
 
             var possibleFasetQueries = _filterContentsWithGenericTypes.Value.Where(x =>
                 x.ContentType.IsAssignableFrom(searchType) ||
-                searchType.IsAssignableFrom(x.ContentType));
+                searchType.IsAssignableFrom(x.ContentType)).ToList();
 
             var subQueries = new Dictionary<FilterContentModelType, ITypeSearch<object>>();
             if (includeFasets)
@@ -175,8 +175,17 @@ namespace EPiTube.FasetFilter.Core
                         continue;
                     }
 
-                    var subQuery = CreateSearchQuery(filterContentModelType.ContentType);
-                    subQuery = filterContentModelType.Filter.AddFasetToQuery(subQuery);
+                    filterContentModelType.QueryContentType = filterContentModelType.ContentType;
+                    foreach (var otherFilterContentModelType in possibleFasetQueries)
+                    {
+                        if (filterContentModelType.QueryContentType.IsAssignableFrom(otherFilterContentModelType.ContentType))
+                        {
+                            filterContentModelType.QueryContentType = otherFilterContentModelType.ContentType;
+                        }
+                    }
+
+                    var subQuery = CreateSearchQuery(filterContentModelType.QueryContentType);
+                    //subQuery = filterContentModelType.Filter.AddFasetToQuery(subQuery);
 
                     subQueries.Add(filterContentModelType, subQuery);
                 }
@@ -203,18 +212,36 @@ namespace EPiTube.FasetFilter.Core
 
                 query = supportedFilter.Filter.Filter(content, query, filterValues);
 
-                var subQueryFilterContentModelTypes = subQueries.Keys.ToList();
-                foreach (var subQueryKey in subQueryFilterContentModelTypes.Where(x => 
-                    supportedFilter.Filter.Name != x.Filter.Name &&
-                    supportedFilter.ContentType.IsAssignableFrom(x.ContentType)))
+
+                cacheKey += String.Join(";", filterValues);
+            }
+
+            var subQueryFilterContentModelTypes = subQueries.Keys.ToList();
+            foreach (var subQueryKey in subQueryFilterContentModelTypes)
+            {
+                foreach (var supportedFilter in supportedFilters.Where(x => x.ContentType.IsAssignableFrom(subQueryKey.QueryContentType)))
                 {
-                    // TODO: Problem. We need to exclude the once that is not instancable.
+                    if (!subQueryKey.FasetAdded && (supportedFilter.Filter.Name == subQueryKey.Filter.Name || !subQueryKey.ContentType.IsAssignableFrom(supportedFilter.ContentType)))
+                    {
+                        subQueries[subQueryKey] = subQueryKey.Filter.AddFasetToQuery(subQueries[subQueryKey]);
+                        subQueryKey.FasetAdded = true;
+                        continue;
+                    }
+
+                    var filterValues = (filters.ContainsKey(supportedFilter.Filter.Name)
+                       ? filters[supportedFilter.Filter.Name]
+                       : Enumerable.Empty<object>()).ToArray();
 
                     subQueries[subQueryKey] = supportedFilter.Filter.Filter(content, subQueries[subQueryKey], filterValues);
                 }
 
-                cacheKey += String.Join(";", filterValues);
+                if (!subQueryKey.FasetAdded)
+                {
+                    subQueries[subQueryKey] = subQueryKey.Filter.AddFasetToQuery(subQueries[subQueryKey]);
+                    subQueryKey.FasetAdded = true;
+                }
             }
+
 
             query = Sort(sortColumn, query);
 
