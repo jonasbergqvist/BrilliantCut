@@ -163,7 +163,7 @@ namespace EPiTube.FasetFilter.Core
                 x.ContentType.IsAssignableFrom(searchType) ||
                 searchType.IsAssignableFrom(x.ContentType)).ToList();
 
-            var subQueries = new Dictionary<FilterContentModelType, ITypeSearch<object>>();
+            var subQueries = new Dictionary<FilterContentModelType, ISearch>();
             if (includeFasets)
             {
                 foreach (var filterContentModelType in possibleFasetQueries)
@@ -221,7 +221,7 @@ namespace EPiTube.FasetFilter.Core
             {
                 foreach (var supportedFilter in supportedFilters.Where(x => x.ContentType.IsAssignableFrom(subQueryKey.QueryContentType)))
                 {
-                    if (!subQueryKey.FasetAdded && (supportedFilter.Filter.Name == subQueryKey.Filter.Name || !subQueryKey.ContentType.IsAssignableFrom(supportedFilter.ContentType)))
+                    if (!subQueryKey.FasetAdded && supportedFilter.HasGenericArgument && (supportedFilter.Filter.Name == subQueryKey.Filter.Name || !subQueryKey.ContentType.IsAssignableFrom(supportedFilter.ContentType)))
                     {
                         subQueries[subQueryKey] = subQueryKey.Filter.AddFasetToQuery(subQueries[subQueryKey]);
                         subQueryKey.FasetAdded = true;
@@ -265,7 +265,7 @@ namespace EPiTube.FasetFilter.Core
             return contentList;
         }
 
-        private static ITypeSearch<object> Sort(SortColumn sortColumn, ITypeSearch<object> query)
+        private static ISearch Sort(SortColumn sortColumn, ISearch query)
         {
             if (String.IsNullOrEmpty(sortColumn.ColumnName))
             {
@@ -374,8 +374,8 @@ namespace EPiTube.FasetFilter.Core
         }
 
         private int AddFilteredChildren(
-            ITypeSearch<object> query,
-            Dictionary<FilterContentModelType, ITypeSearch<object>> subQueries,
+            ISearch query,
+            Dictionary<FilterContentModelType, ISearch> subQueries,
             EPiTubeModelCollection contentList,
             List<ContentReference> linkedProductLinks,
             PropertyDataCollection properties,
@@ -391,10 +391,11 @@ namespace EPiTube.FasetFilter.Core
                 if (subQueries.Any())
                 {
                     var multSearch = SearchClient.Instance.MultiSearch<EPiTubeModel>();
-                    var filterListInResultOrder = new List<IFilterContent<object>>();
+                    var filterListInResultOrder = new List<IFilterContent>();
                     foreach (var subQuery in subQueries.OrderBy(x => x.Key.Filter.Name))
                     {
-                        multSearch.Searches.Add(subQuery.Value.Select(x => new EPiTubeModel()).Take(0));
+                        var typeSearch = subQuery.Value as ITypeSearch<object>;
+                        multSearch.Searches.Add(typeSearch.Select(x => new EPiTubeModel()).Take(0));
 
                         foreach (var filterContentModelType in _filterContentsWithGenericTypes.Value.Where(x => x.Filter.Name == subQuery.Key.Filter.Name))
                         {
@@ -593,12 +594,12 @@ namespace EPiTube.FasetFilter.Core
             return selectedType;
         }
 
-        private ITypeSearch<object> CreateSearchQuery(Type contentType)
+        private ISearch CreateSearchQuery(Type contentType)
         {
             // Consider another way of creating an instance of the generic search. Invoke is pretty slow.
             var method = typeof(Client).GetMethod(SearchMethodName, Type.EmptyTypes);
             var genericMethod = method.MakeGenericMethod(contentType);
-            return genericMethod.Invoke(Client, null) as ITypeSearch<object>;
+            return genericMethod.Invoke(Client, null) as ISearch;
         }
 
         private IEnumerable<FilterContentModelType> SupportedFilters(Type queryType)
@@ -608,7 +609,7 @@ namespace EPiTube.FasetFilter.Core
             {
                 for (var j = i; j < supportedTypes.Length; j++)
                 {
-                    if (supportedTypes[i].ContentType.IsAssignableFrom(supportedTypes[j].ContentType))
+                    if (supportedTypes[i].HasGenericArgument && (!supportedTypes[j].HasGenericArgument || supportedTypes[i].ContentType.IsAssignableFrom(supportedTypes[j].ContentType)))
                     {
                         var temp = supportedTypes[i];
                         supportedTypes[i] = supportedTypes[j];
@@ -624,9 +625,26 @@ namespace EPiTube.FasetFilter.Core
         {
             foreach (var filterContentType in _typeScannerLookup.AllTypes.Where(x => typeof(IFilterContent).IsAssignableFrom(x)))
             {
-                var filterContent = Activator.CreateInstance(filterContentType) as IFilterContent<object>;
-                yield return new FilterContentModelType { Filter = filterContent, ContentType = filterContentType.GetInterface(typeof(IFilterContent<>).Name).GetGenericArguments()[0] };
+                var contentType = GetContentType(filterContentType);
+                var filterContent = Activator.CreateInstance(filterContentType) as IFilterContent;
+
+                yield return new FilterContentModelType { Filter = filterContent, ContentType = contentType ?? typeof(CatalogContentBase), HasGenericArgument = contentType != null };
             }
+        }
+
+        private Type GetContentType(Type filterContentType)
+        {
+            if (filterContentType.Name == typeof (FilterContentBase<,>).Name)
+            {
+                return filterContentType.GetGenericArguments().First();
+            }
+
+            if(filterContentType.GetInterface(typeof (IFilterContent).Name) == null)
+            {
+                return null;
+            }
+
+            return GetContentType(filterContentType.BaseType);
         }
     }
 }

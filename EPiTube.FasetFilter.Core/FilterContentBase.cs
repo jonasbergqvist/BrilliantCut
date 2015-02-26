@@ -4,11 +4,13 @@ using System.Linq;
 using EPiServer;
 using EPiServer.Core;
 using EPiServer.Find;
+using EPiServer.Find.Api.Querying;
+using EPiServer.Find.Api.Querying.Queries;
 using EPiServer.ServiceLocation;
 
 namespace EPiTube.FasetFilter.Core
 {
-    public abstract class FilterContentBase<TContentData, TValueType> : IFilterContent<TContentData>
+    public abstract class FilterContentBase<TContentData, TValueType> : IFilterContent
         where TContentData : IContent
     {
         public abstract string Name { get; }
@@ -18,14 +20,13 @@ namespace EPiTube.FasetFilter.Core
         public abstract IDictionary<string, TValueType> GetFilterOptionsFromResult(SearchResults<EPiTubeModel> searchResults);
 
         public abstract ITypeSearch<TContentData> AddFasetToQuery(ITypeSearch<TContentData> query);
-        //public abstract IDictionary<string, TValueType> GetDefaultFilterOptions();
 
         public virtual string Description
         {
             get { return string.Empty; }
         }
 
-        public ITypeSearch<TContentData> Filter(IContent currentCntent, ISearch query, IEnumerable<object> values)
+        public ISearch Filter(IContent currentCntent, ISearch query, IEnumerable<object> values)
         {
             return Filter(currentCntent, (ITypeSearch<TContentData>)query, values.Select(x => Convert.ChangeType(x, typeof(TValueType))).Cast<TValueType>());
         }
@@ -35,12 +36,7 @@ namespace EPiTube.FasetFilter.Core
             return GetFilterOptionsFromResult(searchResults).ToDictionary<KeyValuePair<string, TValueType>, string, object>(filterOption => filterOption.Key, filterOption => filterOption.Value);
         }
 
-        //public IDictionary<string, object> GetFilterOptions()
-        //{
-        //    return GetDefaultFilterOptions().ToDictionary<KeyValuePair<string, TValueType>, string, object>(filterOption => filterOption.Key, filterOption => filterOption.Value);
-        //}
-
-        public ITypeSearch<TContentData> AddFasetToQuery(ISearch query)
+        public ISearch AddFasetToQuery(ISearch query)
         {
             return AddFasetToQuery((ITypeSearch<TContentData>)query);
         }

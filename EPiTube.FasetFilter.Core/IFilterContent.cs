@@ -10,12 +10,8 @@ namespace EPiTube.FasetFilter.Core
         String Name { get; }
         String Description { get; }
         IDictionary<string, object> GetFilterOptions(SearchResults<EPiTubeModel> searchResults);
-        //IDictionary<string, object> GetFilterOptions();
-    }
 
-    public interface IFilterContent<out TContentData> : IFilterContent
-    {
-        ITypeSearch<TContentData> Filter(IContent content, ISearch query, IEnumerable<object> values);
-        ITypeSearch<TContentData> AddFasetToQuery(ISearch query);
+        ISearch Filter(IContent content, ISearch query, IEnumerable<object> values);
+        ISearch AddFasetToQuery(ISearch query);
     }
 }

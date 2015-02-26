@@ -38,13 +38,11 @@
 
             this.slider = new HorizontalSlider({
                 name: filterOption.key,
-                value: filterOption.value,
-                //style: "width:100px;",
+                value: this.getDefaultValue(filterOption.value),
                 minimum: this.getMinMax(this.filter).min,
                 maximum: this.getMinMax(this.filter).max,
                 intermediateChanges: true,
                 onChange: function (value) {
-                    //dojo.byId("sliderValue").value = value;
                     updateList();
                 }
             }, filterContentName);
@@ -52,6 +50,14 @@
             this.setFilter(this.filter, this.checkedItems);
             return this.slider;
         },
+
+        getDefaultValue: function(value) {
+            if (value > 0) {
+                return value;
+            }
+
+            return 0;
+        }
 
         setFilter: function (filter, checkedItems) {
             this.inherited(arguments);
@@ -65,7 +71,7 @@
         },
 
         getMinMax: function (filter) {
-            var min = 10000;
+            var min = 100000;
             var max = 0;
             filter.filterOptions.forEach(lang.hitch(this, function (filterOption) {
                 if (filterOption.value > max) {
@@ -76,6 +82,14 @@
                     min = filterOption.value;
                 }
             }));
+
+            if (min === 100000) {
+                min = 0;
+            }
+
+            if (max === 0) {
+                max = 1000;
+            }
 
             return { min: min, max: max }
         },
