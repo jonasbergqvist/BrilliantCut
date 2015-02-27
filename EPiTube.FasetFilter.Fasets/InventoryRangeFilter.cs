@@ -34,12 +34,13 @@ namespace EPiTube.FasetFilter.Fasets
             return query;
         }
 
-        public override IDictionary<string, double> GetFilterOptionsFromResult(SearchResults<EPiTubeModel> searchResults)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<EPiTubeModel> searchResults)
         {
             var inStockFilter = searchResults
                 .StatisticalFacetFor<VariationContent>(x => x.TotalInStock());
 
-            return new Dictionary<string, double>() { { "inventorymin", inStockFilter.Min }, { "inventorymax", inStockFilter.Max } }; 
+            yield return new FilterOptionModel("inventorymin", "min", inStockFilter.Min, 0);
+            yield return new FilterOptionModel("inventorymax", "max", inStockFilter.Max, 100);
         }
 
         public override ITypeSearch<VariationContent> AddFasetToQuery(ITypeSearch<VariationContent> query)

@@ -13,7 +13,6 @@ using EPiServer.Framework.Cache;
 using EPiServer.Framework.TypeScanner;
 using EPiServer.ServiceLocation;
 using EPiServer.Shell.Services.Rest;
-using EPiServer.UI.Report;
 
 namespace EPiTube.FasetFilter.Core
 {
@@ -76,8 +75,6 @@ namespace EPiTube.FasetFilter.Core
             var filterModelString = parameters.AllParameters["filterModel"];
             var productGroupedString = parameters.AllParameters["productGrouped"];
 
-            // TODO: Market and other parameters needs to be considered.
-
             var content = _contentRepository.Get<IContent>(parameters.ReferenceId);
             bool productGrouped;
             Boolean.TryParse(productGroupedString, out productGrouped);
@@ -131,7 +128,6 @@ namespace EPiTube.FasetFilter.Core
             return filterModel;
         }
 
-        //private static object _lock = new object();
         public EPiTubeModelCollection GetFilteredChildren(
             IContent content,
             FilterModel filter,
@@ -185,8 +181,6 @@ namespace EPiTube.FasetFilter.Core
                     }
 
                     var subQuery = CreateSearchQuery(filterContentModelType.QueryContentType);
-                    //subQuery = filterContentModelType.Filter.AddFasetToQuery(subQuery);
-
                     subQueries.Add(filterContentModelType, subQuery);
                 }
             }

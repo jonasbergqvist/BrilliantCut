@@ -120,12 +120,16 @@
             return checked;
         },
 
+        setValue: function (dijitForm, name, value, checked) {
+            
+        },
+
         GetId: function (name, value) {
             return value;
         },
 
-        GetText: function(name, value) {
-            return this.GetId(name, value);
+        GetText: function(name, text, value) {
+            return text;
         },
 
         GetValue: function(name, value) {
@@ -139,7 +143,7 @@
                 //this.filter.filterOptions.forEach(lang.hitch(this, function(filterOption) {
                 //    for (var i = 0; i < this.dijitForms.length; i++) {
                 //        var id = this.GetId(this.dijitForms[i].name, this.dijitForms[i].value);
-                //        if (id === filterOption.key) {
+                //        if (id === filterOption.id) {
                 //            //this.alternativs.removeChild(this.dijitForms[i].domNode);
 
                 //            //this.alternativs[i].destroy();
@@ -163,7 +167,7 @@
                 var optionExists = false;
                 this.filter.filterOptions.forEach(lang.hitch(this, function(filterOption) {
                     var id = this.GetId(this.dijitForms[i].form.name, this.dijitForms[i].form.value);
-                    if (id === this.GetId(filterOption.key, filterOption.value)) {
+                    if (id === this.GetId(filterOption.id, filterOption.value)) {
                         optionExists = true;
                     }
                 }));
@@ -208,7 +212,7 @@
             this.filter.filterOptions.forEach(lang.hitch(this, function (filterOption) {
                 var checked = false;
                 this.checkedItems.forEach(lang.hitch(this, function (checkedItem) {
-                    if (checkedItem === filterOption.key) {
+                    if (checkedItem === filterOption.id) {
                         checked = true;
                     }
                 }));
@@ -216,9 +220,10 @@
                 var dijitForm = null;
                 this.dijitForms.forEach(lang.hitch(this, function (existingItems) {
                     var id = this.GetId(existingItems.form.name, existingItems.form.value);
-                    if (id === this.GetId(filterOption.key, filterOption.value)) {
+                    if (id === this.GetId(filterOption.id, filterOption.value)) {
                         dijitForm = existingItems.form;
-                        existingItems.label.textContent = this.GetText(filterOption.key, filterOption.value);
+                        //this.setValue(dijitForm, filterOption.id, filterOption.value, checked);
+                        existingItems.label.textContent = this.GetText(filterOption.id, filterOption.text, filterOption.value);
                     }
                 }));
 
@@ -226,7 +231,7 @@
                     dijitForm = this.CreateDijitForm(filterOption, checked, this.filter.filterContent.name, this.filter.attribute, updateList);
 
                     if (dijitForm !== null) {
-                        var label = dojo.create("label", { "for": filterOption.key, innerHTML: this.GetText(filterOption.key, filterOption.value) });
+                        var label = dojo.create("label", { "for": filterOption.id, innerHTML: this.GetText(filterOption.id, filterOption.text, filterOption.value) });
                         this.dijitForms.push({ form: dijitForm, label: label });
 
                         this.own(dijitForm);

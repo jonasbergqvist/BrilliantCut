@@ -35,12 +35,13 @@ namespace EPiTube.FasetFilter.Fasets
             return query;
         }
 
-        public override IDictionary<string, double> GetFilterOptionsFromResult(SearchResults<EPiTubeModel> searchResults)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<EPiTubeModel> searchResults)
         {
             var authorCounts = searchResults
                 .StatisticalFacetFor<VariationContent>(x => x.DefaultPrice());
 
-            return new Dictionary<string, double>() { { "pricemin", authorCounts.Min }, { "pricemax", authorCounts.Max } }; 
+            yield return new FilterOptionModel("pricemin", "min", authorCounts.Min, 0);
+            yield return new FilterOptionModel("pricemax", "max", authorCounts.Max, 100);
         }
 
         public override ITypeSearch<VariationContent> AddFasetToQuery(ITypeSearch<VariationContent> query)

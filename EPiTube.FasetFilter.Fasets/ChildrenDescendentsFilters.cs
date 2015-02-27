@@ -45,9 +45,11 @@ namespace EPiTube.FasetFilter.Fasets
             return query;
         }
 
-        public override IDictionary<string, string> GetFilterOptionsFromResult(SearchResults<EPiTubeModel> searchResults)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<EPiTubeModel> searchResults)
         {
-            return new Dictionary<string, string>() { { "Children", "Children" }, { "Descendents", "Descendents" } };
+            yield return new FilterOptionModel("Children", "Children", "Children", true);
+            yield return new FilterOptionModel("Descendents", "Descendents", "Descendents", false);
+            //return new Dictionary<string, string>() { { "Children", "Children" }, { "Descendents", "Descendents" } };
         }
 
         //public override IDictionary<string, string> GetDefaultFilterOptions()

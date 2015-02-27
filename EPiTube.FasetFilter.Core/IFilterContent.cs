@@ -9,7 +9,7 @@ namespace EPiTube.FasetFilter.Core
     {
         String Name { get; }
         String Description { get; }
-        IDictionary<string, object> GetFilterOptions(SearchResults<EPiTubeModel> searchResults);
+        IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<EPiTubeModel> searchResults);
 
         ISearch Filter(IContent content, ISearch query, IEnumerable<object> values);
         ISearch AddFasetToQuery(ISearch query);

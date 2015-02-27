@@ -26,7 +26,7 @@
     return declare([FasetFilterBase], {
         CreateDijitForm: function (filterOption, checked, filterContentName, attribute, updateList) {
             return new TextBox({
-                name: filterOption.key,
+                name: filterOption.id,
                 value: '',
                 onChange: function() {
                     setTimeout(updateList, attribute.delay);
@@ -50,10 +50,10 @@
             }));
 
             return value;
-        },
+        }//,
 
-        GetText: function(name, value) {
-            return "";
-        }
+        //GetText: function(name, value) {
+        //    return "";
+        //}
     });
 });

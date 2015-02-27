@@ -12,7 +12,7 @@ using EPiTube.FasetFilter.Core;
 
 namespace EPiTube.FasetFilter.Fasets
 {
-    [ServiceConfiguration]
+    //[ServiceConfiguration]
     public class IsActiveFilter : FilterContentBase<CatalogContentBase, string>
     {
         public override string Name
@@ -30,9 +30,9 @@ namespace EPiTube.FasetFilter.Fasets
             return query.CurrentlyPublished().ExcludeDeleted();
         }
 
-        public override IDictionary<string, string> GetFilterOptionsFromResult(SearchResults<EPiTubeModel> searchResults)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<EPiTubeModel> searchResults)
         {
-            return new Dictionary<string, string>() { { "Only active", true.ToString() } }; 
+            yield return new FilterOptionModel("OnlyActive", "Only active", false, false);
         }
 
         public override ITypeSearch<CatalogContentBase> AddFasetToQuery(ITypeSearch<CatalogContentBase> query)

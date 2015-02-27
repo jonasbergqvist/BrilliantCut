@@ -28,12 +28,12 @@ namespace EPiTube.FasetFilter.Fasets
             return query.Filter(marketFilter);
         }
 
-        public override IDictionary<string, string> GetFilterOptionsFromResult(SearchResults<EPiTubeModel> searchResults)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<EPiTubeModel> searchResults)
         {
             var authorCounts = searchResults
                 .TermsFacetFor<EntryContentBase>(x => x.SelectedMarkets()).Terms;
 
-            return authorCounts.ToDictionary(k => String.Format(CultureInfo.InvariantCulture, "{0} ({1})", k.Term, k.Count), v => v.Term);
+            return authorCounts.Select(authorCount => new FilterOptionModel("marketing" + authorCount.Term, String.Format(CultureInfo.InvariantCulture, "{0} ({1})", authorCount.Term, authorCount.Count), authorCount.Term, false));
         }
 
         public override ITypeSearch<EntryContentBase> AddFasetToQuery(ITypeSearch<EntryContentBase> query)

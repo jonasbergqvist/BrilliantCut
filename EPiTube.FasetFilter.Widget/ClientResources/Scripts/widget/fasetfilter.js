@@ -146,11 +146,11 @@
                         //else {
                         //    for (var j = 0; j < this.modelFilters[i].filterOptions.length; j++) {
                         //        filter.filterOptions.forEach(lang.hitch(this, function(filterOption) {
-                        //            if(filterOption.key === )
+                        //            if(filterOption.id === )
                         //        }));                                
                         //    }
                         //    //filter.filterOptions.forEach(lang.hitch(this, function(filterOption) {
-                        //    //    if(filterOption.key === )
+                        //    //    if(filterOption.id === )
                         //    //}));
                         //}
                     }));
@@ -170,7 +170,7 @@
                         //    var filterOptionExist = false;
 
                         //    filter.filterOptions.forEach(lang.hitch(this, function(filterOption) {
-                        //        if (filterOption.key === this.modelFilters[i].filterOptions[j].key) {
+                        //        if (filterOption.id === this.modelFilters[i].filterOptions[j].id) {
                         //            filterOptionExist = true;
                         //        }
                         //    }));

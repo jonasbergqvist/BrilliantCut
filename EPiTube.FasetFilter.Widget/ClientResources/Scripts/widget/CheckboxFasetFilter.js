@@ -29,14 +29,14 @@
                 checked: checked,
                 onChange: updateList
             }, filterContentName);
-        },
+        }//,
 
-        GetText: function (name, value) {
-            return name;
-        },
-
-        //GetId: function (name, value) {
+        //GetText: function (name, value) {
         //    return name;
+        //}//,
+
+        //setValue: function (dijitForm, name, value, checked) {
+        //    dijitForm.checked = checked;
         //}
     });
 });

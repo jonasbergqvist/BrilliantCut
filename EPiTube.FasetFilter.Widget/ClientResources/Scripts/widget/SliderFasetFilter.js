@@ -34,10 +34,10 @@
         },
 
         CreateDijitForm: function (filterOption, checked, filterContentName, attribute, updateList) {
-            this.defaultValue.push({ key: filterOption.key, value: filterOption.value });
+            this.defaultValue.push({ key: filterOption.id, value: filterOption.value });
 
             this.slider = new HorizontalSlider({
-                name: filterOption.key,
+                name: filterOption.id,
                 value: this.getDefaultValue(filterOption.value),
                 minimum: this.getMinMax(this.filter).min,
                 maximum: this.getMinMax(this.filter).max,
@@ -57,7 +57,7 @@
             }
 
             return 0;
-        }
+        },
 
         setFilter: function (filter, checkedItems) {
             this.inherited(arguments);
@@ -97,7 +97,7 @@
         IsChecked: function (name) {
             var returnValue = false;
             this.defaultValue.forEach(lang.hitch(this, function (defaultKeyValue) {
-                if (this.GetValue(defaultKeyValue.key, defaultKeyValue.value) !== defaultKeyValue.value) {
+                if (this.GetValue(defaultKeyValue.id, defaultKeyValue.value) !== defaultKeyValue.value) {
                     returnValue = true;
                 }
             }));

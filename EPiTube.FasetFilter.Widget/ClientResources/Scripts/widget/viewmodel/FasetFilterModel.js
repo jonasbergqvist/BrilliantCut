@@ -56,7 +56,6 @@
             this.context = context;
 
             var filterModel = this.profile.get("epitubefilter");
-            //var queryOptions = { ignore: ["query"], parentId: context.id, sort: [{ attribute: "name" }] };
 
             var queryParameters = {
                 referenceId: context.id,
@@ -69,14 +68,10 @@
                 productGrouped: filterModel.productGrouped
             };
 
-            //this.grid.set("query", queryParameters, queryOptions);
-
-            var def = when(this._fasetFilterStore.query(queryParameters)).then(lang.hitch(this, function (filters) {
+            return when(this._fasetFilterStore.query(queryParameters)).then(lang.hitch(this, function (filters) {
                 return filters;
             }));
 
-            //def.resolve();
-            return def;
 
             //return when(this._fasetFilterStore.refresh(context.id), lang.hitch(this, function (filters) {
             //    // TODO: Order the filters by filters.filterContent.name
@@ -121,14 +116,14 @@
                 modelFilters.forEach(function(modelFilter) {
                     var options = [];
                     modelFilter.filter.filterOptions.forEach(function(filterOption) {
-                        if (modelFilter.IsChecked(modelFilter.GetId(filterOption.key, filterOption.value))) {
+                        if (modelFilter.IsChecked(modelFilter.GetId(filterOption.id, filterOption.value))) {
 
                             if (options.length === 0) {
                                 modelsString += modelFilter.filter.filterContent.name + "==";
                             }
 
-                            var value = modelFilter.GetValue(filterOption.key, filterOption.value);
-                            options.push({ name: filterOption.key, value: value });
+                            var value = modelFilter.GetValue(filterOption.id, filterOption.value);
+                            options.push({ name: filterOption.id, value: value });
                             modelsString += value + ",,";
                         }
                     });
