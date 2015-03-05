@@ -6,14 +6,10 @@ using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Core;
 using EPiServer.Find;
 using EPiServer.Find.Framework;
-using EPiServer.ServiceLocation;
-using EPiTube.FasetFilter.Core;
-using EPiTube.FasetFilter.Core.DataAnnotation;
 
-namespace EPiTube.FasetFilter.Fasets
+namespace EPiTube.FasetFilter.Core.Filters
 {
-    //[ServiceConfiguration]
-    public class MarketingFilter : FilterContentBase<EntryContentBase, string>
+    public class MarketsFilter : FilterContentBase<EntryContentBase, string>
     {
         public override string Name
         {

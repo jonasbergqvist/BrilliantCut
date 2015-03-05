@@ -9,6 +9,7 @@ namespace EPiTube.FasetFilter.Core
     {
         String Name { get; }
         String Description { get; }
+        int SortOrder { get; set; }
         IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<EPiTubeModel> searchResults);
 
         ISearch Filter(IContent content, ISearch query, IEnumerable<object> values);

@@ -24,18 +24,18 @@ namespace EPiTube.FasetFilter.Core
 
         private IClient _client;
         private readonly Lazy<IEnumerable<FilterContentModelType>> _filterContentsWithGenericTypes;
-        private readonly ITypeScannerLookup _typeScannerLookup;
+        private readonly FilterConfiguration _filterConfiguration;
         private readonly IContentTypeRepository _contentTypeRepository;
         private readonly IContentRepository _contentRepository;
         private readonly ISynchronizedObjectInstanceCache _synchronizedObjectInstanceCache;
 
         public FilterContentFactory(
-            ITypeScannerLookup typeScannerLookup, 
+            FilterConfiguration filterConfiguration, 
             IContentTypeRepository contentTypeRepository,
             IContentRepository contentRepository,
             ISynchronizedObjectInstanceCache synchronizedObjectInstanceCache)
         {
-            _typeScannerLookup = typeScannerLookup;
+            _filterConfiguration = filterConfiguration;
             _contentTypeRepository = contentTypeRepository;
             _contentRepository = contentRepository;
             _synchronizedObjectInstanceCache = synchronizedObjectInstanceCache;
@@ -617,11 +617,9 @@ namespace EPiTube.FasetFilter.Core
 
         private IEnumerable<FilterContentModelType> FilterContentsWithGenericTypesValueFactory()
         {
-            foreach (var filterContentType in _typeScannerLookup.AllTypes.Where(x => typeof(IFilterContent).IsAssignableFrom(x)))
+            foreach (var filterContent in _filterConfiguration.Filters)
             {
-                var contentType = GetContentType(filterContentType);
-                var filterContent = Activator.CreateInstance(filterContentType) as IFilterContent;
-
+                var contentType = GetContentType(filterContent.GetType());
                 yield return new FilterContentModelType { Filter = filterContent, ContentType = contentType ?? typeof(CatalogContentBase), HasGenericArgument = contentType != null };
             }
         }

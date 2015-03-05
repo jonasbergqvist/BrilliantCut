@@ -335,7 +335,15 @@
     <Compile Include="DataAnnotation\FasetFilterAttribute.cs" />
     <Compile Include="DescendetLinksOfCatalogRoot.cs" />
     <Compile Include="EPiTubeModelCollection.cs" />
+    <Compile Include="FilterConfiguration.cs" />
+    <Compile Include="Filters\ActiveFilter.cs" />
+    <Compile Include="Filters\ChildrenDescendentsFilter.cs" />
+    <Compile Include="Filters\FasetBase.cs" />
+    <Compile Include="Filters\MarketsFilter.cs" />
+    <Compile Include="Filters\RangeFacet.cs" />
+    <Compile Include="Filters\TermsFacet.cs" />
     <Compile Include="FilterOptionModel.cs" />
+    <Compile Include="Filters\TextFilter.cs" />
     <Compile Include="HasFacetResultsExtensions.cs" />
     <Compile Include="FasetFilterInitializationModule.cs" />
     <Compile Include="EPiTubeModel.cs" />

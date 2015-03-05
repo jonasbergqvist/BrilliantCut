@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Core;
@@ -9,7 +10,7 @@ using EPiTube.FasetFilter.Core.DataAnnotation;
 
 namespace EPiTube.FasetFilter.Fasets
 {
-    [ServiceConfiguration, SliderFilter]
+    //[ServiceConfiguration, SliderFilter]
     public class InventoryRangeFilter : FilterContentBase<VariationContent, double>
     {
         public override string Name

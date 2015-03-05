@@ -3,14 +3,13 @@ using System.Linq;
 using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Core;
 using EPiServer.Find;
-using EPiServer.Find.Framework;
 using EPiServer.ServiceLocation;
 using EPiTube.FasetFilter.Core;
 using EPiTube.FasetFilter.Core.DataAnnotation;
 
 namespace EPiTube.FasetFilter.Fasets
 {
-    [ServiceConfiguration, SliderFilter]
+    //[ServiceConfiguration, SliderFilter]
     public class PriceRangeFilter : FilterContentBase<VariationContent, double>
     {
         public override string Name

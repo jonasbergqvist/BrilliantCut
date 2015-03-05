@@ -61,6 +61,7 @@ namespace EPiTube.FasetFilter.Core
                 .IncludeField(x => x.DefaultPrice())
                 .IncludeField(x => x.Prices())
                 .IncludeField(x => x.Inventories())
+                .IncludeField(x => x.LanguageName())
                 .IncludeField(x => x.StartPublishedNormalized());
 
             client.Conventions.ForInstancesOf<EntryContentBase>()

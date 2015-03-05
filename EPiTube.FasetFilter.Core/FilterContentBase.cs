@@ -13,8 +13,6 @@ namespace EPiTube.FasetFilter.Core
 
         public abstract ITypeSearch<TContentData> Filter(IContent currentCntent, ITypeSearch<TContentData> query, IEnumerable<TValueType> values);
 
-        //public abstract IEnumerable<IFilterOptionModel> GetFilterOptionsFromResult(SearchResults<EPiTubeModel> searchResults);
-
         public abstract IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<EPiTubeModel> searchResults);
 
         public abstract ITypeSearch<TContentData> AddFasetToQuery(ITypeSearch<TContentData> query);
@@ -29,15 +27,11 @@ namespace EPiTube.FasetFilter.Core
             return Filter(currentCntent, (ITypeSearch<TContentData>)query, values.Select(x => Convert.ChangeType(x, typeof(TValueType))).Cast<TValueType>());
         }
 
-        //public IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<EPiTubeModel> searchResults)
-        //{
-        //    return (IEnumerable<IFilterOptionModel>)GetFilterOptionsFromResult(searchResults);
-        //    //return GetFilterOptionsFromResult(searchResults).ToDictionary<KeyValuePair<string, TValueType>, string, object>(filterOption => filterOption.Key, filterOption => filterOption.Value);
-        //}
-
         public ISearch AddFasetToQuery(ISearch query)
         {
             return AddFasetToQuery((ITypeSearch<TContentData>)query);
         }
+
+        public int SortOrder { get; set; }
     }
 }

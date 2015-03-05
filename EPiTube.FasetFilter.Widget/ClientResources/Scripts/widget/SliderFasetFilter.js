@@ -34,7 +34,7 @@
         },
 
         CreateDijitForm: function (filterOption, checked, filterContentName, attribute, updateList) {
-            this.defaultValue.push({ key: filterOption.id, value: filterOption.value });
+            this.defaultValue.push({ id: filterOption.id, value: filterOption.value });
 
             this.slider = new HorizontalSlider({
                 name: filterOption.id,

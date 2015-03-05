@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Core;
 using EPiServer.Find;
-using EPiServer.ServiceLocation;
-using EPiTube.FasetFilter.Core;
+using EPiServer.Find.Api.Querying.Queries;
 using EPiTube.FasetFilter.Core.DataAnnotation;
 
-namespace EPiTube.FasetFilter.Fasets
+namespace EPiTube.FasetFilter.Core.Filters
 {
-    //[ServiceConfiguration, TextboxFilter]
+    [TextboxFilter]
     public class TextFilter : IFilterContent
     {
         private const string ForMethodName = "For";
@@ -51,15 +51,21 @@ namespace EPiTube.FasetFilter.Fasets
             var genericArgument = typeSearchInterface.GetGenericArguments().First();
             var methodInfoFor = typeof(TypeSearchExtensions).GetMethods().First(x => x.Name == ForMethodName);
             methodInfoFor = methodInfoFor.MakeGenericMethod(genericArgument);
-            
-            return methodInfoFor.Invoke(null, new object[] { query, value }) as ISearch;
+
+            var search = methodInfoFor.Invoke(null, new object[] {query, value}) as ITypeSearch<CatalogContentBase>; //Search<object, QueryStringQuery>;
+            if (!typeof (CatalogContentBase).IsAssignableFrom(genericArgument))
+            {
+                return search;
+            }
+
+            return search;
+            //return search.Include(x => ((CatalogContentBase)x).Code().AnyWordBeginsWith(value));
         }
 
         public ISearch AddFasetToQuery(ISearch query)
         {
             return query;
         }
-
 
         public int SortOrder { get; set; }
     }
