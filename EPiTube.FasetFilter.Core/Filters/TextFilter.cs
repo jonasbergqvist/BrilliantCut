@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Core;
 using EPiServer.Find;
+using EPiServer.Find.Api.Querying;
 using EPiServer.Find.Api.Querying.Queries;
+using EPiServer.Find.Framework;
 using EPiTube.FasetFilter.Core.DataAnnotation;
 
 namespace EPiTube.FasetFilter.Core.Filters
@@ -42,7 +45,7 @@ namespace EPiTube.FasetFilter.Core.Filters
                 return query;
             }
 
-            var typeSearchInterface = query.GetType().GetInterface(typeof (ITypeSearch<>).Name);
+            var typeSearchInterface = query.GetType().GetInterface(typeof(ITypeSearch<>).Name);
             if (typeSearchInterface == null)
             {
                 return query;
@@ -52,14 +55,17 @@ namespace EPiTube.FasetFilter.Core.Filters
             var methodInfoFor = typeof(TypeSearchExtensions).GetMethods().First(x => x.Name == ForMethodName);
             methodInfoFor = methodInfoFor.MakeGenericMethod(genericArgument);
 
-            var search = methodInfoFor.Invoke(null, new object[] {query, value}) as ITypeSearch<CatalogContentBase>; //Search<object, QueryStringQuery>;
-            if (!typeof (CatalogContentBase).IsAssignableFrom(genericArgument))
-            {
-                return search;
-            }
+            var search = methodInfoFor.Invoke(null, new object[] { query, value }) as ITypeSearch<CatalogContentBase>; //Search<object, QueryStringQuery>;
+
+            Expression<Func<CatalogContentBase, Filter>> filterExpression = (x) => x.Code().AnyWordBeginsWith(value);
+            var delegateType = typeof (Func<,>).MakeGenericType(genericArgument, typeof (Filter));
+            var something = Expression.Lambda(delegateType, filterExpression.Body, filterExpression.Parameters[0]);
+
+            var methodInfoInclude = typeof(TypeSearchExtensions).GetMethods().First(x => x.Name == "Include");
+            methodInfoInclude = methodInfoInclude.MakeGenericMethod(genericArgument);
+            search = methodInfoInclude.Invoke(null, new object[] { search, something, null }) as ITypeSearch<CatalogContentBase>; //Search<object, QueryStringQuery>;
 
             return search;
-            //return search.Include(x => ((CatalogContentBase)x).Code().AnyWordBeginsWith(value));
         }
 
         public ISearch AddFasetToQuery(ISearch query)

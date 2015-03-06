@@ -452,7 +452,10 @@ namespace EPiTube.FasetFilter.Core
                             }
                         }
 
-                        contentList.Add(resultItem);
+                        if (!contentList.Any(x => x.ContentLink.CompareToIgnoreWorkID(resultItem.ContentLink)))
+                        {
+                            contentList.Add(resultItem);
+                        }
                     }
 
                     if (includeProductVariationRelations)

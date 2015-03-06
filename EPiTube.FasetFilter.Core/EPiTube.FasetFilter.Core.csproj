@@ -339,6 +339,7 @@
     <Compile Include="Filters\ActiveFilter.cs" />
     <Compile Include="Filters\ChildrenDescendentsFilter.cs" />
     <Compile Include="Filters\FasetBase.cs" />
+    <Compile Include="Filters\LanguageFilter.cs" />
     <Compile Include="Filters\MarketsFilter.cs" />
     <Compile Include="Filters\RangeFacet.cs" />
     <Compile Include="Filters\TermsFacet.cs" />
