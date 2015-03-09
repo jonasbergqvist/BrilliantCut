@@ -1,18 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using EPiServer.Core;
 using EPiTube.FasetFilter.Core.DataAnnotation;
+using EPiTube.FasetFilter.Core.Settings;
 
 namespace EPiTube.FasetFilter.Core
 {
     public class FilterContentWithOptions
     {
-        private FasetFilterAttribute _attribute;
+        private FasetFilterSetting _attribute;
 
         public IFilterContent FilterContent { get; set; }
         public IEnumerable<IFilterOptionModel> FilterOptions { get; set; }
 
-        public FasetFilterAttribute Attribute
+        public FasetFilterSetting Attribute
         {
             get
             {
@@ -22,10 +22,11 @@ namespace EPiTube.FasetFilter.Core
                 }
 
                 var attribute = FilterContent.GetType().GetCustomAttributes(typeof (FasetFilterAttribute), true).OfType<FasetFilterAttribute>().FirstOrDefault();
-                _attribute = attribute ?? new CheckboxFilterAttribute();
+                _attribute = attribute != null ? attribute.Setting : new CheckboxFilterSetting();
 
                 return _attribute;
             }
+            set { _attribute = value; }
         }
     }
 }

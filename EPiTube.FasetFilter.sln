@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSupport", "TestSupport\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPiTube.FasetFilter.Core", "EPiTube.FasetFilter.Core\EPiTube.FasetFilter.Core.csproj", "{BF5ED046-8B29-4991-8479-DB2D8E36B978}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPiTube.FasetFilter.Fasets", "EPiTube.FasetFilter.Fasets\EPiTube.FasetFilter.Fasets.csproj", "{4AA5EED9-61A5-465C-9DDA-40BB2EA22B78}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPiTube.FasetFilter.Widget", "EPiTube.FasetFilter.Widget\EPiTube.FasetFilter.Widget.csproj", "{A0CF0C1F-0C97-4A3B-BDAC-7AD2DA018119}"
 EndProject
 Global
@@ -39,10 +37,6 @@ Global
 		{BF5ED046-8B29-4991-8479-DB2D8E36B978}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF5ED046-8B29-4991-8479-DB2D8E36B978}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF5ED046-8B29-4991-8479-DB2D8E36B978}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4AA5EED9-61A5-465C-9DDA-40BB2EA22B78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4AA5EED9-61A5-465C-9DDA-40BB2EA22B78}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4AA5EED9-61A5-465C-9DDA-40BB2EA22B78}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4AA5EED9-61A5-465C-9DDA-40BB2EA22B78}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A0CF0C1F-0C97-4A3B-BDAC-7AD2DA018119}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A0CF0C1F-0C97-4A3B-BDAC-7AD2DA018119}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0CF0C1F-0C97-4A3B-BDAC-7AD2DA018119}.Release|Any CPU.ActiveCfg = Release|Any CPU

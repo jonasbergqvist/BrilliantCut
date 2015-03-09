@@ -33,12 +33,12 @@
             this.defaultValue = [];
         },
 
-        CreateDijitForm: function (filterOption, checked, filterContentName, attribute, updateList) {
-            this.defaultValue.push({ id: filterOption.id, value: filterOption.value });
+        CreateDijitForm: function (filterOption, filterContentName, attribute, updateList) {
+            this.defaultValue.push({ id: filterOption.id, value: filterOption.defaultValue });
 
             this.slider = new HorizontalSlider({
                 name: filterOption.id,
-                value: this.getDefaultValue(filterOption.value),
+                value: this.getDefaultValue(filterOption),
                 minimum: this.getMinMax(this.filter).min,
                 maximum: this.getMinMax(this.filter).max,
                 intermediateChanges: true,
@@ -51,12 +51,12 @@
             return this.slider;
         },
 
-        getDefaultValue: function(value) {
-            if (value > 0) {
-                return value;
+        getDefaultValue: function(filterOption) {
+            if (filterOption.value > 0) {
+                return filterOption.value;
             }
 
-            return 0;
+            return filterOption.defaultValue;
         },
 
         setFilter: function (filter, checkedItems) {

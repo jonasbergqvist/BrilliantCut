@@ -1,11 +1,13 @@
 ﻿
+using EPiTube.FasetFilter.Core.Settings;
+
 namespace EPiTube.FasetFilter.Core.DataAnnotation
 {
     public class CheckboxFilterAttribute : FasetFilterAttribute
     {
         public CheckboxFilterAttribute()
         {
-            FilterPath = "epitubefasetfilter/widget/CheckboxFasetFilter";
+            Setting = new CheckboxFilterSetting();
         }
     }
 }

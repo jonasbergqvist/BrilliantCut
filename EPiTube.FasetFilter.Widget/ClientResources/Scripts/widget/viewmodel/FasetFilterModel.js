@@ -71,12 +71,6 @@
             return when(this._fasetFilterStore.query(queryParameters)).then(lang.hitch(this, function (filters) {
                 return filters;
             }));
-
-
-            //return when(this._fasetFilterStore.refresh(context.id), lang.hitch(this, function (filters) {
-            //    // TODO: Order the filters by filters.filterContent.name
-            //    return filters;
-            //}));
         },
 
         getCheckedItems: function (id) {

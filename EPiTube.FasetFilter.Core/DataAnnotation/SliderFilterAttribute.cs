@@ -1,4 +1,6 @@
 ﻿
+using EPiTube.FasetFilter.Core.Settings;
+
 namespace EPiTube.FasetFilter.Core.DataAnnotation
 {
     public class SliderFilterAttribute : FasetFilterAttribute
@@ -11,13 +13,7 @@ namespace EPiTube.FasetFilter.Core.DataAnnotation
 
         public SliderFilterAttribute(int min, int max)
         {
-            FilterPath = "epitubefasetfilter/widget/SliderFasetFilter";
-            Min = min;
-            Max = max;
+            Setting = new SliderFilterSetting();
         }
-
-        public int Min { get; set; }
-
-        public int Max { get; set; }
     }
 }

@@ -30,7 +30,7 @@
     return declare([FasetFilterBase], {
         timeoutId: 0,
 
-        CreateDijitForm: function (filterOption, checked, filterContentName, attribute, updateList) {
+        CreateDijitForm: function (filterOption, filterContentName, attribute, updateList) {
             return new TextBox({
                 name: filterOption.id,
                 value: '',
@@ -57,10 +57,6 @@
             }));
 
             return value;
-        }//,
-
-        //GetText: function(name, value) {
-        //    return "";
-        //}
+        }
     });
 });

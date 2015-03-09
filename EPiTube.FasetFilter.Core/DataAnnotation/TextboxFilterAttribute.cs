@@ -1,19 +1,18 @@
 ﻿
+using EPiTube.FasetFilter.Core.Settings;
+
 namespace EPiTube.FasetFilter.Core.DataAnnotation
 {
     public class TextboxFilterAttribute : FasetFilterAttribute
     {
         public TextboxFilterAttribute()
-            : this(100)
+            : this(1000)
         {
         }
 
         public TextboxFilterAttribute(int delay)
         {
-            FilterPath = "epitubefasetfilter/widget/TextboxFasetFilter";
-            Delay = delay;
+            Setting = new TextboxFilterSetting();
         }
-
-        public int Delay { get; set; }
     }
 }

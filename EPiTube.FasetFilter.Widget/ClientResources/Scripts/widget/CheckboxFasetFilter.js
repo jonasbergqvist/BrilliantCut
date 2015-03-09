@@ -22,21 +22,13 @@
 
 ) {
     return declare([FasetFilterBase], {
-        CreateDijitForm: function (filterOption, checked, filterContentName, attribute, updateList) {
+        CreateDijitForm: function (filterOption, filterContentName, attribute, updateList) {
             return new CheckBox({
                 name: filterOption.value,
                 value: filterOption.value,
-                checked: checked,
+                checked: filterOption.defaultValue,
                 onChange: updateList
             }, filterContentName);
-        }//,
-
-        //GetText: function (name, value) {
-        //    return name;
-        //}//,
-
-        //setValue: function (dijitForm, name, value, checked) {
-        //    dijitForm.checked = checked;
-        //}
+        }
     });
 });

@@ -336,6 +336,7 @@
     <Compile Include="DescendetLinksOfCatalogRoot.cs" />
     <Compile Include="EPiTubeModelCollection.cs" />
     <Compile Include="FilterConfiguration.cs" />
+    <Compile Include="FilterConfigurationExtensions.cs" />
     <Compile Include="Filters\ActiveFilter.cs" />
     <Compile Include="Filters\ChildrenDescendentsFilter.cs" />
     <Compile Include="Filters\FasetBase.cs" />
@@ -359,6 +360,11 @@
     <Compile Include="Rest\Query\GetFilteredChildrenQuery.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Settings\CheckboxFilterSetting.cs" />
+    <Compile Include="Settings\FasetFilterSetting.cs" />
+    <Compile Include="Settings\RadiobuttonFilterSetting.cs" />
+    <Compile Include="Settings\SliderFilterSetting.cs" />
+    <Compile Include="Settings\TextboxFilterSetting.cs" />
     <Compile Include="UIDescriptors\ViewConfigurations\FilterCatalogContentListView.cs" />
     <Compile Include="UIDescriptors\ViewConfigurations\FilterCatalogListView.cs" />
   </ItemGroup>

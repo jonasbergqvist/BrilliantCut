@@ -31,11 +31,6 @@ namespace EPiTube.FasetFilter.Core
             _filters.Add(filter);
         }
 
-        public void AddFilters(IEnumerable<FilterContentWithOptions> filters)
-        {
-            _filters.AddRange(filters);
-        }
-
         public IEnumerable<FilterContentWithOptions> Filters { get { return _filters; } } 
 
         public IEnumerator<EPiTubeModel> GetEnumerator()

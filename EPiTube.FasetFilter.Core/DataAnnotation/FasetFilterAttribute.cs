@@ -1,10 +1,10 @@
 ﻿using System;
+using EPiTube.FasetFilter.Core.Settings;
 
 namespace EPiTube.FasetFilter.Core.DataAnnotation
 {
     public class FasetFilterAttribute : Attribute
     {
-        public string FilterPath { get; set; }
-        public string Markup { get; set; }
+        public FasetFilterSetting Setting { get; set; }
     }
 }

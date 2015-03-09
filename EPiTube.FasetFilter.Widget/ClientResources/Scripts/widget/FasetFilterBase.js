@@ -228,7 +228,7 @@
                 }));
 
                 if (dijitForm === null) {
-                    dijitForm = this.CreateDijitForm(filterOption, checked, this.filter.filterContent.name, this.filter.attribute, updateList);
+                    dijitForm = this.CreateDijitForm(filterOption, this.filter.filterContent.name, this.filter.attribute, updateList);
 
                     if (dijitForm !== null) {
                         var label = dojo.create("label", { "for": filterOption.id, innerHTML: this.GetText(filterOption.id, filterOption.text, filterOption.value) });
@@ -247,7 +247,7 @@
             }));
         },
 
-        CreateDijitForm: function (filterOption, checked, filterContentName, updateList) {
+        CreateDijitForm: function (filterOption, filterContentName, updateList) {
             return null;
         }
     });

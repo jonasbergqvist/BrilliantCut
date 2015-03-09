@@ -13,6 +13,7 @@ using EPiServer.Framework.Cache;
 using EPiServer.Framework.TypeScanner;
 using EPiServer.ServiceLocation;
 using EPiServer.Shell.Services.Rest;
+using EPiTube.FasetFilter.Core.Settings;
 
 namespace EPiTube.FasetFilter.Core
 {
@@ -48,7 +49,7 @@ namespace EPiTube.FasetFilter.Core
         public IEnumerable<FilterContentWithOptions> GetFilters(ContentQueryParameters parameters)
         {
             var result = GetFilteredChildren(parameters, false, true);
-            return result.Filters;
+            return result.Filters.OrderBy(x => x.FilterContent.SortOrder);
         }
 
         protected virtual IEnumerable<Type> GetContentTypes(ContentReference contentLink)
@@ -385,7 +386,7 @@ namespace EPiTube.FasetFilter.Core
                 if (subQueries.Any())
                 {
                     var multSearch = SearchClient.Instance.MultiSearch<EPiTubeModel>();
-                    var filterListInResultOrder = new List<IFilterContent>();
+                    var filterListInResultOrder = new Dictionary<IFilterContent, FasetFilterSetting>();
                     foreach (var subQuery in subQueries.OrderBy(x => x.Key.Filter.Name))
                     {
                         var typeSearch = subQuery.Value as ITypeSearch<object>;
@@ -398,18 +399,27 @@ namespace EPiTube.FasetFilter.Core
                                 continue;
                             }
 
-                            filterListInResultOrder.Add(filterContentModelType.Filter);
+                            filterListInResultOrder.Add(filterContentModelType.Filter, filterContentModelType.Setting);
                         }
                     }
 
+                    var filterListInResultOrderKeys = filterListInResultOrder.Keys.ToArray();
                     var multiResult = multSearch.GetResult().ToList();
                     for(var i = 0;  i< multiResult.Count; i++)
                     {
-                        contentList.AddFilter(new FilterContentWithOptions()
+                        var option = new FilterContentWithOptions()
                         {
-                            FilterContent = filterListInResultOrder[i],
-                            FilterOptions = filterListInResultOrder[i].GetFilterOptions(multiResult[i]).ToArray()
-                        });
+                            FilterContent = filterListInResultOrderKeys[i],
+                            FilterOptions = filterListInResultOrderKeys[i].GetFilterOptions(multiResult[i]).ToArray(),
+                        };
+
+                        var settings = filterListInResultOrder[filterListInResultOrderKeys[i]];
+                        if (settings != null)
+                        {
+                            //option.Attribute = settings;
+                        }
+
+                        contentList.AddFilter(option);
                     }
                 }
 
@@ -622,8 +632,8 @@ namespace EPiTube.FasetFilter.Core
         {
             foreach (var filterContent in _filterConfiguration.Filters)
             {
-                var contentType = GetContentType(filterContent.GetType());
-                yield return new FilterContentModelType { Filter = filterContent, ContentType = contentType ?? typeof(CatalogContentBase), HasGenericArgument = contentType != null };
+                var contentType = GetContentType(filterContent.Key.GetType());
+                yield return new FilterContentModelType { Filter = filterContent.Key, Setting = filterContent.Value, ContentType = contentType ?? typeof(CatalogContentBase), HasGenericArgument = contentType != null };
             }
         }
 
