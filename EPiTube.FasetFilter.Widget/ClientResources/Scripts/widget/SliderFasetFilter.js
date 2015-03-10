@@ -47,7 +47,6 @@
                 }
             }, filterContentName);
 
-            this.setFilter(this.filter, this.checkedItems);
             return this.slider;
         },
 

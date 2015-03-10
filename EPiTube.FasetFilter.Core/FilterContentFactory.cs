@@ -220,7 +220,11 @@ namespace EPiTube.FasetFilter.Core
                     {
                         subQueries[subQueryKey] = subQueryKey.Filter.AddFasetToQuery(subQueries[subQueryKey]);
                         subQueryKey.FasetAdded = true;
-                        continue;
+
+                        if (supportedFilter.Filter.Name == subQueryKey.Filter.Name)
+                        {
+                            continue;
+                        }
                     }
 
                     var filterValues = (filters.ContainsKey(supportedFilter.Filter.Name)
