@@ -66,6 +66,14 @@
 
                 this.slider.set('minimum', minMaxObject.min);
                 this.slider.set('maximum', minMaxObject.max);
+
+                if (this.slider.value < minMaxObject.min) {
+                    this.slider.value = minMaxObject.min;
+                }
+
+                if (this.slider.value > minMaxObject.max) {
+                    this.slider.value = minMaxObject.max;
+                }
             }
         },
 
@@ -120,6 +128,11 @@
 
         GetText: function (name, value) {
             return this.GetValue(name, value);
-        }
+        },
+
+        //setValue: function (dijitForm, filter, filterOption, checked) {
+        //    this.slider.minimum = this.getMinMax(this.filter).min;
+        //    this.slider.maximum = this.getMinMax(this.filter).max;
+        //},
     });
 });

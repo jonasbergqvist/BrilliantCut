@@ -120,9 +120,9 @@
             return checked;
         },
 
-        setValue: function (dijitForm, name, value, checked) {
+        //setValue: function (dijitForm, filter, filterOption, checked) {
             
-        },
+        //},
 
         GetId: function (name, value) {
             return value;
@@ -222,7 +222,7 @@
                     var id = this.GetId(existingItems.form.name, existingItems.form.value);
                     if (id === this.GetId(filterOption.id, filterOption.value)) {
                         dijitForm = existingItems.form;
-                        //this.setValue(dijitForm, filterOption.id, filterOption.value, checked);
+                        this.setFilter(this.filter, this.checkedItems);
                         existingItems.label.textContent = this.GetText(filterOption.id, filterOption.text, filterOption.value);
                     }
                 }));
