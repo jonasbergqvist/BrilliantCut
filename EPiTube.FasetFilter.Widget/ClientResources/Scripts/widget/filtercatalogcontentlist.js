@@ -62,13 +62,6 @@
                 queryParameters: {
                     referenceId: id,
                     query: "getchildren",
-                    market: this.marketSelector ? this.marketSelector.value : null,
-                    includeProperties: true,
-                    allLanguages: true,
-                    toplevel: onlyTopLevelChildren,
-                    currentCategory: currentCategory,
-                    simplified: simplified,
-                    keepversion: true,
                     filterModel: filterModel.valueString,
                     filterEnabled: filterModel.enabled,
                     productGrouped: filterModel.productGrouped

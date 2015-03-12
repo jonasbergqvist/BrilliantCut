@@ -61,9 +61,6 @@
             var queryParameters = {
                 referenceId: context.id,
                 query: "getchildren",
-                includeProperties: true,
-                allLanguages: true,
-                keepversion: true,
                 filterModel: filterModel.valueString,
                 filterEnabled: filterModel.enabled,
                 productGrouped: filterModel.productGrouped

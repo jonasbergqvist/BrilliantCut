@@ -75,8 +75,6 @@
                 var modelClass = declare(this.modelClassName);
                 this.set("model", new modelClass());
             }
-
-
         },
 
         startup: function () {
@@ -119,7 +117,7 @@
 
                     var hasModelFilter = modelFilter !== null;
                     if (!hasModelFilter) {
-                        require([filter.attribute.filterPath], lang.hitch(this, function(filterClass) {
+                        this.own(require([filter.attribute.filterPath], lang.hitch(this, function(filterClass) {
                             modelFilter = new filterClass();
 
                             modelFilter.setFilter(filter, checkedItems);
@@ -128,7 +126,7 @@
                             this.faset.appendChild(modelFilter.domNode);
                             this.own(modelFilter);
                             this.modelFilters.push(modelFilter);
-                        }));
+                        })));
                     } else {
                         modelFilter.setFilter(filter, checkedItems);
                         modelFilter.Write(lang.hitch(this, this.updateList));
@@ -148,7 +146,7 @@
                     if (!filterExist) {
                         if (!!this.modelFilters[i].RemoveFilter()) {
                             this.faset.removeChild(this.modelFilters[i].domNode);
-                            //this.modelFilters[i].destroy();
+                            this.modelFilters[i].destroy();
                             this.modelFilters.splice(i, 1);
                             i--;
                         }

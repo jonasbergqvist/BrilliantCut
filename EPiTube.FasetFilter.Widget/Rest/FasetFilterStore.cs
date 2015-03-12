@@ -25,21 +25,21 @@ namespace EPiTube.FasetFilter.Widget.Rest
             ContentReference id,
             string query,
             ContentReference referenceId,
-            string[] typeIdentifiers,
-            bool? allLanguages,
+            //string[] typeIdentifiers,
+            //bool? allLanguages,
             IEnumerable<SortColumn> sortColumns,
             ItemRange range)
         {
             var queryParameters = new ContentQueryParameters
             {
                 ReferenceId = referenceId,
-                AllLanguages = allLanguages.GetValueOrDefault(),
-                TypeIdentifiers = typeIdentifiers,
+                //AllLanguages = allLanguages.GetValueOrDefault(),
+                //TypeIdentifiers = typeIdentifiers,
                 SortColumns = sortColumns,
                 Range = range,
                 AllParameters = ControllerContext.HttpContext.Request.QueryString,
                 CurrentPrincipal = PrincipalInfo.CurrentPrincipal,
-                PreferredCulture = allLanguages.GetValueOrDefault() ? null : ContentLanguage.PreferredCulture
+                //PreferredCulture = allLanguages.GetValueOrDefault() ? null : ContentLanguage.PreferredCulture
             };
 
             var filterOptions = _filterContentFactory.GetFilters(queryParameters).ToList();

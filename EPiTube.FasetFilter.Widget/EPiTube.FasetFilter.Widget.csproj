@@ -221,7 +221,6 @@
     <Content Include="ClientResources\Scripts\widget\RadiobuttonFasetFilter.js" />
     <Content Include="ClientResources\Scripts\widget\FasetFilterBase.js" />
     <Content Include="ClientResources\Scripts\widget\CheckboxFasetFilter.js" />
-    <Content Include="ClientResources\Scripts\widget\DojoPlugIn.js" />
     <Content Include="ClientResources\Scripts\widget\fasetfilter.js" />
     <Content Include="ClientResources\Scripts\widget\filtercatalogcontentlist.js" />
     <Content Include="ClientResources\Scripts\widget\filtercataloglist.js" />

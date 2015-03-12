@@ -155,10 +155,5 @@
         GetText: function (name, value) {
             return this.GetValue(name, value);
         },
-
-        //setValue: function (dijitForm, filter, filterOption, checked) {
-        //    this.slider.minimum = this.getMinMax(this.filter).min;
-        //    this.slider.maximum = this.getMinMax(this.filter).max;
-        //},
     });
 });

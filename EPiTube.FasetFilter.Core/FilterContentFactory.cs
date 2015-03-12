@@ -259,42 +259,7 @@ namespace EPiTube.FasetFilter.Core
                 properties, includeMainSearch, includeProductVariationRelations, startIndex, endIndex);
 
             range.Total = includeProductVariationRelations ? contentList.Count : total;
-
-            //if (includeFasets)
-            //{
-            //    var needsRerendering = false;
-
-            //    foreach (var selectedFilter in filters)
-            //    {
-            //        var contentFilterWithOption = contentList.Filters.SingleOrDefault(x => x.FilterContent.Name == selectedFilter.Key);
-            //        if (contentFilterWithOption == null)
-            //        {
-            //            continue;
-            //        }
-
-            //        var temp = contentFilterWithOption.FilterOptions.Select(x => x.Value);
-            //        var missingItems = selectedFilter.Value.Where(x => !temp.Contains(x)).ToArray();
-
-            //        if (!missingItems.Any())
-            //        {
-            //            continue;
-            //        }
-
-            //        var filterContentModel = filter.Value.SingleOrDefault(x => x.Name == selectedFilter.Key);
-            //        var itemsToRemove = filterContentModel.Value.Where(x => missingItems.Contains(x.Value)).ToArray();
-            //        foreach (var itemToRemove in itemsToRemove)
-            //        {
-            //            filterContentModel.Value.Remove(itemToRemove);
-            //            needsRerendering = true;
-            //        }
-            //    }
-
-            //    if (needsRerendering)
-            //    {
-            //        return GetFilteredChildren(content, filter, productGrouped, sortColumn, range, includeMainSearch, includeFasets);
-            //    }
-            //}
-
+            
             Cache(cacheKey, new Tuple<EPiTubeModelCollection, int>(contentList, total));
             return contentList;
         }
