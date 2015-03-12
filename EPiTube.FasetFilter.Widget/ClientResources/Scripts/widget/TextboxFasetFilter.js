@@ -42,7 +42,7 @@
         },
 
         IsChecked: function (name) {
-            return true;
+            return this.GetValue(name) !== "";
         },
 
         GetId: function (name, value) {

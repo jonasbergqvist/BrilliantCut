@@ -110,17 +110,17 @@
                         if (modelFilter.IsChecked(modelFilter.GetId(filterOption.id, filterOption.value))) {
 
                             if (options.length === 0) {
-                                modelsString += modelFilter.filter.filterContent.name + "==";
+                                modelsString += modelFilter.filter.filterContent.name + "__";
                             }
 
                             var value = modelFilter.GetValue(filterOption.id, filterOption.value);
                             options.push({ name: filterOption.id, value: value });
-                            modelsString += value + ",,";
+                            modelsString += value + "..";
                         }
                     });
 
                     if (options.length > 0) {
-                        modelsString += "==";
+                        modelsString += "__";
                     }
 
                     models.push({ name: modelFilter.filter.filterContent.name, value: options });

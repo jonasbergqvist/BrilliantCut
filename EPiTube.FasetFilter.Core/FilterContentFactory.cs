@@ -100,14 +100,14 @@ namespace EPiTube.FasetFilter.Core
             var filterModel = new FilterModel() { Value = new List<FilterContentModel>() };
             FilterContentModel filterContentModel = null;
 
-            var items = filterModelString.Split(new[] { "==" }, StringSplitOptions.RemoveEmptyEntries);
+            var items = filterModelString.Split(new[] { "__" }, StringSplitOptions.RemoveEmptyEntries);
             for (var i = 0; i < items.Length; i++)
             {
                 if (i % 2 == 0)
                 {
                     filterContentModel = new FilterContentModel()
                     {
-                        Name = items[i].Replace("==", string.Empty),
+                        Name = items[i].Replace("__", string.Empty),
                         Value = new List<FilterContentOptionModel>()
                     };
 
@@ -115,12 +115,12 @@ namespace EPiTube.FasetFilter.Core
                 }
                 else
                 {
-                    var options = items[i].Split(new[] { ",," }, StringSplitOptions.RemoveEmptyEntries);
+                    var options = items[i].Split(new[] { ".." }, StringSplitOptions.RemoveEmptyEntries);
                     foreach (var option in options)
                     {
                         filterContentModel.Value.Add(new FilterContentOptionModel()
                         {
-                            Value = option.Replace(",,", string.Empty)
+                            Value = option.Replace("..", string.Empty)
                         });
                     }
                 }
