@@ -29,7 +29,7 @@ namespace EPiTube.FasetFilter.Core.Filters
             var authorCounts = searchResults
                 .TermsFacetFor(PropertyValuesExpressionObject).Terms;
 
-            return authorCounts.Select(authorCount => new FilterOptionModel(Name + authorCount.Term, String.Format(CultureInfo.InvariantCulture, "{0} ({1})", authorCount.Term, authorCount.Count), authorCount.Term, false));
+            return authorCounts.Select(authorCount => new FilterOptionModel(Name + authorCount.Term, String.Format(CultureInfo.InvariantCulture, "{0} ({1})", authorCount.Term, authorCount.Count), authorCount.Term, false, authorCount.Count));
         }
 
         public override ITypeSearch<T> AddFasetToQuery(ITypeSearch<T> query)

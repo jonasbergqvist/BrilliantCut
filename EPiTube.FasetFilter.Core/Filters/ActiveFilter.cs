@@ -28,7 +28,7 @@ namespace EPiTube.FasetFilter.Core.Filters
 
         public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<EPiTubeModel> searchResults)
         {
-            yield return new FilterOptionModel("OnlyActive", "Only active", false, false);
+            yield return new FilterOptionModel("OnlyActive", "Only active", false, false, -1);
         }
 
         public override ITypeSearch<CatalogContentBase> AddFasetToQuery(ITypeSearch<CatalogContentBase> query)

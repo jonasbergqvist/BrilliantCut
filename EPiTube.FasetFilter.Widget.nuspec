@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>EPiTube.FasetFilter.Widget</id>
+    <id>EPiTube.FasetFilter</id>
     <version>0.1</version>
     <title>Green Line Faset Widget</title>
     <authors>Jonas Bergqvist</authors>

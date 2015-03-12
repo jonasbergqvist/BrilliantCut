@@ -83,7 +83,7 @@
             filterModel.value.forEach(function (filter) {
                 if (filter.name === id) {
                     filter.value.forEach(function(filterValue) {
-                        models.push(filterValue.value);
+                        models.push(filterValue);
                     });
                     
                 }

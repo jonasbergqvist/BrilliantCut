@@ -39,8 +39,8 @@ namespace EPiTube.FasetFilter.Core.Filters
             var min = authorCounts.Count > 0 ? authorCounts.Min : defaultMin;
             var max = authorCounts.Count > 0 ? authorCounts.Max : defaultMax;
 
-            yield return new FilterOptionModel(Name + "min", "min", min, defaultMin);
-            yield return new FilterOptionModel(Name + "max", "max", max, defaultMax);
+            yield return new FilterOptionModel(Name + "min", "min", min, defaultMin, -1);
+            yield return new FilterOptionModel(Name + "max", "max", max, defaultMax, -1);
         }
 
         public override ITypeSearch<T> AddFasetToQuery(ITypeSearch<T> query)

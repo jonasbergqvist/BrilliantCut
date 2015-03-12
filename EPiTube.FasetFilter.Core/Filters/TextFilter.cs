@@ -28,7 +28,7 @@ namespace EPiTube.FasetFilter.Core.Filters
 
         public IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<EPiTubeModel> searchResults)
         {
-            yield return new FilterOptionModel("FreeTextFilter", string.Empty, string.Empty, string.Empty);
+            yield return new FilterOptionModel("FreeTextFilter", string.Empty, string.Empty, string.Empty, -1);
         }
 
         public ISearch Filter(IContent content, ISearch query, IEnumerable<object> values)

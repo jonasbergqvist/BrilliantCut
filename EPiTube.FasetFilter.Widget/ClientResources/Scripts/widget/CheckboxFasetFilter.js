@@ -29,6 +29,10 @@
                 checked: filterOption.defaultValue,
                 onChange: updateList
             }, filterContentName);
-        }
+        },
+
+        GetNoHitText: function (name, value) {
+            return value + "(0)";
+        },
     });
 });

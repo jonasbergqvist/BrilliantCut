@@ -128,94 +128,103 @@
             return value;
         },
 
-        GetText: function(name, text, value) {
+        GetText: function(name, text, value, count) {
             return text;
+        },
+
+        GetNoHitText: function(name, value) {
+            return value;
         },
 
         GetValue: function(name, value) {
             return value;
         },
 
-        RemoveFilter: function() {
+        RemoveFilter: function () {
+            if (this.checkedItems.length > 0) {
+                this.UpdateTextForRemovedItems();
+                return false;
+            }
+
             for (var i = 0; i < this.dijitForms.length; i++) {
                 this.dijitForms.form.removeChild(i);
                 i--;
-                //this.filter.filterOptions.forEach(lang.hitch(this, function(filterOption) {
-                //    for (var i = 0; i < this.dijitForms.length; i++) {
-                //        var id = this.GetId(this.dijitForms[i].name, this.dijitForms[i].value);
-                //        if (id === filterOption.id) {
-                //            //this.alternativs.removeChild(this.dijitForms[i].domNode);
-
-                //            //this.alternativs[i].destroy();
-                //            this.dijitForms.splice(i, 1);
-                //            i--;
-                //        }
-                //    }
-                //}));
             }
 
             for (var i = 0; i < this.alternativs.length; i++) {
                 this.alternativs.removeChild(i);
                 i--;
             }
+
+            return true;
         },
 
         RemoveNonExistingAlternatives: function () {
-            //var optionsToRemove = [];
-            //this.dijitForms.forEach(lang.hitch(this, function(dijitForm) {
+
             for (var i = 0; i < this.dijitForms.length; i++) {
                 var optionExists = false;
+                var optionChecked = false;
+
+                var id = this.GetId(this.dijitForms[i].form.name, this.dijitForms[i].form.value);
                 this.filter.filterOptions.forEach(lang.hitch(this, function(filterOption) {
-                    var id = this.GetId(this.dijitForms[i].form.name, this.dijitForms[i].form.value);
                     if (id === this.GetId(filterOption.id, filterOption.value)) {
                         optionExists = true;
                     }
                 }));
 
-                if (!optionExists) {
-                    domConstruct.destroy(this.dijitForms[i].form.domNode.id);
-                    domConstruct.destroy(this.dijitForms[i].label.id);
-                    this.dijitForms[i].form.destroy();
-                    this.dijitForms[i].label.remove();
+                this.checkedItems.forEach(lang.hitch(this, function(checkedItem) {
+                    if (id === this.GetId(checkedItem.name, checkedItem.value)) {
+                        optionChecked = true;
+                    }
+                }));
 
-                    this.dijitForms.splice(i, 1);
-                    //this.dijitForms.removeChild(i);
-                    i--;
-                    //optionsToRemove.push(dijitForm);
+                if (!optionExists) {
+                    if (!optionChecked) {
+                        domConstruct.destroy(this.dijitForms[i].form.domNode.id);
+                        domConstruct.destroy(this.dijitForms[i].label.id);
+                        this.dijitForms[i].form.destroy();
+                        this.dijitForms[i].label.remove();
+
+                        this.dijitForms.splice(i, 1);
+                        //this.dijitForms.removeChild(i);
+                        i--;
+                        //optionsToRemove.push(dijitForm);
+                    } else {
+                        this.dijitForms[i].label.textContent = this.GetNoHitText(this.dijitForms[i].form.name, this.dijitForms[i].form.value);
+                    }
                 }
             }
-            //}));
 
-            //for (var i = 0; i < this.dijitForms.length; i++) {
-            //    var alternativExist = false;
-            //    this.alternativs.forEach(lang.hitch(this, function(alternative) {
-            //        if (this.dijitForms[i].form.name === alternative.name) {
-            //            alternativExist = true;
-            //        }
-            //    }));
+            return true;
+        },
 
-            //    if (!alternativExist) {
-            //        this.alternativs.removeChild(this.dijitForms[i].form.domNode);
-            //        //this.alternativs[i].destroy();
-            //        this.dijitForms.splice(i, 1);
-            //        i--;
-            //    }
-            //};
+        UpdateTextForRemovedItems: function() {
+            this.dijitForms.forEach(lang.hitch(this, function (existingItems) {
+
+                var id = this.GetId(existingItems.form.name, existingItems.form.value);
+                this.checkedItems.forEach(lang.hitch(this, function (checkedItem) {
+                    if (id === this.GetId(checkedItem.name, checkedItem.value)) {
+                        existingItems.label.textContent = this.GetNoHitText(existingItems.form.name, existingItems.form.value);
+                    }
+                }));
+            }));
         },
 
         Write: function (updateList) {
             this.caption.innerText = this.filter.filterContent.name;
             //this.caption.set('title', this.filter.filterContent.name);
 
-            this.RemoveNonExistingAlternatives();
+            if (!this.RemoveNonExistingAlternatives()) {
+                return;
+            }
 
             this.filter.filterOptions.forEach(lang.hitch(this, function (filterOption) {
-                var checked = false;
-                this.checkedItems.forEach(lang.hitch(this, function (checkedItem) {
-                    if (checkedItem === filterOption.id) {
-                        checked = true;
-                    }
-                }));
+                //var checked = false;
+                //this.checkedItems.forEach(lang.hitch(this, function (checkedItem) {
+                //    if (checkedItem === filterOption.id) {
+                //        //checked = true;
+                //    }
+                //}));
 
                 var dijitForm = null;
                 this.dijitForms.forEach(lang.hitch(this, function (existingItems) {
@@ -223,7 +232,7 @@
                     if (id === this.GetId(filterOption.id, filterOption.value)) {
                         dijitForm = existingItems.form;
                         this.setFilter(this.filter, this.checkedItems);
-                        existingItems.label.textContent = this.GetText(filterOption.id, filterOption.text, filterOption.value);
+                        existingItems.label.textContent = this.GetText(filterOption.id, filterOption.text, filterOption.value, filterOption.count);
                     }
                 }));
 
@@ -231,7 +240,7 @@
                     dijitForm = this.CreateDijitForm(filterOption, this.filter.filterContent.name, this.filter.attribute, updateList);
 
                     if (dijitForm !== null) {
-                        var label = dojo.create("label", { "for": filterOption.id, innerHTML: this.GetText(filterOption.id, filterOption.text, filterOption.value) });
+                        var label = dojo.create("label", { "for": filterOption.id, innerHTML: this.GetText(filterOption.id, filterOption.text, filterOption.value, filterOption.count) });
                         this.dijitForms.push({ form: dijitForm, label: label });
 
                         this.own(dijitForm);

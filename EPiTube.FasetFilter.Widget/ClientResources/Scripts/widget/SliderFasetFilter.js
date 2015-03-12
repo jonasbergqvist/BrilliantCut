@@ -63,39 +63,65 @@
 
             if (this.slider) {
                 var minMaxObject = this.getMinMax(filter);
+                var defaultMinMaxObject = this.getDefaultMinMax(filter);
 
-                this.slider.set('minimum', minMaxObject.min);
-                this.slider.set('maximum', minMaxObject.max);
+                var currentMinimum = this.slider.get('minimum');
+                if (minMaxObject.min !== defaultMinMaxObject.min || currentMinimum === "min") {
+                    this.slider.set('minimum', minMaxObject.min);
 
-                if (this.slider.value < minMaxObject.min) {
-                    this.slider.value = minMaxObject.min;
+                    if (this.slider.value < minMaxObject.min) {
+                        this.slider.value = minMaxObject.min;
+                    }
                 }
 
-                if (this.slider.value > minMaxObject.max) {
-                    this.slider.value = minMaxObject.max;
+                var currentMaximum = this.slider.get('maximum');
+                if (minMaxObject.max !== defaultMinMaxObject.max || currentMaximum === "max") {
+                    this.slider.set('maximum', minMaxObject.max);
+
+                    if (this.slider.value > minMaxObject.max) {
+                        this.slider.value = minMaxObject.max;
+                    }
                 }
             }
         },
 
+        getDefaultMinMax: function(filter) {
+            var min = -1;
+            var max = -1;
+
+            filter.filterOptions.forEach(lang.hitch(this, function(filterOption) {
+                if (filterOption.defaultValue > max) {
+                    max = filterOption.defaultValue;
+                }
+
+                if (filterOption.defaultValue < min || min === -1) {
+                    min = filterOption.defaultValue;
+                }
+            }));
+
+            return { min: min, max: max }
+        },
+
         getMinMax: function (filter) {
-            var min = 100000;
-            var max = 0;
-            filter.filterOptions.forEach(lang.hitch(this, function (filterOption) {
+            var min = -1;
+            var max = -1;
+
+            filter.filterOptions.forEach(lang.hitch(this, function(filterOption) {
                 if (filterOption.value > max) {
                     max = filterOption.value;
                 }
 
-                if (filterOption.value < min) {
+                if (filterOption.value < min || min === -1) {
                     min = filterOption.value;
                 }
             }));
 
-            if (min === 100000) {
+            if (min === -1) {
                 min = 0;
             }
 
-            if (max === 0) {
-                max = 1000;
+            if (max === -1) {
+                max = 100;
             }
 
             return { min: min, max: max }

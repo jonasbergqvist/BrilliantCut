@@ -143,46 +143,17 @@
                         if (filter.filterContent.name === this.modelFilters[i].filter.filterContent.name) {
                             filterExist = true;
                         } 
-                        //else {
-                        //    for (var j = 0; j < this.modelFilters[i].filterOptions.length; j++) {
-                        //        filter.filterOptions.forEach(lang.hitch(this, function(filterOption) {
-                        //            if(filterOption.id === )
-                        //        }));                                
-                        //    }
-                        //    //filter.filterOptions.forEach(lang.hitch(this, function(filterOption) {
-                        //    //    if(filterOption.id === )
-                        //    //}));
-                        //}
                     }));
 
                     if (!filterExist) {
-                        this.modelFilters[i].RemoveFilter();
-                        this.faset.removeChild(this.modelFilters[i].domNode);
-                        //this.modelFilters[i].destroy();
-                        this.modelFilters.splice(i, 1);
-                        i--;
-                    } else {
-                        //this.modelFilters[i].RemoveNonExistingAlternatives();
-
-                        //this.modelFilters[i].RemoveItem(this.modelFilters[i].filter);
-
-                        //for (var j = 0; j < this.modelFilters[i].filterOptions.length; j++) {
-                        //    var filterOptionExist = false;
-
-                        //    filter.filterOptions.forEach(lang.hitch(this, function(filterOption) {
-                        //        if (filterOption.id === this.modelFilters[i].filterOptions[j].id) {
-                        //            filterOptionExist = true;
-                        //        }
-                        //    }));
-
-                        //    if (!filterOptionExist) {
-                        //        this.modelFilters[i].RemoveItem(this.modelFilters[i].filter);
-                        //    }
-                        //}
+                        if (!!this.modelFilters[i].RemoveFilter()) {
+                            this.faset.removeChild(this.modelFilters[i].domNode);
+                            //this.modelFilters[i].destroy();
+                            this.modelFilters.splice(i, 1);
+                            i--;
+                        }
                     }
                 }
-
-                //this.model.updateList(this.modelFilters, false);
             }));
         },
 

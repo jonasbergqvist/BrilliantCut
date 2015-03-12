@@ -40,8 +40,8 @@ namespace EPiTube.FasetFilter.Core.Filters
                 .TermsFacetFor<EntryContentBase>(x => x.LanguageName()).Terms;
 
             var filterOptionModels = new List<FilterOptionModel>();
-            filterOptionModels.Add(new FilterOptionModel("languageCurrent", "Current", "current", true));
-            filterOptionModels.AddRange(authorCounts.Select(authorCount => new FilterOptionModel("language" + authorCount.Term, String.Format(CultureInfo.InvariantCulture, "{0} ({1})", authorCount.Term, authorCount.Count), authorCount.Term, false)));
+            filterOptionModels.Add(new FilterOptionModel("languageCurrent", "Current", "current", true, authorCounts.Sum(x => x.Count)));
+            filterOptionModels.AddRange(authorCounts.Select(authorCount => new FilterOptionModel("language" + authorCount.Term, String.Format(CultureInfo.InvariantCulture, "{0} ({1})", authorCount.Term, authorCount.Count), authorCount.Term, false, authorCount.Count)));
 
             return filterOptionModels;
         }
