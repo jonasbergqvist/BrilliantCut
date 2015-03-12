@@ -18,7 +18,7 @@ namespace EPiTube.FasetFilter.Core.Filters
         private const string ForMethodName = "For";
         public string Name
         {
-            get { return "TextSearch"; }
+            get { return "Text"; }
         }
 
         public string Description

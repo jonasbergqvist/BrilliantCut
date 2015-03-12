@@ -10,7 +10,6 @@ using EPiServer.Find;
 using EPiServer.Find.Cms;
 using EPiServer.Find.Framework;
 using EPiServer.Framework.Cache;
-using EPiServer.Framework.TypeScanner;
 using EPiServer.ServiceLocation;
 using EPiServer.Shell.Services.Rest;
 using EPiTube.FasetFilter.Core.Settings;
@@ -20,7 +19,7 @@ namespace EPiTube.FasetFilter.Core
     [ServiceConfiguration(typeof(FilterContentFactory))]
     public class FilterContentFactory
     {
-        private const int MaxItems = 900;
+        private const int MaxItems = 500;
         private const string SearchMethodName = "Search";
 
         private IClient _client;

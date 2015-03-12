@@ -217,6 +217,8 @@
     <Content Include="ClientResources\Scripts\EPiTubeFasetFilterModule.js" />
     <Content Include="ClientResources\Scripts\widget\SliderFasetFilter.js" />
     <Content Include="ClientResources\Scripts\widget\templates\RangeFasetFilter.html" />
+    <Content Include="ClientResources\Scripts\widget\NumberTextboxFasetFilter.js" />
+    <Content Include="ClientResources\Scripts\widget\TimeTextboxFasetFilter.js" />
     <Content Include="ClientResources\Scripts\widget\TextboxFasetFilter.js" />
     <Content Include="ClientResources\Scripts\widget\RadiobuttonFasetFilter.js" />
     <Content Include="ClientResources\Scripts\widget\FasetFilterBase.js" />

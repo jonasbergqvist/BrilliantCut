@@ -15,7 +15,7 @@
     <copyright>Copyright Jonas Berqvist 2015</copyright>
     <tags>EPiServerModulePackage</tags>
     <dependencies>
-      <dependency id="EPiTube.FasetFilter.Core" version="[0,1)" />
+      <dependency id="EPiTube.FasetFilter.Core" version="[,1)" />
     </dependencies>
   </metadata>
   <files>

@@ -333,12 +333,12 @@
     <Compile Include="DataAnnotation\RadiobuttonFilterAttribute.cs" />
     <Compile Include="DataAnnotation\CheckboxFilterAttribute.cs" />
     <Compile Include="DataAnnotation\FasetFilterAttribute.cs" />
-    <Compile Include="DescendetLinksOfCatalogRoot.cs" />
     <Compile Include="EPiTubeModelCollection.cs" />
     <Compile Include="FilterConfiguration.cs" />
     <Compile Include="FilterConfigurationExtensions.cs" />
     <Compile Include="Filters\ActiveFilter.cs" />
     <Compile Include="Filters\ChildrenDescendentsFilter.cs" />
+    <Compile Include="Filters\DateTimeFilter.cs" />
     <Compile Include="Filters\FasetBase.cs" />
     <Compile Include="Filters\LanguageFilter.cs" />
     <Compile Include="Filters\MarketsFilter.cs" />

@@ -27,8 +27,6 @@ namespace EPiTube.FasetFilter.Core.Filters
             }
         }
 
-        //public Expression<Func<T, Filter>> PropertyValuesExpressionFilter { get; set; }
-
         public override string Name
         {
             get
@@ -41,30 +39,7 @@ namespace EPiTube.FasetFilter.Core.Filters
                 return _name;
             }
         }
-
-        //protected TValue GetPropertyValue(T value)
-        //{
-        //    if (_propertyValues == null)
-        //    {
-        //        _propertyValues = PropertyValuesExpression.Compile(); //PropertyValuesExpression.Compile();
-        //    }
-
-        //    return _propertyValues(value);
-        //}
-
-        //protected Func<T, TValue> PropertyValue
-        //{
-        //    get
-        //    {
-        //        if (_propertyValues == null)
-        //        {
-        //            _propertyValues = PropertyValuesExpression.Compile();
-        //        }
-
-        //        return _propertyValues;
-        //    }
-        //}
-
+        
         private static string GetPropertyName(Expression expression)
         {
             var memberExpression = expression as MemberExpression;
@@ -81,18 +56,5 @@ namespace EPiTube.FasetFilter.Core.Filters
 
             throw new NotSupportedException("Only memberexpression and methodcallexpressions are supported.");
         }
-
-        //protected Func<T, TValue> PropertyValues
-        //{
-        //    get
-        //    {
-        //        if (_propertyValues == null)
-        //        {
-        //            _propertyValues = PropertyValuesExpression.Compile();
-        //        }
-
-        //        return _propertyValues;
-        //    }
-        //}
     }
 }

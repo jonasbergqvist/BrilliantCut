@@ -8,7 +8,7 @@ using EPiTube.FasetFilter.Core.DataAnnotation;
 
 namespace EPiTube.FasetFilter.Core.Filters
 {
-    [CheckboxFilter]
+    [RadiobuttonFilter]
     public class IsActiveFilter : FilterContentBase<CatalogContentBase, string>
     {
         public override string Name
@@ -18,7 +18,8 @@ namespace EPiTube.FasetFilter.Core.Filters
 
         public override ITypeSearch<CatalogContentBase> Filter(IContent currentCntent, ITypeSearch<CatalogContentBase> query, IEnumerable<string> values)
         {
-            if (!values.Any())
+            var value = values.FirstOrDefault();
+            if (value == null || value == "all")
             {
                 return query;
             }
@@ -28,7 +29,9 @@ namespace EPiTube.FasetFilter.Core.Filters
 
         public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<EPiTubeModel> searchResults)
         {
-            yield return new FilterOptionModel("OnlyActive", "Only active", false, false, -1);
+            yield return new FilterOptionModel("all", "All", false, false, -1);
+            yield return new FilterOptionModel("active", "Active", false, false, -1);
+            //yield return new FilterOptionModel("unactive", "Unactive", false, false, -1);
         }
 
         public override ITypeSearch<CatalogContentBase> AddFasetToQuery(ITypeSearch<CatalogContentBase> query)
