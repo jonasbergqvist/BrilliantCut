@@ -202,6 +202,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <None Include="web.config.uninstall.xdt">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="web.config.install.xdt">
       <SubType>Designer</SubType>
     </None>

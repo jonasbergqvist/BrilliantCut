@@ -24,5 +24,6 @@
     <file src="EPiTube.FasetFilter.Widget\ClientResources\**\*.*" target="content\net45\modules\EPiTube.FasetFilter.Widget" />
     <file src="EPiTube.FasetFilter.Widget\module.config" target="content\net45\modules\EPiTube.FasetFilter.Widget" />
     <file src="EPiTube.FasetFilter.Widget\Web.Config.install.xdt" target="content\net45" />
+    <file src="EPiTube.FasetFilter.Widget\Web.Config.uninstall.xdt" target="content\net45" />
   </files>
 </package>
