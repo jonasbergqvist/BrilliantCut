@@ -466,3 +466,10 @@
 /TestSupport
 /elasticsearch-0.90.12
 /packages
+/EPiTube.FacetFilter.Core/bin
+/EPiTube.FacetFilter.Core/Properties
+/EPiTube.FacetFilter.Core/App_Data
+/EPiTube.FacetFilter.Core/obj
+/EPiTube.FacetFilter.Widget/Properties
+/EPiTube.FacetFilter.Widget/bin
+/EPiTube.FacetFilter.Widget/obj
