@@ -45,7 +45,7 @@ namespace EPiTube.FacetFilter.Core.Filters.Implementations
             return query;
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<FacetContent> searchResults)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults)
         {
             yield return new FilterOptionModel("Children", "Children", "Children", true, -1);
             yield return new FilterOptionModel("Descendents", "Descendents", "Descendents", false, -1);

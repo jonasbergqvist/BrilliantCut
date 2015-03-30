@@ -36,7 +36,7 @@ namespace EPiTube.FacetFilter.Core.Filters.Implementations
             return query.Filter(marketFilter);
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<FacetContent> searchResults)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults)
         {
             var authorCounts = searchResults
                 .TermsFacetFor<EntryContentBase>(x => x.LanguageName()).Terms;

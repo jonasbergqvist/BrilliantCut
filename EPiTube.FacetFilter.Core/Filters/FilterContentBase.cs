@@ -16,7 +16,7 @@ namespace EPiTube.FacetFilter.Core.Filters
 
         public abstract ITypeSearch<TContentData> Filter(IContent currentCntent, ITypeSearch<TContentData> query, IEnumerable<TValueType> values);
 
-        public abstract IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<FacetContent> searchResults);
+        public abstract IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults);
 
         public abstract ITypeSearch<TContentData> AddfacetToQuery(ITypeSearch<TContentData> query);
 
@@ -34,7 +34,5 @@ namespace EPiTube.FacetFilter.Core.Filters
         {
             return AddfacetToQuery((ITypeSearch<TContentData>)query);
         }
-
-        public int SortOrder { get; set; }
     }
 }

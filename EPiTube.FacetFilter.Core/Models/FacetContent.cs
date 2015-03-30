@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using EPiServer.Commerce.SpecializedProperties;
 using EPiServer.Core;
+using EPiServer.DataAbstraction;
 using EPiServer.DataAnnotations;
 
 namespace EPiTube.FacetFilter.Core.Models
 {
-    [ContentType]
+    [ContentType, AvailableContentTypes(Availability.None)]
     public class FacetContent : BasicContent, IFacetContent
     {
         public virtual DateTime? StartPublish { get; set; }

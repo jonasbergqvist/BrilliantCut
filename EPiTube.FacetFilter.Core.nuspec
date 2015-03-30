@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>EPiTube.FacetFilter.Core</id>
-    <version>0.1</version>
+    <version>0.2</version>
     <title>Green Line Facet Core</title>
     <authors>Jonas Bergqvist</authors>
     <owners>Green Line EPiDevelopment</owners>
@@ -18,10 +18,8 @@
       <dependency id="EPiServer.Commerce.Core" version="[7,9)" />
       <dependency id="EPiServer.Commerce.UI" version="[7,9)" />
       <dependency id="EPiServer.Find.Commerce" version="[8,10)" />
-      <dependency id="DotNetZip" version="[1.9.1.8]" />
-      <dependency id="AuthorizeNet" version="[1.8.2,2)" />
-      <dependency id="log4net" version="[1.2.10]" />
       <dependency id="Microsoft.AspNet.Mvc" version="[5.2.2,6]" />
+      <dependency id="Newtonsoft.Json" version="[6.0.0,7]" />
     </dependencies>
   </metadata>
   <files>

@@ -7,7 +7,7 @@
     "dijit/form/CheckBox",
 
 //Commerce
-    "./FasetFilterBase"
+    "./FasctFilterBase"
 
 ], function (
 
@@ -18,10 +18,10 @@
     CheckBox,
 
 //Commerce
-    FasetFilterBase
+    FacetFilterBase
 
 ) {
-    return declare([FasetFilterBase], {
+    return declare([FacetFilterBase], {
         CreateDijitForm: function (filterOption, checked, updateList) {
             return new CheckBox({
                 //id: filterOption.key,

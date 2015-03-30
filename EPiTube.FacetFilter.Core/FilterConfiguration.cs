@@ -23,7 +23,7 @@ namespace EPiTube.facetFilter.Core
             Func<FilterBuilder<TContent>, string, FilterBuilder<TContent>> aggregate)
             where TContent : IContent
         {
-            return Termsfacet(property, aggregate, null);
+            return Termsfacet(property, aggregate, new FacetFilterSetting());
         }
 
         public FilterConfiguration Termsfacet<TContent>(
@@ -37,32 +37,32 @@ namespace EPiTube.facetFilter.Core
             filter.PropertyValuesExpression = property;
             filter.Aggregate = aggregate;
 
-            filter.SortOrder = GetSortOrder();
+            setting.SortOrder = GetSortOrder(setting);
             _filters.Add(filter, setting);
 
             return this;
         }
 
-        public FilterConfiguration RangeFacet<TContent>(
-            Expression<Func<TContent, double>> property,
-            Func<FilterBuilder<TContent>, IEnumerable<double>, FilterBuilder<TContent>> filterBuilder)
+        public FilterConfiguration RangeFacet<TContent, TValue>(
+            Expression<Func<TContent, TValue>> property,
+            Func<FilterBuilder<TContent>, IEnumerable<TValue>, FilterBuilder<TContent>> filterBuilder)
             where TContent : IContent
         {
-            return RangeFacet(property, filterBuilder, null);
+            return RangeFacet(property, filterBuilder, new FacetFilterSetting());
         }
 
-        public FilterConfiguration RangeFacet<TContent>(
-            Expression<Func<TContent, double>> property, 
-            Func<FilterBuilder<TContent>, IEnumerable<double>, FilterBuilder<TContent>> filterBuilder,
+        public FilterConfiguration RangeFacet<TContent, TValue>(
+            Expression<Func<TContent, TValue>> property,
+            Func<FilterBuilder<TContent>, IEnumerable<TValue>, FilterBuilder<TContent>> filterBuilder,
             FacetFilterSetting setting)
             where TContent : IContent
         {
-            var filter = Activator.CreateInstance<RangeFacet<TContent>>();
+            var filter = Activator.CreateInstance<RangeFacet<TContent, TValue>>();
 
             filter.PropertyValuesExpression = property;
             filter.FilterBuilder = filterBuilder;
 
-            filter.SortOrder = GetSortOrder();
+            setting.SortOrder = GetSortOrder(setting);
             _filters.Add(filter, setting);
 
             return this;
@@ -71,22 +71,27 @@ namespace EPiTube.facetFilter.Core
         public FilterConfiguration Facet<TFilter>()
             where TFilter : IFilterContent
         {
-            return Facet<TFilter>(null);
+            return Facet<TFilter>(new FacetFilterSetting());
         }
 
         public FilterConfiguration Facet<TFilter>(FacetFilterSetting setting)
             where TFilter : IFilterContent
         {
             var filter = Activator.CreateInstance<TFilter>();
-            filter.SortOrder = GetSortOrder();
+            setting.SortOrder = GetSortOrder(setting);
             _filters.Add(filter, setting);
 
             return this;
         }
 
-        private int GetSortOrder()
+        protected virtual int GetSortOrder(FacetFilterSetting setting)
         {
-            return _filters.Any() ? _filters.Keys.Select(x => x.SortOrder).Max() + 1 : 1;
+            if (setting.SortOrder > 0)
+            {
+                return setting.SortOrder;
+            }
+
+            return _filters.Any() ? _filters.Values.Select(x => x.SortOrder).Max() + 1 : 1;
         }
     }
 }

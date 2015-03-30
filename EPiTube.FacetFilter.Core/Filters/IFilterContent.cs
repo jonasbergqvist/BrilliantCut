@@ -11,9 +11,8 @@ namespace EPiTube.FacetFilter.Core.Filters
     {
         String Name { get; }
         String Description { get; }
-        int SortOrder { get; set; }
 
-        IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<FacetContent> searchResults);
+        IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults);
         ISearch AddfacetToQuery(ISearch query);
         ISearch Filter(IContent content, ISearch query, IEnumerable<object> values);
     }

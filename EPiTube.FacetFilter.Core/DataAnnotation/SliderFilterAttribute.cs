@@ -3,7 +3,7 @@ using EPiTube.FacetFilter.Core.FilterSettings;
 
 namespace EPiTube.facetFilter.Core.DataAnnotation
 {
-    public class SliderFilterAttribute : facetFilterAttribute
+    public class SliderFilterAttribute : FacetFilterAttribute
     {
         public SliderFilterAttribute()
             : this(0, 100)

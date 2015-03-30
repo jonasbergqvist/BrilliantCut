@@ -29,7 +29,7 @@ namespace EPiTube.FacetFilter.Core.Filters.Implementations
             return query.CurrentlyPublished().ExcludeDeleted();
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<FacetContent> searchResults)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults)
         {
             yield return new FilterOptionModel("all", "All", false, false, -1);
             yield return new FilterOptionModel("active", "Active", false, false, -1);

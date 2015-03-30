@@ -3,7 +3,7 @@ using EPiTube.FacetFilter.Core.FilterSettings;
 
 namespace EPiTube.facetFilter.Core.DataAnnotation
 {
-    public class TextboxFilterAttribute : facetFilterAttribute
+    public class TextboxFilterAttribute : FacetFilterAttribute
     {
         public TextboxFilterAttribute()
             : this(1000)

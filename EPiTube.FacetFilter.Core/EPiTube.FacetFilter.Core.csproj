@@ -327,43 +327,45 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Activator.cs" />
     <Compile Include="Extensions\ContentExtensions.cs" />
     <Compile Include="DataAnnotation\SliderFilterAttribute.cs" />
     <Compile Include="DataAnnotation\TextboxFilterAttribute.cs" />
     <Compile Include="DataAnnotation\RadiobuttonFilterAttribute.cs" />
     <Compile Include="DataAnnotation\CheckboxFilterAttribute.cs" />
-    <Compile Include="DataAnnotation\FasetFilterAttribute.cs" />
+    <Compile Include="DataAnnotation\FacetFilterAttribute.cs" />
     <Compile Include="Models\FilterOptionModel.cs" />
     <Compile Include="Models\IFilterOptionModel.cs" />
-    <Compile Include="Models\FacetContentCollection.cs" />
     <Compile Include="Service\CheckedOptionsService.cs" />
     <Compile Include="FilterConfiguration.cs" />
     <Compile Include="Extensions\FilterConfigurationExtensions.cs" />
     <Compile Include="Filters\Implementations\ActiveFilter.cs" />
     <Compile Include="Filters\Implementations\ChildrenDescendentsFilter.cs" />
-    <Compile Include="Filters\DateTimeFaset.cs" />
-    <Compile Include="Filters\FasetBase.cs" />
+    <Compile Include="Filters\DateTimeFacet.cs" />
+    <Compile Include="Filters\FacetBase.cs" />
     <Compile Include="Filters\Implementations\LanguageFilter.cs" />
     <Compile Include="Filters\Implementations\MarketsFilter.cs" />
     <Compile Include="Filters\RangeFacet.cs" />
     <Compile Include="Filters\TermsFacet.cs" />
     <Compile Include="Filters\Implementations\TextFilter.cs" />
     <Compile Include="Extensions\HasFacetResultsExtensions.cs" />
-    <Compile Include="FasetFilterInitializationModule.cs" />
+    <Compile Include="FacetFilterInitializationModule.cs" />
     <Compile Include="Models\FacetContent.cs" />
     <Compile Include="Filters\FilterContentBase.cs" />
-    <Compile Include="Service\FilterContentService.cs" />
+    <Compile Include="Service\ContentFilterService.cs" />
+    <Compile Include="Service\FacetService.cs" />
+    <Compile Include="Service\FilteringServiceBase.cs" />
     <Compile Include="FilterContentWithOptions.cs" />
     <Compile Include="Models\CheckedOptionsModel.cs" />
     <Compile Include="Filters\IFilterContent.cs" />
     <Compile Include="Models\IFacetContent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rest\EPiTubeModelTransform.cs" />
+    <Compile Include="Rest\FacetContentTransform.cs" />
     <Compile Include="Rest\Query\GetFilteredChildrenQuery.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FilterSettings\CheckboxFilterSetting.cs" />
-    <Compile Include="FilterSettings\FasetFilterSetting.cs" />
+    <Compile Include="FilterSettings\FacetFilterSetting.cs" />
     <Compile Include="FilterSettings\RadiobuttonFilterSetting.cs" />
     <Compile Include="FilterSettings\SliderFilterSetting.cs" />
     <Compile Include="FilterSettings\TextboxFilterSetting.cs" />

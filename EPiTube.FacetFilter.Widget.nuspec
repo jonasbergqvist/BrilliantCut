@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>EPiTube.FacetFilter</id>
-    <version>0.1</version>
+    <version>0.2</version>
     <title>Green Line Facet Widget</title>
     <authors>Jonas Bergqvist</authors>
     <owners>Green Line EPiDevelopment</owners>
@@ -21,7 +21,7 @@
   <files>
     <file src="EPiTube.FacetFilter.Widget\bin\debug\EPiTube.FacetFilter.Widget.dll" target="lib\net45" />
     <file src="EPiTube.FacetFilter.Widget\bin\debug\EPiTube.FacetFilter.Widget.dll" target="content\net45\modulesbin" />
-    <file src="EPiTube.FacetFilter.Widget\ClientResources\**\*.*" target="content\net45\modules\EPiTube.FasetFilter.Widget" />
+    <file src="EPiTube.FacetFilter.Widget\ClientResources\**\*.*" target="content\net45\modules\EPiTube.FacetFilter.Widget" />
     <file src="EPiTube.FacetFilter.Widget\module.config" target="content\net45\modules\EPiTube.FacetFilter.Widget" />
     <file src="EPiTube.FacetFilter.Widget\Web.Config.install.xdt" target="content\net45" />
     <file src="EPiTube.FacetFilter.Widget\Web.Config.uninstall.xdt" target="content\net45" />

@@ -26,7 +26,7 @@ namespace EPiTube.FacetFilter.Core.Filters.Implementations
             get { return "Free text search"; }
         }
 
-        public IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<FacetContent> searchResults)
+        public IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults)
         {
             yield return new FilterOptionModel("FreeTextFilter", string.Empty, string.Empty, string.Empty, -1);
         }

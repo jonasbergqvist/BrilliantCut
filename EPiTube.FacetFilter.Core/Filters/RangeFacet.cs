@@ -11,12 +11,12 @@ using EPiTube.FacetFilter.Core.Models;
 namespace EPiTube.facetFilter.Core.Filters
 {
     [SliderFilter]
-    public class RangeFacet<T> : FacetBase<T, double>
-        where T : IContent
+    public class RangeFacet<TContent, TValue> : FacetBase<TContent, TValue>
+        where TContent : IContent
     {
-        public Func<FilterBuilder<T>, IEnumerable<double>, FilterBuilder<T>> FilterBuilder { get; set; } 
+        public Func<FilterBuilder<TContent>, IEnumerable<TValue>, FilterBuilder<TContent>> FilterBuilder { get; set; }
 
-        public override ITypeSearch<T> Filter(IContent currentCntent, ITypeSearch<T> query, IEnumerable<double> values)
+        public override ITypeSearch<TContent> Filter(IContent currentCntent, ITypeSearch<TContent> query, IEnumerable<TValue> values)
         {
             var selectedValueArray = values.ToArray();
             if (!selectedValueArray.Any())
@@ -24,13 +24,13 @@ namespace EPiTube.facetFilter.Core.Filters
                 return query;
             }
 
-            var marketFilter = SearchClient.Instance.BuildFilter<T>();
+            var marketFilter = SearchClient.Instance.BuildFilter<TContent>();
             marketFilter = FilterBuilder(marketFilter, selectedValueArray);
 
             return query.Filter(marketFilter);
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<FacetContent> searchResults)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults)
         {
             var authorCounts = searchResults
                 .StatisticalFacetFor(PropertyValuesExpressionObject);
@@ -45,7 +45,7 @@ namespace EPiTube.facetFilter.Core.Filters
             yield return new FilterOptionModel(Name + "max", "max", max, defaultMax, -1);
         }
 
-        public override ITypeSearch<T> AddfacetToQuery(ITypeSearch<T> query)
+        public override ITypeSearch<TContent> AddfacetToQuery(ITypeSearch<TContent> query)
         {
             return query.StatisticalFacetFor(PropertyValuesExpressionObject);
         }

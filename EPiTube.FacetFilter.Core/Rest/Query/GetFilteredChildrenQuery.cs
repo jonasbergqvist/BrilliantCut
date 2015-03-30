@@ -20,7 +20,7 @@ namespace EPiTube.facetFilter.Core.Rest.Query
     public class GetFilteredChildrenQuery : GetChildrenQuery
     {
         private readonly IContentProviderManager _contentProviderManager;
-        private readonly FilterContentService _filterContentFactory;
+        private readonly ContentFilterService _filterContentFactory;
 
         private static DateTime _lastConnectionCheck = DateTime.Now;
 
@@ -35,7 +35,7 @@ namespace EPiTube.facetFilter.Core.Rest.Query
         public GetFilteredChildrenQuery(
             IContentProviderManager contentProviderManager,
             IContentRepository contentRepository,
-            FilterContentService filterContentFactory,
+            ContentFilterService filterContentFactory,
             IContentQueryHelper queryHelper, 
             LanguageSelectorFactory languageSelectorFactory)
             : base(queryHelper, contentRepository, languageSelectorFactory)
@@ -94,7 +94,7 @@ namespace EPiTube.facetFilter.Core.Rest.Query
         {
             try
             {
-                return _filterContentFactory.GetFilteredChildren(parameters, true, false);
+                return _filterContentFactory.GetItems(parameters);
             }
             catch (SocketException)
             {

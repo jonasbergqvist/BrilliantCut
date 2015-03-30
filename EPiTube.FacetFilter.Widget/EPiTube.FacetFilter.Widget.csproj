@@ -191,10 +191,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Components\FasetFilterComponent.cs" />
-    <Compile Include="Edit\EPiTubeFasetFilterModule.cs" />
+    <Compile Include="Components\FacetFilterComponent.cs" />
+    <Compile Include="Edit\FilterContentModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rest\FasetFilterStore.cs" />
+    <Compile Include="Rest\FacetFilterStore.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -217,22 +217,22 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="ClientResources\Scripts\EPiTubeFasetFilterModule.js" />
-    <Content Include="ClientResources\Scripts\widget\SliderFasetFilter.js" />
-    <Content Include="ClientResources\Scripts\widget\templates\RangeFasetFilter.html" />
-    <Content Include="ClientResources\Scripts\widget\NumberTextboxFasetFilter.js" />
-    <Content Include="ClientResources\Scripts\widget\TimeTextboxFasetFilter.js" />
-    <Content Include="ClientResources\Scripts\widget\TextboxFasetFilter.js" />
-    <Content Include="ClientResources\Scripts\widget\RadiobuttonFasetFilter.js" />
-    <Content Include="ClientResources\Scripts\widget\FasetFilterBase.js" />
-    <Content Include="ClientResources\Scripts\widget\CheckboxFasetFilter.js" />
-    <Content Include="ClientResources\Scripts\widget\fasetfilter.js" />
+    <Content Include="ClientResources\Scripts\EPiTubeFacetFilterModule.js" />
+    <Content Include="ClientResources\Scripts\widget\SliderFacetFilter.js" />
+    <Content Include="ClientResources\Scripts\widget\templates\RangeFacetFilter.html" />
+    <Content Include="ClientResources\Scripts\widget\NumberTextboxFacetFilter.js" />
+    <Content Include="ClientResources\Scripts\widget\TimeTextboxFacetFilter.js" />
+    <Content Include="ClientResources\Scripts\widget\TextboxFacetFilter.js" />
+    <Content Include="ClientResources\Scripts\widget\RadiobuttonFacetFilter.js" />
+    <Content Include="ClientResources\Scripts\widget\FacetFilterBase.js" />
+    <Content Include="ClientResources\Scripts\widget\CheckboxFacetFilter.js" />
+    <Content Include="ClientResources\Scripts\widget\facetfilter.js" />
     <Content Include="ClientResources\Scripts\widget\filtercatalogcontentlist.js" />
     <Content Include="ClientResources\Scripts\widget\filtercataloglist.js" />
-    <Content Include="ClientResources\Scripts\widget\templates\FasetFilterBase.html" />
-    <Content Include="ClientResources\Scripts\widget\templates\FasetFilter.html" />
-    <Content Include="ClientResources\Scripts\widget\viewmodel\FasetFilterBaseModel.js" />
-    <Content Include="ClientResources\Scripts\widget\viewmodel\FasetFilterModel.js" />
+    <Content Include="ClientResources\Scripts\widget\templates\FacetFilterBase.html" />
+    <Content Include="ClientResources\Scripts\widget\templates\FacetFilter.html" />
+    <Content Include="ClientResources\Scripts\widget\viewmodel\FacetFilterBaseModel.js" />
+    <Content Include="ClientResources\Scripts\widget\viewmodel\FacetFilterModel.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

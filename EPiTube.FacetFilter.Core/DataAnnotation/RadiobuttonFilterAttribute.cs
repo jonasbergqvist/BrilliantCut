@@ -3,7 +3,7 @@ using EPiTube.FacetFilter.Core.FilterSettings;
 
 namespace EPiTube.facetFilter.Core.DataAnnotation
 {
-    public class RadiobuttonFilterAttribute : facetFilterAttribute
+    public class RadiobuttonFilterAttribute : FacetFilterAttribute
     {
         public RadiobuttonFilterAttribute()
         {

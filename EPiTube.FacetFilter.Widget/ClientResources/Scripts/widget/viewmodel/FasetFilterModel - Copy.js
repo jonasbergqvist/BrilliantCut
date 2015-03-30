@@ -27,7 +27,7 @@
 
         //_filterContentStore: null,
 
-        //_fasetFilterStore: null,
+        //_facetFilterStore: null,
 
         //context: null,
 
@@ -65,7 +65,7 @@
 
         //    var registry = dependency.resolve("epi.storeregistry");
         //    //this._filterContentStore = this._filterContentStore || registry.get("epi.commerce.filtercontent");
-        //    this._fasetFilterStore = this._fasetFilterStore || registry.get("epi.commerce.fasetfilter");
+        //    this._facetFilterStore = this._facetFilterStore || registry.get("epi.commerce.fasetfilter");
         //},
 
         //populateData: function (context) {
@@ -75,7 +75,7 @@
         //    //		protected
         //    this.context = context;
 
-        //    return when(this._fasetFilterStore.refresh(context.id), lang.hitch(this, function (filters) {
+        //    return when(this._facetFilterStore.refresh(context.id), lang.hitch(this, function (filters) {
         //        // TODO: Order the filters by filters.filterContent.name
         //        return filters;
         //    }));
@@ -83,7 +83,7 @@
 
         //getCheckedItems: function (id) {
         //    //when(this._profile.get("epitubefilter"), lang.hitch(this, function (filterModel) {
-        //    //    var models = [];
+        //    //    var models = [];epitubefacetfilter
         //    //    if (!filterModel) {
         //    //        return models;
         //    //    }
