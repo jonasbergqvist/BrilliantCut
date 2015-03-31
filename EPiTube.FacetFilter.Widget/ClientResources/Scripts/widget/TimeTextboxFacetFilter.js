@@ -28,7 +28,7 @@
 
 ) {
     return declare([facetFilterBase], {
-        CreateDijitForm: function (filterOption, filterContentName, attribute, updateList) {
+        CreateDijitForm: function (filterOption, checked, filterContentName, attribute, updateList) {
             return new TimeTextBox({
                 name: filterOption.id,
                 value: filterOption.value,
@@ -60,6 +60,10 @@
             }));
 
             return value;
+        },
+
+        CheckedAtCreation: function (filterOption) {
+            return false;
         }
     });
 });

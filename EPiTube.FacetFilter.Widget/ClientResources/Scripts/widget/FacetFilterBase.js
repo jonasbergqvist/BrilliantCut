@@ -202,7 +202,9 @@
                 }));
 
                 if (dijitForm === null) {
-                    dijitForm = this.CreateDijitForm(filterOption, this.filter.name, this.filter.settings, updateList);
+                    var optionChecked = this.CheckedAtCreation(filterOption);
+
+                    dijitForm = this.CreateDijitForm(filterOption, optionChecked, this.filter.name, this.filter.settings, updateList);
 
                     if (dijitForm !== null) {
                         var label = dojo.create("label", { "for": filterOption.id, innerHTML: this.GetText(filterOption.id, filterOption.text, filterOption.value, filterOption.count) });
@@ -221,8 +223,20 @@
             }));
         },
 
-        CreateDijitForm: function (filterOption, filterContentName, updateList) {
+        CreateDijitForm: function (filterOption, checked, filterContentName, updateList) {
             return null;
+        },
+
+        CheckedAtCreation: function (filterOption) {
+            var optionChecked = false;
+            var id = this.GetId(filterOption.id, filterOption.value);
+            this.checkedItems.forEach(lang.hitch(this, function (checkedItem) {
+                if (id === this.GetId(checkedItem.name, checkedItem.value)) {
+                    optionChecked = true;
+                }
+            }));
+
+            return optionChecked;
         }
     });
 });

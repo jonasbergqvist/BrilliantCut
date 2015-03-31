@@ -33,12 +33,11 @@
             this.defaultValue = [];
         },
 
-        CreateDijitForm: function (filterOption, filterContentName, attribute, updateList) {
+        CreateDijitForm: function (filterOption, checked, filterContentName, attribute, updateList) {
             this.defaultValue.push({ id: filterOption.id, value: filterOption.defaultValue });
 
             this.slider = new HorizontalSlider({
                 name: filterOption.id,
-                //value: this.getDefaultValue(filterOption),
                 minimum: this.getMinMax(this.filter).min,
                 maximum: this.getMinMax(this.filter).max,
                 intermediateChanges: true,
@@ -50,41 +49,35 @@
             return this.slider;
         },
 
-        //getDefaultValue: function(filterOption) {
-        //    if (filterOption.value > 0) {
-        //        return filterOption.value;
-        //    }
-
-        //    return filterOption.defaultValue;
-        //},
-
         Write: function () {
             this.inherited(arguments);
 
             if (this.slider) {
                 var minMaxObject = this.getMinMax(this.filter);
-                var defaultMinMaxObject = this.getDefaultMinMax(this.filter);
+                //var defaultMinMaxObject = this.getDefaultMinMax(this.filter);
 
-                var currentMinimum = this.slider.get('minimum');
-                if (minMaxObject.min !== defaultMinMaxObject.min || currentMinimum === "min") {
-                    //this.slider.set('minimum', minMaxObject.min);
-                    this.slider.attr('minimum', minMaxObject.min);
+                //var currentMinimum = this.slider.get('minimum');
+                //if (minMaxObject.min !== defaultMinMaxObject.min || currentMinimum === "min") {
+                    this.slider.set('minimum', minMaxObject.min);
 
-                    if (this.slider.value < minMaxObject.min) {
+                    if (this.slider.value <= minMaxObject.min) {
                         this.slider.value = minMaxObject.min;
                     }
-                }
+                //}
 
-                var currentMaximum = this.slider.get('maximum');
-                if (minMaxObject.max !== defaultMinMaxObject.max || currentMaximum === "max") {
-                    //this.slider.set('maximum', minMaxObject.max);
-                    this.slider.attr('maximum', minMaxObject.max);
+                //var currentMaximum = this.slider.get('maximum');
+                //if (minMaxObject.max !== defaultMinMaxObject.max || currentMaximum === "max") {
+                    this.slider.set('maximum', minMaxObject.max);
 
-                    if (this.slider.value > minMaxObject.max) {
+                    if (this.slider.value >= minMaxObject.max) {
                         this.slider.value = minMaxObject.max;
                     }
-                }
+                //}
             }
+        },
+
+        CheckedAtCreation: function(filterOption) {
+            return false;
         },
 
         //setFilter: function (filter, checkedItems) {
@@ -116,22 +109,22 @@
         //    }
         //},
 
-        getDefaultMinMax: function(filter) {
-            var min = -1;
-            var max = -1;
+        //getDefaultMinMax: function(filter) {
+        //    var min = -1;
+        //    var max = -1;
 
-            filter.filterOptions.forEach(lang.hitch(this, function(filterOption) {
-                if (filterOption.defaultValue > max) {
-                    max = filterOption.defaultValue;
-                }
+        //    filter.filterOptions.forEach(lang.hitch(this, function(filterOption) {
+        //        if (filterOption.defaultValue > max) {
+        //            max = filterOption.defaultValue;
+        //        }
 
-                if (filterOption.defaultValue < min || min === -1) {
-                    min = filterOption.defaultValue;
-                }
-            }));
+        //        if (filterOption.defaultValue < min || min === -1) {
+        //            min = filterOption.defaultValue;
+        //        }
+        //    }));
 
-            return { min: min, max: max }
-        },
+        //    return { min: min, max: max }
+        //},
 
         getMinMax: function (filter) {
             var min = -1;
@@ -148,11 +141,11 @@
             }));
 
             if (min === -1) {
-                min = 0;
+                min = "min";
             }
 
             if (max === -1) {
-                max = 100;
+                max = "max";
             }
 
             return { min: min, max: max }
@@ -173,7 +166,6 @@
             return name;
         },
 
-	// dijit.byId('zoom_slider1').attr('value',whateverthenewvalueis);
         GetValue: function (name, value) {
             this.dijitForms.forEach(lang.hitch(this, function (existingItem) {
                 if (existingItem.form.name === name) {

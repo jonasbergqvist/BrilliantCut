@@ -28,7 +28,7 @@
 
 ) {
     return declare([facetFilterBase], {
-        CreateDijitForm: function (filterOption, filterContentName, attribute, updateList) {
+        CreateDijitForm: function (filterOption, checked, filterContentName, attribute, updateList) {
             return new NumberTextBox({
                 name: filterOption.id,
                 value: filterOption.value,
@@ -44,7 +44,11 @@
 
         GetId: function (name, value) {
             return name;
-        }//,
+        },
+
+        CheckedAtCreation: function(filterOption) {
+            return false;
+        }
 
         //GetValue: function (name, value) {
         //    this.dijitForms.forEach(lang.hitch(this, function(dijitForm) {

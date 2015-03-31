@@ -22,11 +22,11 @@
 
 ) {
     return declare([facetFilterBase], {
-        CreateDijitForm: function (filterOption, filterContentName, attribute, updateList) {
+        CreateDijitForm: function (filterOption, checked, filterContentName, attribute, updateList) {
             return new CheckBox({
                 name: filterOption.value,
                 value: filterOption.value,
-                checked: filterOption.defaultValue,
+                checked: checked || filterOption.defaultValue,
                 onChange: updateList
             }, filterContentName);
         },

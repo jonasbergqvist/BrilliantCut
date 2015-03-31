@@ -30,7 +30,7 @@
     return declare([facetFilterBase], {
         timeoutId: 0,
 
-        CreateDijitForm: function (filterOption, filterContentName, attribute, updateList) {
+        CreateDijitForm: function (filterOption, checked, filterContentName, attribute, updateList) {
             return new TextBox({
                 name: filterOption.id,
                 value: '',
@@ -57,6 +57,10 @@
             }));
 
             return value;
+        },
+
+        CheckedAtCreation: function (filterOption) {
+            return false;
         }
     });
 });
