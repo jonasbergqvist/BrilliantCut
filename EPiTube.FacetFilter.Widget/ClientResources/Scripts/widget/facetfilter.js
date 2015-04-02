@@ -106,9 +106,9 @@
             this.productGroupingPoint.set("checked", this.model.productGrouped());
 
             var listingMode = this.model.getListingMode();
-            this.noListArea.set("checked", listingMode === this.noListArea.value);
+            this.noListArea.set("checked", listingMode !== this.listMainArea.value && listingMode !== this.listWidgetArea.value);
             this.listMainArea.set("checked", listingMode === this.listMainArea.value);
-            this.listWidgetArea.set("checked", !listingMode === this.listWidgetArea.value);
+            this.listWidgetArea.set("checked", listingMode === this.listWidgetArea.value);
         },
 
         layout: function () {
