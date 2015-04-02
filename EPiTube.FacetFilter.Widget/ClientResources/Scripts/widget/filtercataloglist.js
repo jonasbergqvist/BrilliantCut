@@ -62,7 +62,7 @@
                 referenceId: context.id,
                 query: "getchildren",
                 filterModel: filterModel.valueString,
-                filterEnabled: filterModel.enabled,
+                filterEnabled: filterModel.enabled && filterModel.mainListEnabled,
                 productGrouped: filterModel.productGrouped
             };
 

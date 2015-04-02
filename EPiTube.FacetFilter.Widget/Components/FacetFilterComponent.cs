@@ -8,7 +8,7 @@ namespace EPiTube.facetFilter.Widget.Components
         public FacetFilterComponent()
             : base("epitubefacetfilter.widget.facetfilter")
         {
-            Title = "Filters";
+            Title = "BrilliantCut";
             Description = "Filters the catalog";
             SortOrder = 50;
             PlugInAreas = new[] { EPiServer.Shell.PlugInArea.AssetsDefaultGroup, "/episerver/commerce/assets/defaultgroup" };

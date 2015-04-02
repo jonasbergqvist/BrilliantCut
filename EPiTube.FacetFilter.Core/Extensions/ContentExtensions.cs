@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EPiServer;
 using EPiServer.Commerce.Catalog;
 using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Commerce.SpecializedProperties;
@@ -75,13 +76,29 @@ namespace EPiTube.FacetFilter.Core.Extensions
 
         public static IEnumerable<ContentReference> NodeLinks(this CatalogContentBase content)
         {
-            var productContent = content as ProductContent;
+            var productContent = content as EPiServer.Commerce.Catalog.ContentTypes.ICategorizable;
             if (productContent == null)
             {
                 return Enumerable.Empty<ContentReference>();
             }
 
             return productContent.GetNodeRelations().Select(x => x.Target);
+        }
+
+        public static IEnumerable<string> Categories(this CatalogContentBase content)
+        {
+            var productContent = content as EntryContentBase;
+            if (productContent == null)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            var contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
+            var contentLinks = productContent.GetNodeRelations().Select(x => x.Target);
+            return contentLinks.Select(contentReference => contentLoader.Get<CatalogContentBase>(contentReference).Name).ToList();
+
+            //var contentItems = ServiceLocator.Current.GetInstance<IContentLoader>().GetItems(contentLinks, LanguageSelector.AutoDetect());
+            //return contentItems.Select(x => x.Name);
         }
 
         public static int MetaClassId(this CatalogContentBase content)

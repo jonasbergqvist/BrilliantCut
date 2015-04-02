@@ -32,14 +32,14 @@ namespace EPiTube.facetFilter.Core.Filters
 
         public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults)
         {
-            var authorCounts = searchResults
+            var facet = searchResults
                 .StatisticalFacetFor(PropertyValuesExpressionObject);
 
             const int defaultMin = 0;
             const int defaultMax = 100;
 
-            var min = authorCounts.Count > 0 ? authorCounts.Min : defaultMin;
-            var max = authorCounts.Count > 0 ? authorCounts.Max : defaultMax;
+            var min = facet.Count > 0 ? facet.Min : defaultMin;
+            var max = facet.Count > 0 ? facet.Max : defaultMax;
 
             yield return new FilterOptionModel(Name + "min", "min", min, defaultMin, -1);
             yield return new FilterOptionModel(Name + "max", "max", max, defaultMax, -1);

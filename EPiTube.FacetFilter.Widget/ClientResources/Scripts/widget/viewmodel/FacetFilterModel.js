@@ -33,6 +33,8 @@
 
         profile: null,
 
+        facetContainerH: 0,
+
         postscript: function () {
             // summary:
             //      Post properties mixin handler.
@@ -48,21 +50,19 @@
             this._facetFilterStore = this._facetFilterStore || registry.get("epi.commerce.facetfilter");
         },
 
-        populateData: function (context) {
+        populateData: function () {
             // summary:
             //      Loads data.
             // tags:
             //		protected
-            this.context = context;
 
             var filterModel = this.profile.get("epitubefilter");
 
             var queryParameters = {
-                referenceId: context.id,
+                referenceId: this.context.id,
                 query: "getchildren",
                 filterModel: filterModel.valueString,
-                filterEnabled: filterModel.enabled,
-                productGrouped: filterModel.productGrouped
+                mainListEnabled: filterModel.mainListEnabled,
             };
 
             return when(this._facetFilterStore.query(queryParameters)).then(lang.hitch(this, function (filters) {
@@ -99,7 +99,22 @@
             return filterModel.productGrouped;
         },
 
-        updateList: function (modelFilters, enabled, productGrouped, refresh) {
+        mainListEnabled: function () {
+            var filterModel = this.profile.get("epitubefilter");
+            return filterModel.mainListEnabled;
+        },
+
+        getFacetContainerH: function () {
+            var filterModel = this.profile.get("epitubefilter");
+            return filterModel.facetContainerH;
+        },
+
+        updateList: function (parent, modelFilters, enabled, productGrouped, mainListEnabled, searchResultList) {
+
+            if (!this.context) {
+                return;
+            }
+
             var modelsString = "";
             var models = [];
 
@@ -127,11 +142,27 @@
                 });
             }
 
-            var filterModel = { value: models, enabled: enabled, productGrouped: productGrouped, valueString: modelsString }; //contentLink: this.context.id, 
-            this.profile.set("epitubefilter", filterModel);
+            var filterModel = { value: models, enabled: enabled, productGrouped: productGrouped, mainListEnabled: mainListEnabled, valueString: modelsString, facetContainerH: this.facetContainerH }; //contentLink: this.context.id, 
+            if (modelFilters.length > 0) {
+                this.profile.set("epitubefilter", filterModel);
+            }
 
-            if (refresh) {
+            if (mainListEnabled) {
                 topic.publish("/epi/shell/context/request", { uri: this.context.uri }, { sender: this, forceContextChange: true, forceReload: true });
+            } else {
+                parent.widgetChange();
+
+                var queryOptions = { ignore: ["query"], parentId: this.context.id, sort: [{ attribute: "name" }] };
+                var queryParameters = {
+                    referenceId: this.context.id,
+                    query: "getchildren",
+                    filterModel: filterModel.valueString,
+                    filterEnabled: filterModel.enabled,
+                    productGrouped: filterModel.productGrouped,
+                    mainListEnabled: filterModel.mainListEnabled
+                };
+
+                searchResultList.set("query", queryParameters, queryOptions);
             }
         },
 

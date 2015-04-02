@@ -218,6 +218,7 @@
                         souroundedDiv.appendChild(label);
 
                         this.alternativs.appendChild(souroundedDiv);
+                        dijitForm.startup();
                     }
                 }
             }));

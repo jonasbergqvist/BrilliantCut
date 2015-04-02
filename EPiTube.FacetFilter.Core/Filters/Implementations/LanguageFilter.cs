@@ -38,12 +38,12 @@ namespace EPiTube.FacetFilter.Core.Filters.Implementations
 
         public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults)
         {
-            var authorCounts = searchResults
+            var facet = searchResults
                 .TermsFacetFor<EntryContentBase>(x => x.LanguageName()).Terms;
 
             var filterOptionModels = new List<FilterOptionModel>();
-            filterOptionModels.Add(new FilterOptionModel("languageCurrent", "Current", "current", true, authorCounts.Sum(x => x.Count)));
-            filterOptionModels.AddRange(authorCounts.Select(authorCount => new FilterOptionModel("language" + authorCount.Term, String.Format(CultureInfo.InvariantCulture, "{0} ({1})", authorCount.Term, authorCount.Count), authorCount.Term, false, authorCount.Count)));
+            filterOptionModels.Add(new FilterOptionModel("languageCurrent", "Current", "current", true, facet.Sum(x => x.Count)));
+            filterOptionModels.AddRange(facet.Select(authorCount => new FilterOptionModel("language" + authorCount.Term, String.Format(CultureInfo.InvariantCulture, "{0} ({1})", authorCount.Term, authorCount.Count), authorCount.Term, false, authorCount.Count)));
 
             return filterOptionModels;
         }

@@ -50,12 +50,12 @@
         },
 
         _getQueryOptions: function (id, simplified, onlyTopLevelChildren, originalQuery) {
+            var filterModel = this.profile.get("epitubefilter");
+
             var currentCategory = id;
             if (originalQuery) {
                 currentCategory = originalQuery.currentCategory;
             }
-
-            var filterModel = this.profile.get("epitubefilter");
 
             return {
                 queryOptions: { ignore: ["query"], parentId: id, sort: (!simplified && !!onlyTopLevelChildren) ? [{ attribute: "typeSortIndex" }] : null },
@@ -63,8 +63,11 @@
                     referenceId: id,
                     query: "getchildren",
                     filterModel: filterModel.valueString,
-                    filterEnabled: filterModel.enabled,
-                    productGrouped: filterModel.productGrouped
+                    filterEnabled: filterModel.enabled && filterModel.mainListEnabled,
+                    productGrouped: filterModel.productGrouped,
+                    simplified: simplified,
+                    toplevel: onlyTopLevelChildren,
+                    currentCategory: currentCategory,
                 }
             };
         },

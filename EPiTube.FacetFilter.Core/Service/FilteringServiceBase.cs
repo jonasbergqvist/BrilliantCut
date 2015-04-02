@@ -4,6 +4,7 @@ using System.Linq;
 using EPiServer;
 using EPiServer.Cms.Shell.UI.Rest.ContentQuery;
 using EPiServer.Commerce.Catalog.ContentTypes;
+using EPiServer.Core;
 using EPiServer.Find;
 using EPiServer.Framework.Cache;
 using EPiServer.ServiceLocation;
@@ -11,6 +12,7 @@ using EPiTube.facetFilter.Core;
 using EPiTube.FacetFilter.Core.Filters;
 using EPiTube.FacetFilter.Core.FilterSettings;
 using EPiTube.FacetFilter.Core.Models;
+using Mediachase.Commerce.Catalog;
 
 namespace EPiTube.FacetFilter.Core.Service
 {
@@ -20,7 +22,6 @@ namespace EPiTube.FacetFilter.Core.Service
         {
             public IFilterContent Filter { get; set; }
             public Type ContentType { get; set; }
-            public Type QueryContentType { get; set; }
             public bool FacetAdded { get; set; }
             public bool HasGenericArgument { get; set; }
             public FacetFilterSetting Setting { get; set; }
@@ -38,6 +39,7 @@ namespace EPiTube.FacetFilter.Core.Service
             IContentRepository contentRepository,
             ISynchronizedObjectInstanceCache synchronizedObjectInstanceCache,
             SearchSortingService searchSorter,
+            ReferenceConverter referenceConverter,
             IClient client)
         {
             _filterConfiguration = filterConfiguration;
@@ -45,11 +47,13 @@ namespace EPiTube.FacetFilter.Core.Service
             ContentRepository = contentRepository;
             _synchronizedObjectInstanceCache = synchronizedObjectInstanceCache;
             SearchSortingService = searchSorter;
+            ReferenceConverter = referenceConverter;
             Client = client;
 
             FilterContentsWithGenericTypes = new Lazy<IEnumerable<FilterContentModelType>>(FilterContentsWithGenericTypesValueFactory, false);
         }
 
+        protected ReferenceConverter ReferenceConverter { get; private set; }
         protected IClient Client { get; private set; }
         protected IContentRepository ContentRepository { get; private set; }
         protected CheckedOptionsService CheckedOptionsService { get; private set; }
@@ -79,6 +83,18 @@ namespace EPiTube.FacetFilter.Core.Service
                 }, 
                 new TimeSpan(1, 0, 0), 
                 CacheTimeoutType.Sliding));
+        }
+
+        protected virtual ContentReference GetContentLink(ContentQueryParameters parameters)
+        {
+            var mainListEnabledString = parameters.AllParameters["mainListEnabled"];
+            bool mainListEnabled;
+            if (mainListEnabledString != null && Boolean.TryParse(mainListEnabledString, out mainListEnabled) && !mainListEnabled)
+            {
+                return ReferenceConverter.GetRootLink();
+            }
+
+            return parameters.ReferenceId;
         }
 
         protected virtual Type GetSearchType(FilterModel filterModel)

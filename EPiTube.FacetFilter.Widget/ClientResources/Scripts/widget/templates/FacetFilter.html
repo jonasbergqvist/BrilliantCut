@@ -1,20 +1,56 @@
-﻿<div data-dojo-type="dijit.layout.ContentPane" style="overflow:auto;">
+﻿<div id="brilliantcut" data-dojo-attach-point="brilliantcutPoint">
     <div id="facetHeading" data-dojo-attach-point="facetHeadingPoint" style="padding-bottom: 15px; padding-left: 15px;">
-        <div style="font-weight: bold;">
-            Heading
+        <div>
+            <input type="checkbox"
+                   id="facetenabledid"
+                   checked data-dojo-type="dijit/form/CheckBox"
+                   data-dojo-attach-point="fasedEnabledPoint">
+            <label for="facetenabledid">Enable facets</label>
         </div>
         <div>
-            <input type="checkbox" id="facetenabledid" checked data-dojo-type="dijit/form/CheckBox" data-dojo-attach-point="fasedEnabledPoint"><label for="facetenabledid">Enabled</label>
+            <input type="checkbox"
+                   id="productGroupingid"
+                   checked data-dojo-type="dijit/form/CheckBox"
+                   data-dojo-attach-point="productGroupingPoint">
+            <label for="productGroupingid">Product grouping</label>
         </div>
         <div>
-            <input type="checkbox" id="productGroupingid" checked data-dojo-type="dijit/form/CheckBox" data-dojo-attach-point="productGroupingPoint"><label for="productGroupingid">Product grouping</label>
+            <input type="radio"
+                   name="listArea"
+                   id="mainArea"
+                   value="mainArea"
+                   checked
+                   data-dojo-type="dijit/form/RadioButton"
+                   data-dojo-attach-point="listMainArea">
+            <label for="mainArea">Main list</label>
+        </div>
+        <div>
+            <input type="radio"
+                   name="listArea"
+                   id="widgetArea"
+                   value="widgetArea"
+                   data-dojo-type="dijit/form/RadioButton"
+                   data-dojo-attach-point="listWidgetArea">
+            <label for="widgetArea">Widget list</label>
         </div>
     </div>
-    <!--<p>
-            <input type="radio" name="productgrouping" id="radioProductGroup" checked value="productgroup" data-dojo-type="dijit/form/RadioButton" data-dojo-attach-event='onClick: updateList' /> <label for="radioProductGroup">Group</label>
-            <input type="radio" name="productgrouping" id="radioNoGroup" value="nogroup" data-dojo-type="dijit/form/RadioButton" data-dojo-attach-event='onClick: updateList' /> <label for="radioNoGroup">Descendents</label>
-    </p>-->
-    <div id="facetitems" data-dojo-attach-point="facet">
 
+    <div data-dojo-attach-point="container"
+         data-dojo-type="dijit/layout/BorderContainer"
+         data-dojo-props="gutters: false">
+
+        <div data-dojo-type="dijit/layout/ContentPane" data-dojo-attach-point="facetContainer" data-dojo-props="region:'center', splitter:false">
+            <div id="facetitems" data-dojo-attach-point="facet"></div>
+        </div>
+        <div class="epi-gadgetBottomContainer"
+             data-dojo-attach-point="listContainer"
+             data-dojo-type="dijit/layout/BorderContainer"
+             data-dojo-props="region:'bottom', splitter:true, gutters: false">
+
+            <div data-dojo-attach-point="list"
+                 data-dojo-type="epi-cms/widget/ContentList"
+                 data-dojo-props="region:'center', splitter:false">
+            </div>
+        </div>
     </div>
 </div>

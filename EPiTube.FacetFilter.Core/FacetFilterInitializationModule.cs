@@ -56,6 +56,7 @@ namespace EPiTube.facetFilter.Core
                 .IncludeField(x => x.VariationLinks())
                 .IncludeField(x => x.ThumbnailPath())
                 .IncludeField(x => x.NodeLinks())
+                .IncludeField(x => x.Categories())
                 .IncludeField(x => x.DefaultCurrency())
                 .IncludeField(x => x.LengthBase())
                 .IncludeField(x => x.WeightBase())

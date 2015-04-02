@@ -6,6 +6,7 @@ using EPiServer.Cms.Shell.UI.Rest.ContentQuery;
 using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Core;
 using EPiServer.Find;
+using EPiServer.Find.Api;
 using EPiServer.Find.Framework;
 using EPiServer.Framework.Cache;
 using EPiServer.ServiceLocation;
@@ -13,6 +14,7 @@ using EPiTube.facetFilter.Core;
 using EPiTube.FacetFilter.Core.Filters;
 using EPiTube.FacetFilter.Core.FilterSettings;
 using EPiTube.FacetFilter.Core.Models;
+using Mediachase.Commerce.Catalog;
 
 namespace EPiTube.FacetFilter.Core.Service
 {
@@ -25,23 +27,26 @@ namespace EPiTube.FacetFilter.Core.Service
             IContentRepository contentRepository,
             ISynchronizedObjectInstanceCache synchronizedObjectInstanceCache,
             SearchSortingService searchSorter,
+            ReferenceConverter referenceConverter,
             IClient client)
-            : base(filterConfiguration, filterModelFactory, contentRepository, synchronizedObjectInstanceCache, searchSorter, client)
+            : base(filterConfiguration, filterModelFactory, contentRepository, synchronizedObjectInstanceCache, searchSorter, referenceConverter, client)
         {
         }
 
         public override IEnumerable<FilterContentWithOptions> GetItems(ContentQueryParameters parameters)
         {
+            var contentLink = GetContentLink(parameters);
+
             var filterModelString = parameters.AllParameters["filterModel"];
 
-            var cacheKey = String.Concat("FacetService#", parameters.ReferenceId, "#", filterModelString);
+            var cacheKey = String.Concat("FacetService#", contentLink, "#", filterModelString);
             var cachedResult = GetCachedContent<IEnumerable<FilterContentWithOptions>>(cacheKey);
             if (cachedResult != null)
             {
                 return cachedResult;
             }
 
-            var content = ContentRepository.Get<IContent>(parameters.ReferenceId);
+            var content = ContentRepository.Get<IContent>(contentLink);
 
             var filters = new Dictionary<string, IEnumerable<object>>();
             var filter = CheckedOptionsService.CreateFilterModel(filterModelString);
@@ -57,10 +62,10 @@ namespace EPiTube.FacetFilter.Core.Service
                 searchType.IsAssignableFrom(x.ContentType)).ToList();
 
             var subQueries = new Dictionary<FilterContentModelType, ISearch>();
-            AddSubqueries(possiblefacetQueries, subQueries);
+            AddSubqueries(possiblefacetQueries, subQueries, searchType);
 
             var filterContentModelTypes = GetSupportedFilterContentModelTypes(searchType).ToList();
-            AddFiltersToSubQueries(content, subQueries, filterContentModelTypes, filters);
+            AddFiltersToSubQueries(content, subQueries, filterContentModelTypes, filters, searchType);
 
             if (subQueries.Any())
             {
@@ -73,7 +78,7 @@ namespace EPiTube.FacetFilter.Core.Service
             return Enumerable.Empty<FilterContentWithOptions>();
         }
 
-        private void AddSubqueries(List<FilterContentModelType> possiblefacetQueries, Dictionary<FilterContentModelType, ISearch> subQueries)
+        private void AddSubqueries(IEnumerable<FilterContentModelType> possiblefacetQueries, Dictionary<FilterContentModelType, ISearch> subQueries, Type searchType)
         {
             foreach (var filterContentModelType in possiblefacetQueries)
             {
@@ -84,24 +89,22 @@ namespace EPiTube.FacetFilter.Core.Service
                     continue;
                 }
 
-                filterContentModelType.QueryContentType = filterContentModelType.ContentType;
-                foreach (var otherFilterContentModelType in possiblefacetQueries.Where(otherFilterContentModelType => filterContentModelType.QueryContentType.IsAssignableFrom(otherFilterContentModelType.ContentType)))
-                {
-                    filterContentModelType.QueryContentType = otherFilterContentModelType.ContentType;
-                }
+                var typeForQueryCreation = searchType.IsAssignableFrom(filterContentModelType.ContentType)
+                    ? filterContentModelType.ContentType
+                    : searchType;
 
-                var subQuery = CreateSearchQuery(filterContentModelType.QueryContentType);
+                var subQuery = CreateSearchQuery(typeForQueryCreation);
                 subQueries.Add(filterContentModelType, subQuery);
             }
         }
 
-        private static void AddFiltersToSubQueries(IContent content, Dictionary<FilterContentModelType, ISearch> subQueries, List<FilterContentModelType> filterContentModelTypes, Dictionary<string, IEnumerable<object>> filters)
+        private static void AddFiltersToSubQueries(IContent content, Dictionary<FilterContentModelType, ISearch> subQueries, List<FilterContentModelType> filterContentModelTypes, Dictionary<string, IEnumerable<object>> filters, Type searchType)
         {
             if (filters == null) throw new ArgumentNullException("filters");
             var subQueryFilterContentModelTypes = subQueries.Keys.ToList();
             foreach (var subQueryKey in subQueryFilterContentModelTypes)
             {
-                foreach (var filterContentModelType in GetSupportedFilterModelTypes(filterContentModelTypes, subQueryKey))
+                foreach (var filterContentModelType in GetSupportedFilterModelTypes(filterContentModelTypes, searchType))
                 {
                     if (ShouldAddFacetToQuery(subQueryKey, filterContentModelType))
                     {
@@ -136,9 +139,9 @@ namespace EPiTube.FacetFilter.Core.Service
                     !subQueryKey.ContentType.IsAssignableFrom(filterContentModelType.ContentType));
         }
 
-        private static IEnumerable<FilterContentModelType> GetSupportedFilterModelTypes(IEnumerable<FilterContentModelType> filterContentModelTypes, FilterContentModelType subQueryKey)
+        private static IEnumerable<FilterContentModelType> GetSupportedFilterModelTypes(IEnumerable<FilterContentModelType> filterContentModelTypes, Type searchType)
         {
-            return filterContentModelTypes.Where(x => x.ContentType.IsAssignableFrom(subQueryKey.QueryContentType));
+            return filterContentModelTypes.Where(x => x.ContentType.IsAssignableFrom(searchType));
         }
 
         private IEnumerable<FilterContentWithOptions> GetFilterResult(Dictionary<FilterContentModelType, ISearch> subQueries)

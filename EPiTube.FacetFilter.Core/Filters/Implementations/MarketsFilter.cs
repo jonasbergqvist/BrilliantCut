@@ -28,10 +28,10 @@ namespace EPiTube.FacetFilter.Core.Filters.Implementations
 
         public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults)
         {
-            var authorCounts = searchResults
+            var facet = searchResults
                 .TermsFacetFor<EntryContentBase>(x => x.SelectedMarkets()).Terms;
 
-            return authorCounts.Select(authorCount => new FilterOptionModel("marketing" + authorCount.Term, String.Format(CultureInfo.InvariantCulture, "{0} ({1})", authorCount.Term, authorCount.Count), authorCount.Term, false, authorCount.Count));
+            return facet.Select(authorCount => new FilterOptionModel("marketing" + authorCount.Term, String.Format(CultureInfo.InvariantCulture, "{0} ({1})", authorCount.Term, authorCount.Count), authorCount.Term, false, authorCount.Count));
         }
 
         public override ITypeSearch<EntryContentBase> AddfacetToQuery(ITypeSearch<EntryContentBase> query)

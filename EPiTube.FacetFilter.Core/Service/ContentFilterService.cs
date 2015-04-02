@@ -12,6 +12,7 @@ using EPiServer.Shell.Services.Rest;
 using EPiTube.facetFilter.Core;
 using EPiTube.FacetFilter.Core.Extensions;
 using EPiTube.FacetFilter.Core.Models;
+using Mediachase.Commerce.Catalog;
 
 namespace EPiTube.FacetFilter.Core.Service
 {
@@ -24,8 +25,9 @@ namespace EPiTube.FacetFilter.Core.Service
             IContentRepository contentRepository,
             ISynchronizedObjectInstanceCache synchronizedObjectInstanceCache,
             SearchSortingService searchSorter,
+            ReferenceConverter referenceConverter,
             IClient client)
-            : base(filterConfiguration, filterModelFactory, contentRepository, synchronizedObjectInstanceCache, searchSorter, client)
+            : base(filterConfiguration, filterModelFactory, contentRepository, synchronizedObjectInstanceCache, searchSorter, referenceConverter, client)
         {
         }
 
@@ -38,6 +40,7 @@ namespace EPiTube.FacetFilter.Core.Service
             bool productGrouped;
             Boolean.TryParse(productGroupedString, out productGrouped);
 
+            var contentLink = GetContentLink(parameters);
             var filterModel = CheckedOptionsService.CreateFilterModel(filterModelString);
 
             var searchType = typeof(CatalogContentBase); // make this selectable using Conventions api
@@ -54,7 +57,7 @@ namespace EPiTube.FacetFilter.Core.Service
                 }
             }
 
-            var content = ContentRepository.Get<IContent>(parameters.ReferenceId);
+            var content = ContentRepository.Get<IContent>(contentLink);
             var includeProductVariationRelations = productGrouped && !(content is ProductContent);
             var supportedFilters = GetSupportedFilterContentModelTypes(searchType).ToList();
             var query = CreateSearchQuery(searchType);

@@ -3,7 +3,10 @@
 // Dojo
     "dojo/_base/declare",
     "dojo/Deferred",
+    "dojo/aspect",
     "dojo/_base/lang",
+    "dojo/dom-geometry",
+    "dojo/dom-style",
     "dojo/html",
     "dojo/when",
     "dojo/_base/array",
@@ -13,12 +16,16 @@
 
 // Dijit
     "dijit/_TemplatedMixin",
+    "dijit/_WidgetsInTemplateMixin",
     "dijit/_WidgetBase",
     "dijit/layout/ContentPane",
     "dijit/form/CheckBox",
+    "dijit/layout/BorderContainer",
+    "dijit/layout/_LayoutWidget",
 
 //CMS 
     "epi-cms/_ContentContextMixin",
+    "epi-cms/widget/ContentList",
 
 //Commerce
     "./viewmodel/facetFilterModel",
@@ -30,7 +37,10 @@
 // Doj
     declare,
     Deferred,
+    aspect,
     lang,
+    geometry,
+    domStyle,
     html,
     when,
     array,
@@ -40,21 +50,24 @@
 
 // Dijit
     _TemplatedMixin,
+    _WidgetsInTemplateMixin,
     _WidgetBase,
     ContentPane,
     CheckBox,
+    BorderContainer,
+    _LayoutWidget,
 
 //CMS
     _ContentContextMixin,
+    ContentList,
 
 //Commerce
     facetFilterModel,
 
 //Resources
     template
-
 ) {
-    return declare([_WidgetBase, _TemplatedMixin, _ContentContextMixin], {
+    return declare([_LayoutWidget, _TemplatedMixin, _ContentContextMixin, _WidgetsInTemplateMixin], {
 
         templateString: template,
 
@@ -75,30 +88,79 @@
                 var modelClass = declare(this.modelClassName);
                 this.set("model", new modelClass());
             }
+
+            this.fasedEnabledPoint.set("checked", this.model.isEnabled());
+            this.productGroupingPoint.set("checked", this.model.productGrouped());
+
+            var mainListEnabled = this.model.mainListEnabled();
+            this.listMainArea.set("checked", mainListEnabled);
+            this.listWidgetArea.set("checked", !mainListEnabled);
+        },
+
+        layout: function () {
+
+            var facetContainerh = this.model.getFacetContainerH();
+            if (this._contentBox) {
+                if (this.listWidgetArea.checked && facetContainerh > 0) {
+                    this.listContainer.resize({
+                        h: facetContainerh,
+                        w: this._contentBox.w,
+                        l: 0,
+                        t: 0,
+                    });
+                } else {
+                    this.listContainer.resize({
+                        h: 50,
+                        w: this._contentBox.w,
+                        l: 0,
+                        t: 0,
+                    });
+                }
+
+                var facetHeadingSize = geometry.getMarginBox(this.facetHeadingPoint),
+                    containerSize = {
+                        h: this._contentBox.h - facetHeadingSize.h,
+                        w: this._contentBox.w,
+                        l: this._contentBox.l,
+                        t: this._contentBox.t
+                    };
+
+                this.container.resize(containerSize);
+            }
+
+            this.listContainer.layout();
+
+            aspect.after(this.listContainer, "resize", lang.hitch(this, function () {
+                this.model.facetContainerH = this.listContainer.h;
+            }, true));
         },
 
         startup: function () {
             this.inherited(arguments);
 
-            this.fasedEnabledPoint.checked = this.model.isEnabled();
-            this.productGroupingPoint.checked = this.model.productGrouped();
-
-            dojo.connect(this.fasedEnabledPoint, "change", lang.hitch(this, function () {
-
-                if (this.fasedEnabledPoint.checked) {
-                    this.facet.style.display = "";
-                } else {
-                    this.facet.style.display = "none";
-                }
-
-                this.updateList();
-            }));
-
-            dojo.connect(this.productGroupingPoint, "change", lang.hitch(this, function () {
-                this.updateList();
-            }));
-
             when(this.getCurrentContext(), lang.hitch(this, this.contextChanged));
+
+            aspect.after(this.fasedEnabledPoint, "onChange", lang.hitch(this, function () {
+                this.fasedEnabledPointOnChanged();
+            }, true));
+            aspect.after(this.productGroupingPoint, "onChange", lang.hitch(this, function () {
+                this.updateList();
+            }, true));
+            aspect.after(this.listMainArea, "onChange", lang.hitch(this, function () {
+                this.layout();
+
+                this.updateList();
+            }, true));
+        },
+
+        fasedEnabledPointOnChanged: function() {
+            if (this.fasedEnabledPoint.checked) {
+                this.container.style.display = "";
+            } else {
+                this.container.style.display = "none";
+            }
+
+            this.updateList();
         },
 
         getExistingModelFilter: function(filter) {
@@ -114,14 +176,23 @@
 
         contextChanged: function (context, sender) {
 
-            this.model.populateData(context).then(lang.hitch(this, function(filters) {
+            this.model.context = context;
+            if (!this.model.mainListEnabled()) {
+                return;
+            }
+
+            this.widgetChange();
+        },
+
+        widgetChange: function() {
+            this.model.populateData().then(lang.hitch(this, function (filters) {
                 filters.forEach(lang.hitch(this, function (filter) {
                     var checkedItems = this.model.getCheckedItems(filter.name);
 
                     var modelFilter = this.getExistingModelFilter(filter);
                     var hasModelFilter = modelFilter !== null;
                     if (!hasModelFilter) {
-                        this.own(require([filter.settings.filterPath], lang.hitch(this, function(filterClass) {
+                        this.own(require([filter.settings.filterPath], lang.hitch(this, function (filterClass) {
                             modelFilter = new filterClass();
 
                             modelFilter.setFilter(filter, checkedItems);
@@ -145,10 +216,10 @@
                 for (var i = 0; i < this.modelFilters.length; i++) {
                     var filterExist = false;
 
-                    filters.forEach(lang.hitch(this, function(filter) {
+                    filters.forEach(lang.hitch(this, function (filter) {
                         if (filter.name === this.modelFilters[i].filter.name) {
                             filterExist = true;
-                        } 
+                        }
                     }));
 
                     if (!filterExist) {
@@ -163,8 +234,8 @@
             }));
         },
 
-        updateList: function () {
-            this.model.updateList(this.modelFilters, this.fasedEnabledPoint.checked, this.productGroupingPoint.checked, true);
+        updateList: function() {
+            this.model.updateList(this, this.modelFilters, this.fasedEnabledPoint.checked, this.productGroupingPoint.checked, this.listMainArea.checked, this.list);
         }
 
     });
