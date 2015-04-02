@@ -20,6 +20,7 @@ namespace EPiTube.FacetFilter.Core.Models
         public virtual string Code { get; set; }
         public virtual string ThumbnailPath { get; set; }
         public virtual double DefaultPrice { get; set; }
+        public virtual string ThumbnailUrl { get; set; }
 
         public IEnumerable<ContentReference> NodeLinks { get; internal set; }
         public IEnumerable<ContentReference> ProductLinks { get; internal set; }

@@ -8,6 +8,7 @@ using EPiServer.Find;
 using EPiServer.Find.Api.Querying;
 using EPiTube.facetFilter.Core.DataAnnotation;
 using EPiTube.FacetFilter.Core.Extensions;
+using EPiTube.FacetFilter.Core.FilterSettings;
 using EPiTube.FacetFilter.Core.Models;
 
 namespace EPiTube.FacetFilter.Core.Filters.Implementations
@@ -26,7 +27,7 @@ namespace EPiTube.FacetFilter.Core.Filters.Implementations
             get { return "Free text search"; }
         }
 
-        public IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults)
+        public IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode)
         {
             yield return new FilterOptionModel("FreeTextFilter", string.Empty, string.Empty, string.Empty, -1);
         }
@@ -68,7 +69,7 @@ namespace EPiTube.FacetFilter.Core.Filters.Implementations
             return search;
         }
 
-        public ISearch AddfacetToQuery(ISearch query)
+        public ISearch AddfacetToQuery(ISearch query, FacetFilterSetting setting)
         {
             return query;
         }

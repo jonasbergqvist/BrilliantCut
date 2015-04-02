@@ -8,6 +8,7 @@ using EPiServer.Find;
 using EPiServer.Find.Framework;
 using EPiTube.facetFilter.Core.DataAnnotation;
 using EPiTube.FacetFilter.Core.Extensions;
+using EPiTube.FacetFilter.Core.FilterSettings;
 using EPiTube.FacetFilter.Core.Models;
 
 namespace EPiTube.FacetFilter.Core.Filters.Implementations
@@ -36,7 +37,7 @@ namespace EPiTube.FacetFilter.Core.Filters.Implementations
             return query.Filter(marketFilter);
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode)
         {
             var facet = searchResults
                 .TermsFacetFor<EntryContentBase>(x => x.LanguageName()).Terms;
@@ -48,9 +49,15 @@ namespace EPiTube.FacetFilter.Core.Filters.Implementations
             return filterOptionModels;
         }
 
-        public override ITypeSearch<CatalogContentBase> AddfacetToQuery(ITypeSearch<CatalogContentBase> query)
+        public override ITypeSearch<CatalogContentBase> AddfacetToQuery(ITypeSearch<CatalogContentBase> query, FacetFilterSetting setting)
         {
-            return query.TermsFacetFor(x => x.LanguageName());
+            return query.TermsFacetFor(x => x.LanguageName(), request =>
+            {
+                if (setting.MaxFacetHits.HasValue)
+                {
+                    request.Size = setting.MaxFacetHits;
+                }
+            });
         }
     }
 }

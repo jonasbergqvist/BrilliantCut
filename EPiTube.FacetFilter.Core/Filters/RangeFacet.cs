@@ -4,8 +4,10 @@ using System.Linq;
 using EPiServer.Core;
 using EPiServer.Find;
 using EPiServer.Find.Framework;
+using EPiTube.FacetFilter.Core;
 using EPiTube.facetFilter.Core.DataAnnotation;
 using EPiTube.FacetFilter.Core.Extensions;
+using EPiTube.FacetFilter.Core.FilterSettings;
 using EPiTube.FacetFilter.Core.Models;
 
 namespace EPiTube.facetFilter.Core.Filters
@@ -30,7 +32,7 @@ namespace EPiTube.facetFilter.Core.Filters
             return query.Filter(marketFilter);
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode)
         {
             var facet = searchResults
                 .StatisticalFacetFor(PropertyValuesExpressionObject);
@@ -45,7 +47,7 @@ namespace EPiTube.facetFilter.Core.Filters
             yield return new FilterOptionModel(Name + "max", "max", max, defaultMax, -1);
         }
 
-        public override ITypeSearch<TContent> AddfacetToQuery(ITypeSearch<TContent> query)
+        public override ITypeSearch<TContent> AddfacetToQuery(ITypeSearch<TContent> query, FacetFilterSetting setting)
         {
             return query.StatisticalFacetFor(PropertyValuesExpressionObject);
         }

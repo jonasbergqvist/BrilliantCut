@@ -35,7 +35,8 @@ namespace EPiTube.FacetFilter.Core.Service
 
         public override IEnumerable<FilterContentWithOptions> GetItems(ContentQueryParameters parameters)
         {
-            var contentLink = GetContentLink(parameters);
+            var listingMode = GetListingMode(parameters);
+            var contentLink = GetContentLink(parameters, listingMode);
 
             var filterModelString = parameters.AllParameters["filterModel"];
 
@@ -69,7 +70,7 @@ namespace EPiTube.FacetFilter.Core.Service
 
             if (subQueries.Any())
             {
-                var result = GetFilterResult(subQueries).ToList();
+                var result = GetFilterResult(subQueries, listingMode).ToList();
                 Cache(cacheKey, result);
 
                 return result;
@@ -84,8 +85,7 @@ namespace EPiTube.FacetFilter.Core.Service
             {
                 if (subQueries.ContainsKey(filterContentModelType))
                 {
-                    subQueries[filterContentModelType] =
-                        filterContentModelType.Filter.AddfacetToQuery(subQueries[filterContentModelType]);
+                    subQueries[filterContentModelType] = filterContentModelType.Filter.AddfacetToQuery(subQueries[filterContentModelType], filterContentModelType.Setting);
                     continue;
                 }
 
@@ -108,7 +108,7 @@ namespace EPiTube.FacetFilter.Core.Service
                 {
                     if (ShouldAddFacetToQuery(subQueryKey, filterContentModelType))
                     {
-                        subQueries[subQueryKey] = subQueryKey.Filter.AddfacetToQuery(subQueries[subQueryKey]);
+                        subQueries[subQueryKey] = subQueryKey.Filter.AddfacetToQuery(subQueries[subQueryKey], subQueryKey.Setting);
                         subQueryKey.FacetAdded = true;
 
                         if (filterContentModelType.Filter.Name == subQueryKey.Filter.Name)
@@ -126,7 +126,7 @@ namespace EPiTube.FacetFilter.Core.Service
 
                 if (!subQueryKey.FacetAdded)
                 {
-                    subQueries[subQueryKey] = subQueryKey.Filter.AddfacetToQuery(subQueries[subQueryKey]);
+                    subQueries[subQueryKey] = subQueryKey.Filter.AddfacetToQuery(subQueries[subQueryKey], subQueryKey.Setting);
                     subQueryKey.FacetAdded = true;
                 }
             }
@@ -144,7 +144,7 @@ namespace EPiTube.FacetFilter.Core.Service
             return filterContentModelTypes.Where(x => x.ContentType.IsAssignableFrom(searchType));
         }
 
-        private IEnumerable<FilterContentWithOptions> GetFilterResult(Dictionary<FilterContentModelType, ISearch> subQueries)
+        private IEnumerable<FilterContentWithOptions> GetFilterResult(Dictionary<FilterContentModelType, ISearch> subQueries, ListingMode listingMode)
         {
             var filters = new List<FilterContentWithOptions>();
 
@@ -168,7 +168,7 @@ namespace EPiTube.FacetFilter.Core.Service
                 var option = new FilterContentWithOptions()
                 {
                     FilterContent = filterListInResultOrderKeys[i],
-                    FilterOptions = filterListInResultOrderKeys[i].GetFilterOptions(multiResult[i]).ToArray(),
+                    FilterOptions = filterListInResultOrderKeys[i].GetFilterOptions(multiResult[i], listingMode).ToArray(),
                 };
 
                 var settings = filterListInResultOrder[filterListInResultOrderKeys[i]];

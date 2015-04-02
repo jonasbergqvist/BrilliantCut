@@ -85,11 +85,21 @@ namespace EPiTube.FacetFilter.Core.Service
                 CacheTimeoutType.Sliding));
         }
 
-        protected virtual ContentReference GetContentLink(ContentQueryParameters parameters)
+        protected virtual ListingMode GetListingMode(ContentQueryParameters parameters)
         {
-            var mainListEnabledString = parameters.AllParameters["mainListEnabled"];
-            bool mainListEnabled;
-            if (mainListEnabledString != null && Boolean.TryParse(mainListEnabledString, out mainListEnabled) && !mainListEnabled)
+            var listingModeString = parameters.AllParameters["listingMode"];
+            ListingMode listingMode;
+            if (listingModeString != null && Enum.TryParse(listingModeString, out listingMode))
+            {
+                return listingMode;
+            }
+
+            return ListingMode.NoListing;
+        }
+
+        protected virtual ContentReference GetContentLink(ContentQueryParameters parameters, ListingMode listingMode)
+        {
+            if (listingMode == ListingMode.WidgetListing)
             {
                 return ReferenceConverter.GetRootLink();
             }

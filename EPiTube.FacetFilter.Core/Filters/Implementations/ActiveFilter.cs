@@ -6,6 +6,7 @@ using EPiServer.Find;
 using EPiServer.Find.Cms;
 using EPiTube.facetFilter.Core.DataAnnotation;
 using EPiTube.FacetFilter.Core.Extensions;
+using EPiTube.FacetFilter.Core.FilterSettings;
 using EPiTube.FacetFilter.Core.Models;
 
 namespace EPiTube.FacetFilter.Core.Filters.Implementations
@@ -29,14 +30,14 @@ namespace EPiTube.FacetFilter.Core.Filters.Implementations
             return query.CurrentlyPublished().ExcludeDeleted();
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode)
         {
             yield return new FilterOptionModel("all", "All", false, false, -1);
             yield return new FilterOptionModel("active", "Active", false, false, -1);
             //yield return new FilterOptionModel("unactive", "Unactive", false, false, -1);
         }
 
-        public override ITypeSearch<CatalogContentBase> AddfacetToQuery(ITypeSearch<CatalogContentBase> query)
+        public override ITypeSearch<CatalogContentBase> AddfacetToQuery(ITypeSearch<CatalogContentBase> query, FacetFilterSetting setting)
         {
             return query;
         }

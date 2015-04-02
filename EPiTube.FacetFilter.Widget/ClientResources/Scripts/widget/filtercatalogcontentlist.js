@@ -63,7 +63,7 @@
                     referenceId: id,
                     query: "getchildren",
                     filterModel: filterModel.valueString,
-                    filterEnabled: filterModel.enabled && filterModel.mainListEnabled,
+                    listingMode: filterModel.listingMode,
                     productGrouped: filterModel.productGrouped,
                     simplified: simplified,
                     toplevel: onlyTopLevelChildren,

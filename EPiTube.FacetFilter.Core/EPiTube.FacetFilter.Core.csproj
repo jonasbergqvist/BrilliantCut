@@ -335,6 +335,7 @@
     <Compile Include="DataAnnotation\CheckboxFilterAttribute.cs" />
     <Compile Include="DataAnnotation\FacetFilterAttribute.cs" />
     <Compile Include="Filters\Implementations\CategoryFilter.cs" />
+    <Compile Include="ListingMode.cs" />
     <Compile Include="Models\FilterOptionModel.cs" />
     <Compile Include="Models\IFilterOptionModel.cs" />
     <Compile Include="Service\CheckedOptionsService.cs" />

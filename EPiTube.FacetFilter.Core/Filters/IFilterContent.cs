@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using EPiServer.Core;
 using EPiServer.Find;
 using EPiTube.FacetFilter.Core.Extensions;
+using EPiTube.FacetFilter.Core.FilterSettings;
 using EPiTube.FacetFilter.Core.Models;
 
 namespace EPiTube.FacetFilter.Core.Filters
@@ -12,8 +13,8 @@ namespace EPiTube.FacetFilter.Core.Filters
         String Name { get; }
         String Description { get; }
 
-        IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults);
-        ISearch AddfacetToQuery(ISearch query);
+        IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode);
+        ISearch AddfacetToQuery(ISearch query, FacetFilterSetting setting);
         ISearch Filter(IContent content, ISearch query, IEnumerable<object> values);
     }
 }

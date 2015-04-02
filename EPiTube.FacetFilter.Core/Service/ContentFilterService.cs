@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EPiServer;
+using EPiServer.Cms.Shell;
 using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Core;
 using EPiServer.Find;
@@ -40,7 +41,8 @@ namespace EPiTube.FacetFilter.Core.Service
             bool productGrouped;
             Boolean.TryParse(productGroupedString, out productGrouped);
 
-            var contentLink = GetContentLink(parameters);
+            var listingMode = GetListingMode(parameters);
+            var contentLink = GetContentLink(parameters, listingMode);
             var filterModel = CheckedOptionsService.CreateFilterModel(filterModelString);
 
             var searchType = typeof(CatalogContentBase); // make this selectable using Conventions api

@@ -13,6 +13,7 @@
     "dojox/layout/ScrollPane",
     "dojo/parser",
     "dojo/on",
+    "dojo/string",
 
 // Dijit
     "dijit/_TemplatedMixin",
@@ -23,14 +24,20 @@
     "dijit/layout/BorderContainer",
     "dijit/layout/_LayoutWidget",
 
+// epi shell
+    "epi/shell/dgrid/util/misc",
+
 //CMS 
     "epi-cms/_ContentContextMixin",
     "epi-cms/widget/ContentList",
+    "epi-cms/core/ContentReference",
+    "epi-cms/dgrid/formatters",
 
 //Commerce
     "./viewmodel/facetFilterModel",
 
 //Resources
+    "epi/i18n!epi/cms/nls/episerver.shared.header",
     "dojo/text!./templates/facetFilter.html"
 ], function (
 
@@ -47,6 +54,7 @@
     ScrollPane,
     parser,
     on,
+    dojoString,
 
 // Dijit
     _TemplatedMixin,
@@ -57,14 +65,20 @@
     BorderContainer,
     _LayoutWidget,
 
+// epi shell
+    misc,
+
 //CMS
     _ContentContextMixin,
     ContentList,
+    ContentReference,
+    formatters,
 
 //Commerce
     facetFilterModel,
 
 //Resources
+    headingResources,
     template
 ) {
     return declare([_LayoutWidget, _TemplatedMixin, _ContentContextMixin, _WidgetsInTemplateMixin], {
@@ -89,12 +103,12 @@
                 this.set("model", new modelClass());
             }
 
-            this.fasedEnabledPoint.set("checked", this.model.isEnabled());
             this.productGroupingPoint.set("checked", this.model.productGrouped());
 
-            var mainListEnabled = this.model.mainListEnabled();
-            this.listMainArea.set("checked", mainListEnabled);
-            this.listWidgetArea.set("checked", !mainListEnabled);
+            var listingMode = this.model.getListingMode();
+            this.noListArea.set("checked", listingMode === this.noListArea.value);
+            this.listMainArea.set("checked", listingMode === this.listMainArea.value);
+            this.listWidgetArea.set("checked", !listingMode === this.listWidgetArea.value);
         },
 
         layout: function () {
@@ -140,27 +154,96 @@
 
             when(this.getCurrentContext(), lang.hitch(this, this.contextChanged));
 
-            aspect.after(this.fasedEnabledPoint, "onChange", lang.hitch(this, function () {
-                this.fasedEnabledPointOnChanged();
-            }, true));
             aspect.after(this.productGroupingPoint, "onChange", lang.hitch(this, function () {
                 this.updateList();
             }, true));
-            aspect.after(this.listMainArea, "onChange", lang.hitch(this, function () {
-                this.layout();
 
-                this.updateList();
+            aspect.after(this.noListArea, "onChange", lang.hitch(this, function (checked) {
+                this.onlistAreaClick(checked);
             }, true));
+            aspect.after(this.listMainArea, "onChange", lang.hitch(this, function (checked) {
+                this.onlistAreaClick(checked);
+            }, true));
+            aspect.after(this.listWidgetArea, "onChange", lang.hitch(this, function (checked) {
+                this.onlistAreaClick(checked);
+            }, true));
+
+            this._setFormatterForList();
         },
 
-        fasedEnabledPointOnChanged: function() {
-            if (this.fasedEnabledPoint.checked) {
-                this.container.style.display = "";
-            } else {
-                this.container.style.display = "none";
+        onlistAreaClick: function(checked) {
+            if (!checked) {
+                return;
             }
 
+            if (this.noListArea.checked) {
+                this.facet.style.display = "none";
+                this.facet.style.display = "none";
+            } else {
+                this.list.style.display = "";
+                this.list.style.display = "";
+            }
+
+            this.layout();
             this.updateList();
+        },
+
+        _setFormatterForList: function () {
+            // summary: 
+            //      Reset formatter for catalog hierarchical list.
+            // tags:
+            //      protected
+
+            var grid = this.list.grid;
+            // Reset formatter for catalog list to display both thumbnail and icon type identifier
+            grid.formatters = [lang.hitch(this, this.catalogItemFormatter)];
+            grid.configStructure();
+        },
+
+        catalogItemFormatter: function (value, object, node, options) {
+            // summary: 
+            //      Formatter for catalog list to display both thumbnail and icon type identifier.
+            // tags:
+            //      public
+
+            var text = misc.htmlEncode(object.name);
+            var title = misc.attributeEncode(this.getTitleSelector(object) || text);
+            var returnValue = dojoString.substitute("${thumbnail} ${icon} ${text}", {
+                thumbnail: formatters.thumbnail(this.getThumbnailSelector(object)),
+                icon: formatters.contentIcon(object.typeIdentifier),
+                text: misc.ellipsis(text, title)
+            });
+
+            node.innerHTML = returnValue;
+            return returnValue;
+        },
+
+        getThumbnailSelector: function (item) {
+            // summary: 
+            //      Get thumbnail url from content item.
+            // tags:
+            //      public
+
+            if (item && item.properties) {
+                return item.properties.thumbnail;
+            }
+            return '';
+        },
+
+        getTitleSelector: function (item) {
+            // summary: 
+            //      Get title information from content item.
+            // tags:
+            //      public
+
+            if (item) {
+                var reference = new ContentReference(item.contentLink);
+                if (reference) {
+                    return dojoString.substitute("${name}, ${resourceId}: ${id} (${resourceType}: ${type})",
+                        { name: item.name, resourceId: headingResources.id, id: reference.id, resourceType: headingResources.type, type: item.contentTypeName });
+                }
+            }
+            return '';
         },
 
         getExistingModelFilter: function(filter) {
@@ -177,7 +260,7 @@
         contextChanged: function (context, sender) {
 
             this.model.context = context;
-            if (!this.model.mainListEnabled()) {
+            if (this.model.getListingMode() === this.noListArea.value) {
                 return;
             }
 
@@ -234,8 +317,15 @@
             }));
         },
 
-        updateList: function() {
-            this.model.updateList(this, this.modelFilters, this.fasedEnabledPoint.checked, this.productGroupingPoint.checked, this.listMainArea.checked, this.list);
+        updateList: function () {
+            var selectedRadioValue = "0";//dojo.query("select[name=listArea]")[0].value;
+            if (this.listMainArea.checked) {
+                selectedRadioValue = this.listMainArea.value;
+            } else if (this.listWidgetArea.checked) {
+                selectedRadioValue = this.listWidgetArea.value;
+            }
+
+            this.model.updateList(this, this.modelFilters, this.productGroupingPoint.checked, selectedRadioValue, this.list);
         }
 
     });

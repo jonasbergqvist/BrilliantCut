@@ -62,7 +62,7 @@
                 referenceId: this.context.id,
                 query: "getchildren",
                 filterModel: filterModel.valueString,
-                mainListEnabled: filterModel.mainListEnabled,
+                listingMode: filterModel.listingMode,
             };
 
             return when(this._facetFilterStore.query(queryParameters)).then(lang.hitch(this, function (filters) {
@@ -89,9 +89,9 @@
             return models;
         },
 
-        isEnabled: function() {
+        getListingMode: function() {
             var filterModel = this.profile.get("epitubefilter");
-            return filterModel.enabled;
+            return filterModel.listingMode;
         },
 
         productGrouped: function () {
@@ -99,17 +99,12 @@
             return filterModel.productGrouped;
         },
 
-        mainListEnabled: function () {
-            var filterModel = this.profile.get("epitubefilter");
-            return filterModel.mainListEnabled;
-        },
-
         getFacetContainerH: function () {
             var filterModel = this.profile.get("epitubefilter");
             return filterModel.facetContainerH;
         },
 
-        updateList: function (parent, modelFilters, enabled, productGrouped, mainListEnabled, searchResultList) {
+        updateList: function (parent, modelFilters, productGrouped, listingMode, searchResultList) {
 
             if (!this.context) {
                 return;
@@ -142,14 +137,14 @@
                 });
             }
 
-            var filterModel = { value: models, enabled: enabled, productGrouped: productGrouped, mainListEnabled: mainListEnabled, valueString: modelsString, facetContainerH: this.facetContainerH }; //contentLink: this.context.id, 
+            var filterModel = { value: models, productGrouped: productGrouped, listingMode: listingMode, valueString: modelsString, facetContainerH: this.facetContainerH }; //contentLink: this.context.id, 
             if (modelFilters.length > 0) {
                 this.profile.set("epitubefilter", filterModel);
             }
 
-            if (mainListEnabled) {
+            if (listingMode === "1") {
                 topic.publish("/epi/shell/context/request", { uri: this.context.uri }, { sender: this, forceContextChange: true, forceReload: true });
-            } else {
+            } else if (listingMode === "2") {
                 parent.widgetChange();
 
                 var queryOptions = { ignore: ["query"], parentId: this.context.id, sort: [{ attribute: "name" }] };
@@ -157,9 +152,8 @@
                     referenceId: this.context.id,
                     query: "getchildren",
                     filterModel: filterModel.valueString,
-                    filterEnabled: filterModel.enabled,
                     productGrouped: filterModel.productGrouped,
-                    mainListEnabled: filterModel.mainListEnabled
+                    listingMode: filterModel.listingMode
                 };
 
                 searchResultList.set("query", queryParameters, queryOptions);

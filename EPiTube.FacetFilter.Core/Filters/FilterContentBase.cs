@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EPiServer.Core;
 using EPiServer.Find;
-using EPiTube.facetFilter.Core;
-using EPiTube.FacetFilter.Core.Extensions;
+using EPiTube.FacetFilter.Core.FilterSettings;
 using EPiTube.FacetFilter.Core.Models;
 
 namespace EPiTube.FacetFilter.Core.Filters
@@ -16,9 +15,9 @@ namespace EPiTube.FacetFilter.Core.Filters
 
         public abstract ITypeSearch<TContentData> Filter(IContent currentCntent, ITypeSearch<TContentData> query, IEnumerable<TValueType> values);
 
-        public abstract IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults);
+        public abstract IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode);
 
-        public abstract ITypeSearch<TContentData> AddfacetToQuery(ITypeSearch<TContentData> query);
+        public abstract ITypeSearch<TContentData> AddfacetToQuery(ITypeSearch<TContentData> query, FacetFilterSetting setting);
 
         public virtual string Description
         {
@@ -30,9 +29,9 @@ namespace EPiTube.FacetFilter.Core.Filters
             return Filter(currentCntent, (ITypeSearch<TContentData>)query, values.Select(x => Convert.ChangeType(x, typeof(TValueType))).Cast<TValueType>());
         }
 
-        public ISearch AddfacetToQuery(ISearch query)
+        public ISearch AddfacetToQuery(ISearch query, FacetFilterSetting setting)
         {
-            return AddfacetToQuery((ITypeSearch<TContentData>)query);
+            return AddfacetToQuery((ITypeSearch<TContentData>)query, setting);
         }
     }
 }

@@ -6,6 +6,7 @@ using EPiServer.Find;
 using EPiServer.Find.Cms;
 using EPiTube.facetFilter.Core.DataAnnotation;
 using EPiTube.FacetFilter.Core.Extensions;
+using EPiTube.FacetFilter.Core.FilterSettings;
 using EPiTube.FacetFilter.Core.Models;
 
 namespace EPiTube.FacetFilter.Core.Filters.Implementations
@@ -40,14 +41,18 @@ namespace EPiTube.FacetFilter.Core.Filters.Implementations
             return query.Filter(x => x.ParentLink.Match(currentCntent.ContentLink.ToReferenceWithoutVersion()));
         }
 
-        public override ITypeSearch<CatalogContentBase> AddfacetToQuery(ITypeSearch<CatalogContentBase> query)
+        public override ITypeSearch<CatalogContentBase> AddfacetToQuery(ITypeSearch<CatalogContentBase> query, FacetFilterSetting setting)
         {
             return query;
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode)
         {
-            yield return new FilterOptionModel("Children", "Children", "Children", true, -1);
+            if (mode == ListingMode.MainListing)
+            {
+                yield return new FilterOptionModel("Children", "Children", "Children", true, -1);
+            }
+
             yield return new FilterOptionModel("Descendents", "Descendents", "Descendents", false, -1);
         }
     }

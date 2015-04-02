@@ -12,6 +12,7 @@ using EPiServer.Find.Framework;
 using EPiServer.ServiceLocation;
 using EPiServer.Shell.ContentQuery;
 using EPiServer.Shell.Rest;
+using EPiTube.FacetFilter.Core;
 using EPiTube.FacetFilter.Core.Service;
 
 namespace EPiTube.facetFilter.Core.Rest.Query
@@ -67,9 +68,11 @@ namespace EPiTube.facetFilter.Core.Rest.Query
                 return false;
             }
 
-            bool filterEnabled;
-            var filterModelString = parameters.AllParameters["filterEnabled"];
-            return filterModelString != null && Boolean.TryParse(filterModelString, out filterEnabled) && filterEnabled;
+            var listingModeString = parameters.AllParameters["listingMode"];
+            ListingMode listingMode;
+            return listingModeString != null && 
+                Enum.TryParse(listingModeString, out listingMode) &&
+                listingMode != ListingMode.NoListing;
         }
 
         private static bool IsFindRunning()

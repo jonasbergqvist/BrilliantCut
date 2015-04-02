@@ -9,6 +9,7 @@ using EPiServer.Core;
 using EPiServer.Find;
 using EPiServer.Find.Framework;
 using EPiTube.FacetFilter.Core.Extensions;
+using EPiTube.FacetFilter.Core.FilterSettings;
 using EPiTube.FacetFilter.Core.Models;
 
 namespace EPiTube.FacetFilter.Core.Filters.Implementations
@@ -28,7 +29,7 @@ namespace EPiTube.FacetFilter.Core.Filters.Implementations
             return query.Filter(filter);
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode)
         {
             var facet = searchResults
                 .TermsFacetFor<CatalogContentBase>(x => x.Categories()).Terms;
@@ -36,9 +37,15 @@ namespace EPiTube.FacetFilter.Core.Filters.Implementations
             return facet.Select(authorCount => new FilterOptionModel("category" + authorCount.Term, String.Format(CultureInfo.InvariantCulture, "{0} ({1})", authorCount.Term, authorCount.Count), authorCount.Term, false, authorCount.Count));
         }
 
-        public override ITypeSearch<CatalogContentBase> AddfacetToQuery(ITypeSearch<CatalogContentBase> query)
+        public override ITypeSearch<CatalogContentBase> AddfacetToQuery(ITypeSearch<CatalogContentBase> query, FacetFilterSetting setting)
         {
-            return query.TermsFacetFor(x => x.Categories(), request => request.Size = 100);
+            return query.TermsFacetFor(x => x.Categories(), request =>
+            {
+                if (setting.MaxFacetHits.HasValue)
+                {
+                    request.Size = setting.MaxFacetHits;
+                }
+            });
         }
     }
 }

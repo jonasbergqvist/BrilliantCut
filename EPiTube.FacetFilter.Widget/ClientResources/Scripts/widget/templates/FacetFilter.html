@@ -1,24 +1,19 @@
 ﻿<div id="brilliantcut" data-dojo-attach-point="brilliantcutPoint">
     <div id="facetHeading" data-dojo-attach-point="facetHeadingPoint" style="padding-bottom: 15px; padding-left: 15px;">
         <div>
-            <input type="checkbox"
-                   id="facetenabledid"
-                   checked data-dojo-type="dijit/form/CheckBox"
-                   data-dojo-attach-point="fasedEnabledPoint">
-            <label for="facetenabledid">Enable facets</label>
-        </div>
-        <div>
-            <input type="checkbox"
-                   id="productGroupingid"
-                   checked data-dojo-type="dijit/form/CheckBox"
-                   data-dojo-attach-point="productGroupingPoint">
-            <label for="productGroupingid">Product grouping</label>
+            <input type="radio"
+                   name="listArea"
+                   id="noArea"
+                   value="0"
+                   data-dojo-type="dijit/form/RadioButton"
+                   data-dojo-attach-point="noListArea">
+            <label for="widgetArea">No listing</label>
         </div>
         <div>
             <input type="radio"
                    name="listArea"
                    id="mainArea"
-                   value="mainArea"
+                   value="1"
                    checked
                    data-dojo-type="dijit/form/RadioButton"
                    data-dojo-attach-point="listMainArea">
@@ -28,10 +23,17 @@
             <input type="radio"
                    name="listArea"
                    id="widgetArea"
-                   value="widgetArea"
+                   value="2"
                    data-dojo-type="dijit/form/RadioButton"
                    data-dojo-attach-point="listWidgetArea">
             <label for="widgetArea">Widget list</label>
+        </div>
+        <div>
+            <input type="checkbox"
+                   id="productGroupingid"
+                   checked data-dojo-type="dijit/form/CheckBox"
+                   data-dojo-attach-point="productGroupingPoint">
+            <label for="productGroupingid">Product grouping</label>
         </div>
     </div>
 
