@@ -1,0 +1,58 @@
+﻿<div id="brilliantcut" data-dojo-attach-point="brilliantcutPoint">
+    <div id="facetHeading" data-dojo-attach-point="facetHeadingPoint" style="padding-bottom: 15px; padding-left: 15px;">
+        <div>
+            <input type="radio"
+                   name="listArea"
+                   id="noArea"
+                   value="0"
+                   data-dojo-type="dijit/form/RadioButton"
+                   data-dojo-attach-point="noListArea">
+            <label for="widgetArea">No filtering</label>
+        </div>
+        <div>
+            <input type="radio"
+                   name="listArea"
+                   id="mainArea"
+                   value="1"
+                   checked
+                   data-dojo-type="dijit/form/RadioButton"
+                   data-dojo-attach-point="listMainArea">
+            <label for="mainArea">Filter result list</label>
+        </div>
+        <div>
+            <input type="radio"
+                   name="listArea"
+                   id="widgetArea"
+                   value="2"
+                   data-dojo-type="dijit/form/RadioButton"
+                   data-dojo-attach-point="listWidgetArea">
+            <label for="widgetArea">Filter widget list</label>
+        </div>
+        <div>
+            <input type="checkbox"
+                   id="productGroupingid"
+                   checked data-dojo-type="dijit/form/CheckBox"
+                   data-dojo-attach-point="productGroupingPoint">
+            <label for="productGroupingid">Product grouping</label>
+        </div>
+    </div>
+
+    <div data-dojo-attach-point="container"
+         data-dojo-type="dijit/layout/BorderContainer"
+         data-dojo-props="gutters: false">
+
+        <div data-dojo-type="dijit/layout/ContentPane" data-dojo-attach-point="facetContainer" data-dojo-props="region:'center', splitter:false">
+            <div id="facetitems" data-dojo-attach-point="facet"></div>
+        </div>
+        <div class="epi-gadgetBottomContainer"
+             data-dojo-attach-point="listContainer"
+             data-dojo-type="dijit/layout/BorderContainer"
+             data-dojo-props="region:'bottom', splitter:true, gutters: false">
+
+            <div data-dojo-attach-point="list"
+                 data-dojo-type="epi-cms/widget/ContentList"
+                 data-dojo-props="region:'center', splitter:false">
+            </div>
+        </div>
+    </div>
+</div>
