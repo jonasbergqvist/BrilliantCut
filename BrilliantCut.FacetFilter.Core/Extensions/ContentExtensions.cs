@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using EPiServer;
 using EPiServer.Commerce.Catalog;
@@ -95,10 +96,9 @@ namespace BrilliantCut.FacetFilter.Core.Extensions
 
             var contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
             var contentLinks = productContent.GetNodeRelations().Select(x => x.Target);
-            return contentLinks.Select(contentReference => contentLoader.Get<CatalogContentBase>(contentReference).Name).ToList();
 
-            //var contentItems = ServiceLocator.Current.GetInstance<IContentLoader>().GetItems(contentLinks, LanguageSelector.AutoDetect());
-            //return contentItems.Select(x => x.Name);
+            var contentItems = contentLoader.GetItems(contentLinks, content.Language);
+            return contentItems.Select(x => x.Name);
         }
 
         public static int MetaClassId(this CatalogContentBase content)
