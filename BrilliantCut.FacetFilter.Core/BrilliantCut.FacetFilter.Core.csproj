@@ -268,8 +268,7 @@
       <HintPath>..\packages\EPiServer.Commerce.Core.8.7.1\lib\net45\nsoftware.IBizPay.dll</HintPath>
     </Reference>
     <Reference Include="StructureMap">
-      <HintPath>..\..\packages\structuremap.2.6.4.1\lib\net40\StructureMap.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\structuremap.2.6.4.1\lib\net40\StructureMap.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
