@@ -1,12 +1,12 @@
 # BrilliantCut FacetFilter
-BrilliantCut FacetFilter is a private project, mainly developed on the green tube in Stockholm between 06.35-07.00 in the morging.
-The code has been created to show how nice EPiServer Commerce and EPiServer Find fit together, but anyone that wants to use this project in a site are more then welcome to do so. Anyone is also welcome to contribute to this project.
+BrilliantCut FacetFilter is a private project, mainly developed on the green tube in Stockholm between 06.35-07.00 in the morning.
+The code has been created to show how nice EPiServer Commerce and EPiServer Find fit together, but anyone that wants to use this project in a site are more than welcome to do so. Anyone is also welcome to contribute to this project.
 
 What is BrilliantCut FacetFilter?
 ---------------------------------
 ---------------------------------
-BrilliantCut FacetFilter makes it possible to filter the catalog UI using facets using EPiServer Find. The project includes facets like language, market, and category. It also includes a free text search, and the possiblity to choose if the search should apply to children or descendants.
-The more important feature in the API is the possiblity to create your own facets. Here is an example on a terms facet that is added for the property "Color" of content type "FashionVariant":
+BrilliantCut FacetFilter makes it possible to filter the catalog UI using facets using EPiServer Find. The project includes facets like language, market, and category. It also includes a free text search, and the possibility to choose if the search should apply to children or descendants.
+The more important feature in the API is the possibility to create your own facets. Here is an example on a terms facet that is added for the property "Color" of content type "FashionVariant":
 
                 context.Locate.Advanced.GetInstance<FilterConfiguration>()
                     .Termsfacet<FashionVariant>(x => x.Color,
@@ -17,9 +17,9 @@ Adding BrilliantCut FacetFilter to a site
 --------------------------------------------
 There are two nuget packages in this project, "BrilliantCut.FacetFilter.Core", and "BrilliantCut.FacetFilter.Widget", that needs to be added to the site. "BrilliantCut.FacetFilter.Widget" depends on "BrilliantCut.FacetFilter.Core", so installing the widget package will automatically install the other one.
 
-Update nuge packages
+Update nuget packages
 --------------------
-Nuspec files exists for both nuget packages in the project. To update the nuget packages, simply use the commande nuget pack {fullPathToNuspecFile}, and the nuget package will be updated.
+Nuspec files exists for both nuget packages in the project. To update the nuget packages, simply use the command nuget pack {fullPathToNuspecFile}, and the nuget package will be updated.
 
 Adding nuget package
 --------------------
@@ -32,7 +32,7 @@ There is several build in facets and filters that can be used directly.
 
 ChildrenDescendentsFilter
 -------------------------
-This filter uses the "current content" in the catalog ui to descide the parent node to for which children or descendants should be listed.
+This filter uses the "current content" in the catalog ui to decide the parent node to for which children or descendants should be listed.
 
                 context.Locate.Advanced.GetInstance<FilterConfiguration>()
                     .Facet<ChildrenDescendentsFilter>();
@@ -88,7 +88,7 @@ Facet to filter content in an inventory range. This facet should not be used at 
 
 Configure facets on the site
 ---------------------------
-No facet or filter are added automatically to the widget. It's up to the developer to descide which ones that should be used on the site. The following line should be added to an Initialize method in an initialization module: 
+No facet or filter are added automatically to the widget. It's up to the developer to decide which ones that should be used on the site. The following line should be added to an Initialize method in an initialization module: 
                 context.Locate.Advanced.GetInstance<FilterConfiguration>();
 
 It's now easy to add facets in a selected order using the method "Facet<T>". Here is an example where several facets are added in a selected order:
@@ -102,7 +102,7 @@ It's now easy to add facets in a selected order using the method "Facet<T>". Her
 
 Settings
 --------
-It's possible to change the default settings for the facets. Each build in facet has a default widget which will be used, but this can easaly be changed. The following example shows how to change the market filter to use radiobutton instead of checkboxes.
+It's possible to change the default settings for the facets. Each build in facet has a default widget which will be used, but this can easily be changed. The following example shows how to change the market filter to use radiobutton instead of checkboxes.
 
                 context.Locate.Advanced.GetInstance<FilterConfiguration>()
                     .Facet<MarketsFilter>(new RadiobuttonFilterSetting());
@@ -111,10 +111,10 @@ There are also some intresting properties in the settings classes that can be se
 
 Another property that is useful on the "TextboxFilterSetting" is "Delay", which specifies how many milliseconds the client will wait until a request is done to the server when something is changed in the textbox.
 
-Create you own facet
+Create your own facet
 --------------------
 --------------------
-There are seveal ways to create a facet. The easiest onece are "terms facet", and "range facet".
+There are several ways to create a facet. The easiest once are "terms facet", and "range facet".
 
 Termsfacet<T>
 -------------
@@ -124,7 +124,7 @@ It's very easy to create a terms facet for a property in a content type. This ca
                     .Termsfacet<FashionVariant>(x => x.Color,
                         (builder, value) => builder.Or(x => x.Color.Match(value)));
 
-In this example we add a facet for the property "Color" in the content type "FashionVariant". The first argument specifies the property (Color), and the other argument tells "BrilliantCut" how to deal with several values that has been choosen for the facet in the UI. By using "builder.Or" we are doing an "or" for all selected values.
+In this example we add a facet for the property "Color" in the content type "FashionVariant". The first argument specifies the property (Color), and the other argument tells "BrilliantCut" how to deal with several values that has been chosen for the facet in the UI. By using "builder.Or" we are doing an "or" for all selected values.
 
 RangeFacet<TContent, TValue>
 ----------------------------
