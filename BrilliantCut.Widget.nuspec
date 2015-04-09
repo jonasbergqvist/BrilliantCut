@@ -21,8 +21,8 @@
   <files>
     <file src="BrilliantCut.Widget\bin\debug\BrilliantCut.Widget.dll" target="lib\net45" />
     <file src="BrilliantCut.Widget\bin\debug\BrilliantCut.Widget.dll" target="content\net45\modulesbin" />
-    <file src="BrilliantCut.Widget\ClientResources\**\*.*" target="content\net45\modules\BrilliantCut.Widget" />
-    <file src="BrilliantCut.Widget\module.config" target="content\net45\modules\BrilliantCut.Widget" />
+    <file src="BrilliantCut.Widget\ClientResources\**\*.*" target="content\net45\modules\_protected\BrilliantCut.Widget" />
+    <file src="BrilliantCut.Widget\module.config" target="content\net45\modules\_protected\BrilliantCut.Widget" />
     <file src="BrilliantCut.Widget\Web.Config.install.xdt" target="content\net45" />
     <file src="BrilliantCut.Widget\Web.Config.uninstall.xdt" target="content\net45" />
   </files>
