@@ -5,7 +5,7 @@ The code has been created to show how nice EPiServer Commerce and EPiServer Find
 What is BrilliantCut?
 ---------------------------------
 ---------------------------------
-BrilliantCut makes it possible to filter the catalog UI using facets using EPiServer Find. The project includes facets like language, market, and category. It also includes a free text search, and the possibility to choose if the search should apply to children or descendants.
+BrilliantCut makes it possible to filter the catalog UI by facets using EPiServer Find. The project includes facets like language, market, and category. It also includes a free text search, and the possibility to choose if the search should apply to children or descendants.
 The more important feature in the API is the possibility to create your own facets. Here is an example on a terms facet that is added for the property "Color" of content type "FashionVariant":
 
                 context.Locate.Advanced.GetInstance<FilterConfiguration>()
@@ -15,7 +15,7 @@ The more important feature in the API is the possibility to create your own face
 Adding BrilliantCut to a site
 --------------------------------------------
 --------------------------------------------
-There are two nuget packages in this project, "BrilliantCut.FacetFilter.Core", and "BrilliantCut.FacetFilter.Widget", that needs to be added to the site. "BrilliantCut.FacetFilter.Widget" depends on "BrilliantCut.FacetFilter.Core", so installing the widget package will automatically install the other one.
+There are two nuget packages in this project, "BrilliantCut.Core", and "BrilliantCut.Widget", that needs to be added to the site. "BrilliantCut.Widget" depends on "BrilliantCut.Core", so installing the widget package will automatically install the other one.
 
 Update nuget packages
 --------------------
