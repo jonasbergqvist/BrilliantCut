@@ -15,7 +15,7 @@ The more important feature in the API is the possibility to create your own face
 Adding BrilliantCut to a site
 --------------------------------------------
 --------------------------------------------
-There are two nuget packages in this project, "BrilliantCut.FacetFilter.Core", and "BrilliantCut.FacetFilter.Widget", that needs to be added to the site. "BrilliantCut.FacetFilter.Widget" depends on "BrilliantCut.FacetFilter.Core", so installing the widget package will automatically install the other one.
+There are two nuget packages in this project, "BrilliantCut.Core", and "BrilliantCut.Widget", that needs to be added to the site. "BrilliantCut.Widget" depends on "BrilliantCut.Core", so installing the widget package will automatically install the other one.
 
 Update nuget packages
 --------------------
