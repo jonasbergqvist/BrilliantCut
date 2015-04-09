@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>BrilliantCut.Core</id>
+    <version>0.1</version>
+    <title>Brilliant Cut Core</title>
+    <authors>Jonas Bergqvist</authors>
+    <owners>Jonas Bergqvist</owners>
+    <licenseUrl>https://github.com/jonasbergqvist/BrilliantCut</licenseUrl>
+    <projectUrl>https://github.com/jonasbergqvist/BrilliantCut</projectUrl>
+    <iconUrl>http://www.episerver.com/Framework/Styles/Images/Products/Integration.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Facet support in commerce UI</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright Jonas Berqvist 2015</copyright>
+    <tags></tags>
+    <dependencies>
+      <dependency id="EPiServer.Commerce.Core" version="[7,9)" />
+      <dependency id="EPiServer.Commerce.UI" version="[7,9)" />
+      <dependency id="EPiServer.Find.Commerce" version="[8,10)" />
+      <dependency id="Microsoft.AspNet.Mvc" version="[5.2.2,6]" />
+      <dependency id="Newtonsoft.Json" version="[6.0.0,7]" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="BrilliantCut.Core\bin\debug\BrilliantCut.Core.dll" target="lib\net45" />
+  </files>
+</package>
