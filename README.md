@@ -1,5 +1,5 @@
 # BrilliantCut
-BrilliantCut FacetFilter is a private project, mainly developed on the green tube in Stockholm between 06.35-07.00 in the morning.
+BrilliantCut is a private project, mainly developed on the green tube in Stockholm between 06.35-07.00 in the morning.
 The code has been created to show how nice EPiServer Commerce and EPiServer Find fit together, but anyone that wants to use this project in a site are more than welcome to do so. Anyone is also welcome to contribute to this project.
 
 What is BrilliantCut?
