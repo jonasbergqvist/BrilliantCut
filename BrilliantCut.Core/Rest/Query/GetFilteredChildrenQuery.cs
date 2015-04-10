@@ -13,6 +13,7 @@ using EPiServer.Find.Framework;
 using EPiServer.ServiceLocation;
 using EPiServer.Shell.ContentQuery;
 using EPiServer.Shell.Rest;
+using Mediachase.Commerce.Catalog;
 
 namespace BrilliantCut.Core.Rest.Query
 {
@@ -21,6 +22,7 @@ namespace BrilliantCut.Core.Rest.Query
     {
         private readonly IContentProviderManager _contentProviderManager;
         private readonly ContentFilterService _filterContentFactory;
+        private readonly ReferenceConverter _referenceConverter;
 
         private static DateTime _lastConnectionCheck = DateTime.Now;
 
@@ -32,16 +34,19 @@ namespace BrilliantCut.Core.Rest.Query
         /// <param name="languageSelectorFactory">The language selector factory.</param>
         /// <param name="contentProviderManager">The content provider manager.</param>
         /// <param name="filterContentFactory"></param>
+        /// <param name="referenceConverter"></param>
         public GetFilteredChildrenQuery(
             IContentProviderManager contentProviderManager,
             IContentRepository contentRepository,
             ContentFilterService filterContentFactory,
             IContentQueryHelper queryHelper, 
-            LanguageSelectorFactory languageSelectorFactory)
+            LanguageSelectorFactory languageSelectorFactory,
+            ReferenceConverter referenceConverter)
             : base(queryHelper, contentRepository, languageSelectorFactory)
         {
             _contentProviderManager = contentProviderManager;
             _filterContentFactory = filterContentFactory;
+            _referenceConverter = referenceConverter;
         }
 
         public override int Rank
@@ -56,22 +61,37 @@ namespace BrilliantCut.Core.Rest.Query
                 return false;
             }
 
-            var itemQueryParam = parameters as ContentQueryParameters;
-            if ((itemQueryParam == null) || ContentReference.IsNullOrEmpty(itemQueryParam.ReferenceId))
+            var listingModeString = parameters.AllParameters["listingMode"];
+            ListingMode listingMode;
+            if (listingModeString == null ||
+                !Enum.TryParse(listingModeString, out listingMode) ||
+                listingMode == ListingMode.NoListing)
             {
                 return false;
             }
-            var provider = _contentProviderManager.ProviderMap.GetProvider(itemQueryParam.ReferenceId) as CatalogContentProvider;
+
+            var itemQueryParam = parameters as ContentQueryParameters;
+            if (itemQueryParam == null)
+            {
+                return false;
+            }
+
+            var referenceId = listingMode == ListingMode.WidgetListing
+                ? _referenceConverter.GetRootLink()
+                : itemQueryParam.ReferenceId;
+
+            if (ContentReference.IsNullOrEmpty(referenceId))
+            {
+                return false;
+            }
+
+            var provider = _contentProviderManager.ProviderMap.GetProvider(referenceId) as CatalogContentProvider;
             if (provider == null)
             {
                 return false;
             }
 
-            var listingModeString = parameters.AllParameters["listingMode"];
-            ListingMode listingMode;
-            return listingModeString != null && 
-                Enum.TryParse(listingModeString, out listingMode) &&
-                listingMode != ListingMode.NoListing;
+            return true;
         }
 
         private static bool IsFindRunning()
