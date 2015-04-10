@@ -1002,3 +1002,8 @@
 /BrilliantCut.Core/obj
 /BrilliantCut.Core/App_Data
 /BrilliantCut.Core/bin
+/.gitattributes
+/SampleAssets.episerverdata
+/StarterDemoB2CSite.episerverdata
+/StarterDemoDepartmental.zip
+/StarterDemoDepartmental/Catalog.xml

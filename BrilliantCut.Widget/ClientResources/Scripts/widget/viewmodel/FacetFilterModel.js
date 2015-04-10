@@ -49,7 +49,7 @@
 
             this.profile = dependency.resolve("epi.shell.Profile");
             var registry = dependency.resolve("epi.storeregistry");
-            this._facetFilterStore = this._facetFilterStore || registry.get("epi.commerce.facetfilter");
+            this._facetFilterStore = this._facetFilterStore || registry.get("brilliantcut");
         },
 
         populateData: function () {

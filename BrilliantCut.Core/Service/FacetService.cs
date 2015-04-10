@@ -155,7 +155,7 @@ namespace BrilliantCut.Core.Service
                 var typeSearch = subQuery.Value as ITypeSearch<object>;
                 AddToMultiSearch(multSearch, typeSearch);
 
-                foreach (var filterContentModelType in FilterContentsWithGenericTypes.Where(x => x.Filter.Name == subQuery.Key.Filter.Name).Where(filterContentModelType => !filters.Select(x => x.FilterContent.Name).Contains(filterContentModelType.Filter.Name)))
+                foreach (var filterContentModelType in FilterContentsWithGenericTypes.Where(x => x.Filter.Name == subQuery.Key.Filter.Name).Where(filterContentModelType => !filters.Select(x => x.Name).Contains(filterContentModelType.Filter.Name)))
                 {
                     filterListInResultOrder.Add(filterContentModelType.Filter, filterContentModelType.Setting);
                 }
@@ -167,7 +167,8 @@ namespace BrilliantCut.Core.Service
             {
                 var option = new FilterContentWithOptions()
                 {
-                    FilterContent = filterListInResultOrderKeys[i],
+                    Name = filterListInResultOrderKeys[i].Name,
+                    FilterContentType = filterListInResultOrderKeys[i].GetType(),
                     FilterOptions = filterListInResultOrderKeys[i].GetFilterOptions(multiResult[i], listingMode).ToArray(),
                 };
 

@@ -2,7 +2,7 @@
 <configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
   <episerver.shell>
     <protectedModules>
-      <add name="BrilliantCut.Widget" resourcePath="/modules/_protected/BrilliantCut.Widget/" xdt:Transform="Remove" xdt:Locator="Match(name)">
+      <add name="BrilliantCut.Widget" resourcePath="/modules/BrilliantCut.Widget/" xdt:Transform="Remove" xdt:Locator="Match(name)">
         <assemblies>
           <add assembly="BrilliantCut.Widget" />
         </assemblies>

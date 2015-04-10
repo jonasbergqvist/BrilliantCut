@@ -18,8 +18,7 @@
       <dependency id="EPiServer.Commerce.Core" version="[7,9)" />
       <dependency id="EPiServer.Commerce.UI" version="[7,9)" />
       <dependency id="EPiServer.Find.Commerce" version="[8,10)" />
-      <dependency id="Microsoft.AspNet.Mvc" version="[5.2.2,6]" />
-      <dependency id="Newtonsoft.Json" version="[6.0.0,7]" />
+      <dependency id="Newtonsoft.Json" version="[6,8)" />
     </dependencies>
   </metadata>
   <files>

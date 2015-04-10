@@ -6,7 +6,6 @@ using BrilliantCut.Core.Extensions;
 using BrilliantCut.Core.Filters;
 using BrilliantCut.Core.FilterSettings;
 using BrilliantCut.Core.Models;
-using Newtonsoft.Json;
 
 namespace BrilliantCut.Core
 {
@@ -14,10 +13,12 @@ namespace BrilliantCut.Core
     {
         private FacetFilterSetting _settings;
 
-        [JsonIgnore]
-        public IFilterContent FilterContent { get; set; }
+        //[JsonIgnore]
+        //public IFilterContent FilterContent { get; set; }
 
-        public string Name { get { return FilterContent.Name; }}
+        public Type FilterContentType { get; set; }
+
+        public string Name { get; set; }
 
         public IEnumerable<IFilterOptionModel> FilterOptions { get; set; }
 
@@ -31,7 +32,7 @@ namespace BrilliantCut.Core
                 }
 
                 var sortOrder = _settings != null ? _settings.SortOrder : 0;
-                var attribute = FilterContent.GetType().GetCustomAttributes(typeof (FacetFilterAttribute), true).OfType<FacetFilterAttribute>().FirstOrDefault();
+                var attribute = FilterContentType.GetCustomAttributes(typeof(FacetFilterAttribute), true).OfType<FacetFilterAttribute>().FirstOrDefault();
                 
                 var settings = attribute != null ? attribute.Setting : new CheckboxFilterSetting();
                 if (settings.SortOrder < 1)

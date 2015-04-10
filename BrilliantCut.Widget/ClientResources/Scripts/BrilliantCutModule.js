@@ -33,7 +33,7 @@
         _initializeStores: function () {
             var registry = this.resolveDependency("epi.storeregistry");
 
-            registry.create("epi.commerce.facetfilter", this._getRestPath("facetfilter"), {});
+            registry.create("brilliantcut", this._getRestPath("facetfilter"), {});
         },
 
         _getRestPath: function (name) {
