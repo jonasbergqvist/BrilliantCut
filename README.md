@@ -1,6 +1,6 @@
 # BrilliantCut
 BrilliantCut is a private project, mainly developed on the green tube in Stockholm between 06.35-07.00 in the morning.
-The code has been created to show how nice EPiServer Commerce and EPiServer Find fit together, but anyone that wants to use this project in a site are more than welcome to do so. Anyone is also welcome to contribute to this project.
+The code has been created to show how nice EPiServer Commerce and EPiServer Find fit together, but anyone who wants to use this project on a site, are more than welcome to do so.
 
 What is BrilliantCut?
 ---------------------------------
@@ -17,11 +17,15 @@ Adding BrilliantCut to a site
 --------------------------------------------
 There are two nuget packages in this project, "BrilliantCut.Core", and "BrilliantCut.Widget", that needs to be added to the site. "BrilliantCut.Widget" depends on "BrilliantCut.Core", so installing the widget package will automatically install the other one.
 
-Update nuget packages
---------------------
+Install from BrilliantCut server
+--------------------------------
+The easiest way to install the packages are to create a new package source in visual studio that points to "http://jobe.employee.episerver.com/nuget/" (https://docs.nuget.org/consume/Package-Manager-Dialog). Now it's possible to install the packages by writing "install-package brilliantcut.widget" in the new package source in "Package manager console".
+
+Update nuget packages on Git
+----------------------------
 Nuspec files exists for both nuget packages in the project. To update the nuget packages, simply use the command nuget pack {fullPathToNuspecFile}, and the nuget package will be updated.
 
-Adding nuget package
+Adding local nuget package
 --------------------
 Pull down the whole project to your computer, and add a new package source in visual studio that points to the project (https://docs.nuget.org/consume/Package-Manager-Dialog). Now it's easy to add BrilliantCut to your site using install-package BrilliantCut.FacetFilter.Widget in the package manager console.
 
