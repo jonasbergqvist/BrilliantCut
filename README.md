@@ -3,9 +3,9 @@ BrilliantCut is a private project, mainly developed on the green tube in Stockho
 The code has been created to show how nice EPiServer Commerce and EPiServer Find fit together, but anyone who wants to use this project on a site, are more than welcome to do so.
 
 What is BrilliantCut?
----------------------------------
----------------------------------
-BrilliantCut makes it possible to filter the catalog UI by facets using EPiServer Find. The project includes facets like language, market, and category. It also includes a free text search, and the possibility to choose if the search should apply to children or descendants.
+---------------------
+---------------------
+A brilliant cut contains several facets, and "BrilliantCut" is all about facets. BrilliantCut makes it possible to filter the catalog UI by facets using EPiServer Find. The project includes facets like language, market, and category. It also includes a free text search, and the possibility to choose if the search should apply to children or descendants.
 The more important feature in the API is the possibility to create your own facets. Here is an example on a terms facet that is added for the property "Color" of content type "FashionVariant":
 
                 context.Locate.Advanced.GetInstance<FilterConfiguration>()
@@ -13,8 +13,8 @@ The more important feature in the API is the possibility to create your own face
                         (builder, value) => builder.Or(x => x.Color.Match(value)));
 
 Adding BrilliantCut to a site
---------------------------------------------
---------------------------------------------
+-----------------------------
+-----------------------------
 There are two nuget packages in this project, "BrilliantCut.Core", and "BrilliantCut.Widget", that needs to be added to the site. "BrilliantCut.Widget" depends on "BrilliantCut.Core", so installing the widget package will automatically install the other one.
 
 Install from BrilliantCut server
@@ -28,6 +28,10 @@ Nuspec files exists for both nuget packages in the project. To update the nuget 
 Adding local nuget package
 --------------------
 Pull down the whole project to your computer, and add a new package source in visual studio that points to the project (https://docs.nuget.org/consume/Package-Manager-Dialog). Now it's easy to add BrilliantCut to your site using install-package BrilliantCut.FacetFilter.Widget in the package manager console.
+
+Indexing content in Find
+------------------------
+"EPiServer Find Content Indexing Job" needs to be run before it's possible to use the widget. The scheduled job will reindex the catalog. This job is only nessesary to run once. The content will be updated in the index when it's saved in the new UI, or through the "IContentRepository".
 
 Facets and filters
 ------------------
