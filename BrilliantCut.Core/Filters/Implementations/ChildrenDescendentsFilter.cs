@@ -29,16 +29,12 @@ namespace BrilliantCut.Core.Filters.Implementations
             }
 
             var valueArray = values as string[] ?? values.ToArray();
-            if (valueArray.Any() && valueArray.First() == "Descendents")
+            if (valueArray.Any() && valueArray.First() == "Children")
             {
-                return
-                    query.Filter(
-                        x =>
-                            x.Ancestors()
-                                .Match(currentCntent.ContentLink.ToReferenceWithoutVersion().ToString()));
+                return query.Filter(x => x.ParentLink.Match(currentCntent.ContentLink.ToReferenceWithoutVersion()));
             }
 
-            return query.Filter(x => x.ParentLink.Match(currentCntent.ContentLink.ToReferenceWithoutVersion()));
+            return query.Filter(x => x.Ancestors().Match(currentCntent.ContentLink.ToReferenceWithoutVersion().ToString()));
         }
 
         public override ITypeSearch<CatalogContentBase> AddfacetToQuery(ITypeSearch<CatalogContentBase> query, FacetFilterSetting setting)
@@ -48,7 +44,7 @@ namespace BrilliantCut.Core.Filters.Implementations
 
         public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode)
         {
-            if (mode == ListingMode.MainListing)
+            if (mode != ListingMode.WidgetListing)
             {
                 yield return new FilterOptionModel("Children", "Children", "Children", true, -1);
             }
