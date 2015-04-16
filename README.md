@@ -6,6 +6,10 @@ The more important feature in the API is the possibility to create your own face
                     .Termsfacet<FashionVariant>(x => x.Color,
                         (builder, value) => builder.Or(x => x.Color.Match(value)));
 
+Introduction video
+------------------
+An introduction video can be forund at http://www.youtube.com/watch?v=vNMtr6gCkIg
+
 Adding BrilliantCut to a site
 -----------------------------
 -----------------------------
