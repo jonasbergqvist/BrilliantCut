@@ -17,7 +17,7 @@ There are two nuget packages in this project, "BrilliantCut.Core", and "Brillian
 
 Install from BrilliantCut server
 --------------------------------
-The easiest way to install the packages are to create a new package source in visual studio that points to "http://jobe.employee.episerver.com/nuget/" (https://docs.nuget.org/consume/Package-Manager-Dialog). Now it's possible to install the packages by writing "install-package brilliantcut.widget" in the new package source in "Package manager console".
+The easiest way to install the packages are to create a new package source in visual studio that points to "http://nuget.jobe.employee.episerver.com/" (https://docs.nuget.org/consume/Package-Manager-Dialog). Now it's possible to install the packages by writing "install-package brilliantcut.widget" in the new package source in "Package manager console".
 
 Update nuget packages on Git
 ----------------------------
