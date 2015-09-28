@@ -101,7 +101,7 @@ namespace BrilliantCut.Core.Extensions
             return contentItems.Select(x => x.Name);
         }
 
-        public static int MetaClassId(this CatalogContentBase content)
+        public static int? MetaClassId(this CatalogContentBase content)
         {
             var nodeContent = content as NodeContent;
             if (nodeContent != null)
@@ -115,7 +115,7 @@ namespace BrilliantCut.Core.Extensions
                 return entryContent.MetaClassId;
             }
 
-            return default(int);
+            return default(int?);
         }
 
         public static IEnumerable<Price> Prices(this CatalogContentBase content)
@@ -129,26 +129,33 @@ namespace BrilliantCut.Core.Extensions
             return pricing.GetPrices() ?? Enumerable.Empty<Price>();
         }
 
-        public static double DefaultPrice(this CatalogContentBase content)
+        public static double? DefaultPrice(this CatalogContentBase content)
         {
             var pricing = content as IPricing;
             if (pricing == null)
             {
-                return default(double);
+                return default(double?);
             }
 
             var price = pricing.GetDefaultPrice();
             if (price == null)
             {
-                return default(double);
+                return default(double?);
             }
 
             return Convert.ToDouble(price.UnitPrice.Amount);
         }
 
-        public static double TotalInStock(this VariationContent content)
+        public static double? TotalInStock(this VariationContent content)
         {
             var warehouseInventoryService = ServiceLocator.Current.GetInstance<IWarehouseInventoryService>();
+
+            var allWarehouses = warehouseInventoryService.ListAll();
+            if (!allWarehouses.Any())
+            {
+                return default(double?);
+            }
+
             var totalInStock = warehouseInventoryService.ListAll()
                 .Where(x => x.CatalogKey.CatalogEntryCode == content.Code)
                 .Select(x => x.InStockQuantity)

@@ -14,13 +14,13 @@ namespace BrilliantCut.Core.Models
         DateTime? StopPublish { get; }
         int ContentTypeID { get; }
         string ApplicationId { get; }
-        int MetaClassId { get; }
+        int? MetaClassId { get; }
         string DefaultCurrency { get; }
         string WeightBase { get; }
         string LengthBase { get; }
         string Code { get; }
         string ThumbnailPath { get; }
-        double DefaultPrice { get; }
+        double? DefaultPrice { get; }
 
         IEnumerable<ContentReference> NodeLinks { get; }
         IEnumerable<ContentReference> ProductLinks { get; }

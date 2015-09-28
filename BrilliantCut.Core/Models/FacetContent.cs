@@ -13,13 +13,13 @@ namespace BrilliantCut.Core.Models
         public virtual DateTime? StartPublish { get; set; }
         public virtual DateTime? StopPublish { get; set; }
         public virtual string ApplicationId { get; set; }
-        public virtual int MetaClassId  { get; set; }
+        public virtual int? MetaClassId  { get; set; }
         public virtual string DefaultCurrency  { get; set; }
         public virtual string WeightBase  { get; set; }
         public virtual string LengthBase { get; set; }
         public virtual string Code { get; set; }
         public virtual string ThumbnailPath { get; set; }
-        public virtual double DefaultPrice { get; set; }
+        public virtual double? DefaultPrice { get; set; }
         public virtual string ThumbnailUrl { get; set; }
 
         public IEnumerable<ContentReference> NodeLinks { get; internal set; }

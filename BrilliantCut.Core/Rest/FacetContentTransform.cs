@@ -47,7 +47,12 @@ namespace BrilliantCut.Core.Rest
                 {
                     var properties = model.Target.Properties;
 
-                    properties["MetaClassName"] = MetaHelper.LoadMetaClassCached(CatalogContext.MetaDataContext, facetContent.MetaClassId).FriendlyName;
+                    if (facetContent.MetaClassId.HasValue)
+                    {
+                        properties["MetaClassName"] =
+                            MetaHelper.LoadMetaClassCached(CatalogContext.MetaDataContext,
+                                facetContent.MetaClassId.Value).FriendlyName;
+                    }
                     properties["StartPublish"] = facetContent.StartPublish;
                     properties["StopPublish"] = facetContent.StopPublish;
 
@@ -68,8 +73,8 @@ namespace BrilliantCut.Core.Rest
                     {
                         properties["Price"] = facetContent.DefaultPrice.ToString();
 
-                        var instockQuantity = facetContent.Inventories.Sum(x => x.InStockQuantity);
-                        var reorderMinQuantity = facetContent.Inventories.Max(x => x.ReorderMinQuantity);
+                        var instockQuantity = facetContent.Inventories != null ? facetContent.Inventories.Sum(x => x.InStockQuantity) : 0;
+                        var reorderMinQuantity = facetContent.Inventories != null ? facetContent.Inventories.Max(x => x.ReorderMinQuantity) : 0;
 
                         string status;
                         if (instockQuantity == 0)
