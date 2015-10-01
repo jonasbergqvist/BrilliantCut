@@ -308,6 +308,8 @@
     <Compile Include="DataAnnotation\RadiobuttonFilterAttribute.cs" />
     <Compile Include="DataAnnotation\CheckboxFilterAttribute.cs" />
     <Compile Include="DataAnnotation\FacetFilterAttribute.cs" />
+    <Compile Include="Extensions\FacetContentExtensions.cs" />
+    <Compile Include="FacetFilterInitializationModule.cs" />
     <Compile Include="Filters\Implementations\CategoryFilter.cs" />
     <Compile Include="ListingMode.cs" />
     <Compile Include="Models\FilterOptionModel.cs" />
@@ -325,7 +327,6 @@
     <Compile Include="Filters\TermsFacet.cs" />
     <Compile Include="Filters\Implementations\TextFilter.cs" />
     <Compile Include="Extensions\HasFacetResultsExtensions.cs" />
-    <Compile Include="FacetFilterInitializationModule.cs" />
     <Compile Include="Models\FacetContent.cs" />
     <Compile Include="Filters\FilterContentBase.cs" />
     <Compile Include="Service\ContentFilterService.cs" />

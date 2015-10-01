@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrilliantCut.Core.Extensions;
+using BrilliantCut.Core.Models;
 using EPiServer;
-using EPiServer.Cms.Shell;
 using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Core;
 using EPiServer.Find;
@@ -10,9 +11,6 @@ using EPiServer.Find.Cms;
 using EPiServer.Framework.Cache;
 using EPiServer.ServiceLocation;
 using EPiServer.Shell.Services.Rest;
-using BrilliantCut.Core;
-using BrilliantCut.Core.Extensions;
-using BrilliantCut.Core.Models;
 using Mediachase.Commerce.Catalog;
 
 namespace BrilliantCut.Core.Service
@@ -27,8 +25,9 @@ namespace BrilliantCut.Core.Service
             ISynchronizedObjectInstanceCache synchronizedObjectInstanceCache,
             SearchSortingService searchSorter,
             ReferenceConverter referenceConverter,
-            IClient client)
-            : base(filterConfiguration, filterModelFactory, contentRepository, synchronizedObjectInstanceCache, searchSorter, referenceConverter, client)
+            IClient client,
+            IContentEvents contentEvents)
+            : base(filterConfiguration, filterModelFactory, contentRepository, synchronizedObjectInstanceCache, searchSorter, referenceConverter, client, contentEvents)
         {
         }
 
@@ -98,7 +97,7 @@ namespace BrilliantCut.Core.Service
 
             parameters.Range.Total = includeProductVariationRelations ? contentList.Count : total;
 
-            Cache(cacheKey, new Tuple<IEnumerable<IFacetContent>, int>(contentList, parameters.Range.Total.Value));
+            Cache(cacheKey, new Tuple<IEnumerable<IFacetContent>, int>(contentList, parameters.Range.Total.Value), contentLink);
             return contentList;
         }
 
@@ -195,20 +194,23 @@ namespace BrilliantCut.Core.Service
                 return GetSearchResults(catalogContentSearch, properties, startIndex, take + 2, out total);
             }
 
-            var otherSupportedModel = query as ITypeSearch<IFacetContent>;
-            if (otherSupportedModel == null)
-            {
-                throw new NotSupportedException(
-                    "The type needs to inherit from CatalogContentBase, or implement IEPifacetModel");
-            }
+            throw new NotSupportedException(
+                "The type needs to inherit from CatalogContentBase, or implement IFacetContent");
 
-            return GetSearchResults(otherSupportedModel, properties, startIndex, take + 2, out total);
+            //var otherSupportedModel = query as ITypeSearch<IFacetContent>;
+            //if (otherSupportedModel == null)
+            //{
+            //    throw new NotSupportedException(
+            //        "The type needs to inherit from CatalogContentBase, or implement IFacetContent");
+            //}
+
+            //return GetSearchResults(otherSupportedModel, properties, startIndex, take + 2, out total);
         }
 
         protected virtual IEnumerable<IFacetContent> GetSearchResults(ITypeSearch<CatalogContentBase> query, PropertyDataCollection properties, int skip, int take, out int total)
         {
             var result = query
-                .Select(x => new FacetContent()
+                .Select(x => new FacetContent
                 {
                     PropertyCollection = properties,
                     Name = x.Name,
@@ -233,44 +235,32 @@ namespace BrilliantCut.Core.Service
                     Prices = x.Prices(),
                     Inventories = x.Inventories()
                 })
-                .Skip(skip)
-                .Take(take)
-                .GetResult();
-
-            total = result.TotalMatching;
-            return result;
-        }
-
-        protected virtual IEnumerable<IFacetContent> GetSearchResults(ITypeSearch<IFacetContent> query, PropertyDataCollection properties, int skip, int take, out int total)
-        {
-            var result = query
-                .Select(x => new FacetContent
-                {
-                    PropertyCollection = properties,
-                    Name = x.Name,
-                    ContentGuid = x.ContentGuid,
-                    ContentLink = x.ContentLink,
-                    IsDeleted = x.IsDeleted,
-                    VariationLinks = x.VariationLinks,
-                    ParentLink = x.ParentLink,
-                    StartPublish = x.StartPublish,
-                    StopPublish = x.StopPublish,
-                    Code = x.Code,
-                    DefaultPrice = x.DefaultPrice,
-                    ContentTypeID = x.ContentTypeID,
-                    ApplicationId = x.ApplicationId,
-                    MetaClassId = x.MetaClassId,
-                    ProductLinks = x.ProductLinks,
-                    NodeLinks = x.NodeLinks,
-                    ThumbnailPath = x.ThumbnailPath,
-                    DefaultCurrency = x.DefaultCurrency,
-                    WeightBase = x.WeightBase,
-                    LengthBase = x.LengthBase,
-                    Prices = x.Prices,
-                    Inventories = x.Inventories
-                })
-                .Skip(skip)
-                .Take(take)
+                .IncludeType<FacetContent, IFacetContent>(x =>
+                    new FacetContent
+                    {
+                        PropertyCollection = properties,
+                        Name = x.Name,
+                        ContentGuid = x.ContentGuid,
+                        ContentLink = x.ContentLink,
+                        IsDeleted = x.IsDeleted,
+                        VariationLinks = x.VariationLinks(),
+                        ParentLink = x.ParentLink,
+                        StartPublish = x.StartPublish,
+                        StopPublish = x.StopPublish,
+                        Code = x.Code,
+                        DefaultPrice = x.DefaultPrice,
+                        ContentTypeID = x.ContentTypeID,
+                        ApplicationId = x.ApplicationId,
+                        MetaClassId = x.MetaClassId,
+                        ProductLinks = x.ProductLinks(),
+                        NodeLinks = x.NodeLinks(),
+                        ThumbnailPath = x.ThumbnailPath,
+                        DefaultCurrency = x.DefaultCurrency,
+                        WeightBase = x.WeightBase,
+                        LengthBase = x.LengthBase,
+                        Prices = x.Prices(),
+                        Inventories = x.Inventories()
+                    })
                 .GetResult();
 
             total = result.TotalMatching;

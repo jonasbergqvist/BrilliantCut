@@ -27,6 +27,7 @@ namespace BrilliantCut.Core.Service
             public FacetFilterSetting Setting { get; set; }
         }
 
+        private const string MasterKey = "BC:FilterContentModelType";
         protected const int MaxItems = 500;
         private const string SearchMethodName = "Search";
 
@@ -40,7 +41,8 @@ namespace BrilliantCut.Core.Service
             ISynchronizedObjectInstanceCache synchronizedObjectInstanceCache,
             SearchSortingService searchSorter,
             ReferenceConverter referenceConverter,
-            IClient client)
+            IClient client,
+            IContentEvents contentEvents)
         {
             _filterConfiguration = filterConfiguration;
             CheckedOptionsService = filterModelFactory;
@@ -50,7 +52,9 @@ namespace BrilliantCut.Core.Service
             ReferenceConverter = referenceConverter;
             Client = client;
 
-            //FilterContentsWithGenericTypes = new Lazy<IEnumerable<FilterContentModelType>>(FilterContentsWithGenericTypesValueFactory, false);
+            contentEvents.PublishedContent += (s, e) => CacheManager.Remove(MasterKey);
+            contentEvents.DeletedContent += (s, e) => CacheManager.Remove(MasterKey);
+            contentEvents.SavedContent += (s, e) => CacheManager.Remove(MasterKey);
         }
 
         protected ReferenceConverter ReferenceConverter { get; private set; }
@@ -96,7 +100,7 @@ namespace BrilliantCut.Core.Service
             return _synchronizedObjectInstanceCache.Get(cacheKey) as TCache;
         }
 
-        protected virtual void Cache<TCache>(string cacheKey, TCache result)
+        protected virtual void Cache<TCache>(string cacheKey, TCache result, ContentReference contentLink)
             where TCache : class
         {
             _synchronizedObjectInstanceCache.Insert(
@@ -104,12 +108,11 @@ namespace BrilliantCut.Core.Service
                 result, 
                 new CacheEvictionPolicy(null, null, new[]
                 {
+                    MasterKey,
                     DataFactoryCache.RootKeyName, 
                     "EP:CatalogKeyPricesMasterCacheKey", 
                     "Mediachase.Commerce.InventoryService.Storage$MASTER"
-                }, 
-                new TimeSpan(1, 0, 0), 
-                CacheTimeoutType.Sliding));
+                }));
         }
 
         protected virtual ListingMode GetListingMode(ContentQueryParameters parameters)

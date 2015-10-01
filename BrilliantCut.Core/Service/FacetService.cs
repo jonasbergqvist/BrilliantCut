@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrilliantCut.Core.Filters;
+using BrilliantCut.Core.FilterSettings;
+using BrilliantCut.Core.Models;
 using EPiServer;
 using EPiServer.Cms.Shell.UI.Rest.ContentQuery;
 using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Core;
 using EPiServer.Find;
-using EPiServer.Find.Api;
 using EPiServer.Find.Framework;
 using EPiServer.Framework.Cache;
 using EPiServer.ServiceLocation;
-using BrilliantCut.Core;
-using BrilliantCut.Core.Filters;
-using BrilliantCut.Core.FilterSettings;
-using BrilliantCut.Core.Models;
 using Mediachase.Commerce.Catalog;
 
 namespace BrilliantCut.Core.Service
@@ -28,8 +26,9 @@ namespace BrilliantCut.Core.Service
             ISynchronizedObjectInstanceCache synchronizedObjectInstanceCache,
             SearchSortingService searchSorter,
             ReferenceConverter referenceConverter,
-            IClient client)
-            : base(filterConfiguration, filterModelFactory, contentRepository, synchronizedObjectInstanceCache, searchSorter, referenceConverter, client)
+            IClient client,
+            IContentEvents contentEvents)
+            : base(filterConfiguration, filterModelFactory, contentRepository, synchronizedObjectInstanceCache, searchSorter, referenceConverter, client, contentEvents)
         {
         }
 
@@ -71,7 +70,7 @@ namespace BrilliantCut.Core.Service
             if (subQueries.Any())
             {
                 var result = GetFilterResult(subQueries, listingMode).ToList();
-                Cache(cacheKey, result);
+                Cache(cacheKey, result, contentLink);
 
                 return result;
             }
