@@ -44,7 +44,7 @@ namespace BrilliantCut.Core.Service
             var contentLink = GetContentLink(parameters, listingMode);
             var filterModel = CheckedOptionsService.CreateFilterModel(filterModelString);
 
-            var searchType = typeof(CatalogContentBase); // make this selectable using Conventions api
+            var searchType = typeof(CatalogContentBase); 
             var filters = new Dictionary<string, IEnumerable<object>>();
             if (filterModel != null && filterModel.CheckedItems != null)
             {
@@ -196,15 +196,6 @@ namespace BrilliantCut.Core.Service
 
             throw new NotSupportedException(
                 "The type needs to inherit from CatalogContentBase, or implement IFacetContent");
-
-            //var otherSupportedModel = query as ITypeSearch<IFacetContent>;
-            //if (otherSupportedModel == null)
-            //{
-            //    throw new NotSupportedException(
-            //        "The type needs to inherit from CatalogContentBase, or implement IFacetContent");
-            //}
-
-            //return GetSearchResults(otherSupportedModel, properties, startIndex, take + 2, out total);
         }
 
         protected virtual IEnumerable<IFacetContent> GetSearchResults(ITypeSearch<CatalogContentBase> query, PropertyDataCollection properties, int skip, int take, out int total)
@@ -259,7 +250,8 @@ namespace BrilliantCut.Core.Service
                         WeightBase = x.WeightBase,
                         LengthBase = x.LengthBase,
                         Prices = x.Prices(),
-                        Inventories = x.Inventories()
+                        Inventories = x.Inventories(),
+                        CategoryNames = x.CategoryNames
                     })
                 .GetResult();
 

@@ -19,6 +19,7 @@ namespace BrilliantCut.Core.Models
         string ThumbnailPath { get; }
         double? DefaultPrice { get; }
 
+        IEnumerable<string> CategoryNames { get; }
         IEnumerable<ContentReference> NodeLinks { get; }
         IEnumerable<ContentReference> ProductLinks { get; }
         IEnumerable<ContentReference> VariationLinks { get; }

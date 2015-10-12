@@ -48,7 +48,7 @@ namespace BrilliantCut.Core.Extensions
             return null;
         }
 
-        public static string LanguageName(this ILocalizable content)
+        public static string LanguageName(this ILocale content)
         {
             return content.Language.Name;
         }
@@ -86,9 +86,9 @@ namespace BrilliantCut.Core.Extensions
             return productContent.GetNodeRelations().Select(x => x.Target);
         }
 
-        public static IEnumerable<string> Categories(this CatalogContentBase content)
+        public static IEnumerable<string> CategoryNames(this CatalogContentBase content)
         {
-            var productContent = content as EntryContentBase;
+            var productContent = content as EPiServer.Commerce.Catalog.ContentTypes.ICategorizable;
             if (productContent == null)
             {
                 return Enumerable.Empty<string>();

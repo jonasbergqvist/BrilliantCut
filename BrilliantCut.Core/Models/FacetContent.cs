@@ -22,6 +22,7 @@ namespace BrilliantCut.Core.Models
         public virtual double? DefaultPrice { get; set; }
         public virtual string ThumbnailUrl { get; set; }
 
+        public IEnumerable<string> CategoryNames { get; internal set; }
         public IEnumerable<ContentReference> NodeLinks { get; internal set; }
         public IEnumerable<ContentReference> ProductLinks { get; internal set; }
         public IEnumerable<ContentReference> VariationLinks { get; internal set; }

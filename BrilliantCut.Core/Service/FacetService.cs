@@ -67,6 +67,11 @@ namespace BrilliantCut.Core.Service
             var filterContentModelTypes = GetSupportedFilterContentModelTypes(searchType).ToList();
             AddFiltersToSubQueries(content, subQueries, filterContentModelTypes, filters, searchType);
 
+            foreach (var subQuery in subQueries)
+            {
+                subQuery.Value
+            }
+
             if (subQueries.Any())
             {
                 var result = GetFilterResult(subQueries, listingMode).ToList();
