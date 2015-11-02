@@ -8,6 +8,7 @@ using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Commerce.SpecializedProperties;
 using EPiServer.Core;
 using EPiServer.ServiceLocation;
+using EPiServer.Web.Routing;
 using Mediachase.Commerce.Inventory;
 using Mediachase.Commerce.Markets;
 
@@ -53,7 +54,7 @@ namespace BrilliantCut.Core.Extensions
             return content.Language.Name;
         }
 
-        public static IEnumerable<ContentReference> ProductLinks(this CatalogContentBase content)
+        public static IEnumerable<ContentReference> ParentProducts(this CatalogContentBase content)
         {
             var variationContent = content as VariationContent;
             if (variationContent == null)
@@ -64,10 +65,10 @@ namespace BrilliantCut.Core.Extensions
             return variationContent.GetParentProducts();
         }
 
-        public static IEnumerable<ContentReference> VariationLinks(this CatalogContentBase content)
+        public static IEnumerable<ContentReference> Variations(this CatalogContentBase content)
         {
             var productContent = content as ProductContent;
-            if (productContent == null)
+            if (productContent == null || ContentReference.IsNullOrEmpty(productContent.ContentLink))
             {
                 return Enumerable.Empty<ContentReference>();
             }
@@ -129,13 +130,34 @@ namespace BrilliantCut.Core.Extensions
             return pricing.GetPrices() ?? Enumerable.Empty<Price>();
         }
 
-        public static double? DefaultPrice(this CatalogContentBase content)
+        public static double? DefaultPriceValue(this CatalogContentBase content)
         {
             var pricing = content as IPricing;
             if (pricing == null)
             {
-                return default(double?);
-            }
+                var productContent = content as ProductContent;
+                if (productContent == null || ContentReference.IsNullOrEmpty(productContent.ContentLink))
+                {
+                    return default(double?);
+                }
+
+                var variantLinks = productContent.GetVariants();
+                var variants = ServiceLocator.Current.GetInstance<IContentLoader>().GetItems(variantLinks, content.Language).OfType<IPricing>().ToArray();
+                if (!variants.Any())
+                {
+                    return default(double?);
+                }
+
+                var defaultPrices = variants.Select(x => x.GetDefaultPrice()).Where(x => x != null && x.UnitPrice.Amount > 0).ToArray();
+                if (!defaultPrices.Any())
+                {
+                    return default(double?);
+                }
+
+                var minAmount = defaultPrices.Min(x => x.UnitPrice.Amount);
+                
+                return Convert.ToDouble(minAmount);
+            } 
 
             var price = pricing.GetDefaultPrice();
             if (price == null)
@@ -172,11 +194,12 @@ namespace BrilliantCut.Core.Extensions
                 return Enumerable.Empty<Inventory>();
             }
 
-            var warehouseInventoryService = ServiceLocator.Current.GetInstance<IWarehouseInventoryService>();
-            return warehouseInventoryService.ListAll()
-                .Where(x => x.CatalogKey.CatalogEntryCode == stockPlacement.Code)
-                .Select(x => new Inventory(x))
-                .ToArray();
+            var inventoyLoader = ServiceLocator.Current.GetInstance<InventoryLoader>();
+            var contentLink = stockPlacement.InventoryReference;
+
+            return !ContentReference.IsNullOrEmpty(contentLink)
+                ? inventoyLoader.GetStockPlacement(contentLink)
+                : new ItemCollection<Inventory>();
         }
 
         public static string Code(this CatalogContentBase content)
@@ -196,7 +219,7 @@ namespace BrilliantCut.Core.Extensions
             return null;
         }
 
-        public static string ThumbnailPath(this CatalogContentBase content)
+        public static string ThumbnailUrl(this CatalogContentBase content)
         {
             var assetContainer = content as IAssetContainer;
             if (assetContainer == null)
@@ -208,10 +231,31 @@ namespace BrilliantCut.Core.Extensions
                 .GetThumbnailUrl(assetContainer, "Thumbnail");
         }
 
+        public static string LinkUrl(this CatalogContentBase content)
+        {
+            return ServiceLocator.Current.GetInstance<UrlResolver>()
+                .GetUrl(content.ContentLink, content.Language.Name);
+        }
+
+        public static string DefaultImageUrl(this CatalogContentBase content)
+        {
+            var assetContainer = content as IAssetContainer;
+            if (assetContainer == null)
+            {
+                return string.Empty;
+            }
+
+            var assetUrlResolver = ServiceLocator.Current.GetInstance<AssetUrlResolver>();
+            return assetUrlResolver.GetAssetUrl<IContentImage>(assetContainer);
+        }
+
         public static IEnumerable<string> SelectedMarkets(this EntryContentBase content)
         {
             var marketService = ServiceLocator.Current.GetInstance<IMarketService>();
-            return marketService.GetAllMarkets().Select(x => x.MarketId.Value).Except(content.MarketFilter);
+
+            return marketService.GetAllMarkets()
+                .Where(market => !content.MarketFilter.Contains(market.MarketId.Value, StringComparer.OrdinalIgnoreCase))
+                .Select(market => market.MarketId.Value);
         }
     }
 }

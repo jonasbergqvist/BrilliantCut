@@ -24,7 +24,7 @@ namespace BrilliantCut.Core.Filters.Implementations
             if (currentCntent is ProductContent)
             {
                 return query
-                    .Filter(x => x.ProductLinks().MatchContained(y => y.ID, currentCntent.ContentLink.ID))
+                    .Filter(x => x.ParentProducts().MatchContained(y => y.ID, currentCntent.ContentLink.ID))
                     .Filter(x => !x.ContentLink.Match(currentCntent.ContentLink));
             }
 
@@ -42,7 +42,7 @@ namespace BrilliantCut.Core.Filters.Implementations
             return query;
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode, IContent currentContent)
         {
             if (mode != ListingMode.WidgetListing)
             {

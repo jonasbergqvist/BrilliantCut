@@ -14,7 +14,7 @@ namespace BrilliantCut.Widget.Components
             PlugInAreas = new[] { EPiServer.Shell.PlugInArea.AssetsDefaultGroup, "/episerver/commerce/assets/defaultgroup" };
             Categories = new[] { "commerce" };
 
-            Settings.Add(new Setting("repositoryKey", "catalog"));
+            Settings.Add(new Setting("repositoryKey", "catalog")); 
         }
     }
 }

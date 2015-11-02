@@ -16,8 +16,10 @@ namespace BrilliantCut.Core.Models
         string WeightBase { get; }
         string LengthBase { get; }
         string Code { get; }
+        string LinkUrl { get; }
         string ThumbnailPath { get; }
-        double? DefaultPrice { get; }
+        string DefaultImageUrl { get; }
+        double? DefaultPriceValue { get; }
 
         IEnumerable<string> CategoryNames { get; }
         IEnumerable<ContentReference> NodeLinks { get; }

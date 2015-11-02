@@ -18,8 +18,10 @@ namespace BrilliantCut.Core.Models
         public virtual string WeightBase  { get; set; }
         public virtual string LengthBase { get; set; }
         public virtual string Code { get; set; }
+        public virtual string LinkUrl { get; set; }
         public virtual string ThumbnailPath { get; set; }
-        public virtual double? DefaultPrice { get; set; }
+        public virtual string DefaultImageUrl { get; set; }
+        public virtual double? DefaultPriceValue { get; set; }
         public virtual string ThumbnailUrl { get; set; }
 
         public IEnumerable<string> CategoryNames { get; internal set; }

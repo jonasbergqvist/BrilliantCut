@@ -21,7 +21,7 @@ namespace BrilliantCut.Core
         private readonly LanguageSelectorFactory _langugSelectorFactory;
         private readonly ReferenceConverter _referenceConverter;
 
-        private bool? _allowIndexingCatalogContent;
+        private bool? _allowIndexingCatalogContent; 
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommerceReIndexInformation"/> class.

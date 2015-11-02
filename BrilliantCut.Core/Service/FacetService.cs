@@ -38,6 +38,9 @@ namespace BrilliantCut.Core.Service
             var contentLink = GetContentLink(parameters, listingMode);
 
             var filterModelString = parameters.AllParameters["filterModel"];
+            var searchTypeString = parameters.AllParameters["searchType"];
+
+            var restrictSearchType = !String.IsNullOrEmpty(searchTypeString) ? Type.GetType(searchTypeString) : null;
 
             var cacheKey = String.Concat("FacetService#", contentLink, "#", filterModelString);
             var cachedResult = GetCachedContent<IEnumerable<FilterContentWithOptions>>(cacheKey);
@@ -56,7 +59,7 @@ namespace BrilliantCut.Core.Service
                     .ToDictionary(k => k.Key, v => v.Value.Select(x => x));
             }
 
-            var searchType = GetSearchType(filter) ?? typeof(CatalogContentBase);
+            var searchType = GetSearchType(filter, restrictSearchType) ?? typeof(CatalogContentBase);
             var possiblefacetQueries = FilterContentsWithGenericTypes.Where(x =>
                 x.ContentType.IsAssignableFrom(searchType) ||
                 searchType.IsAssignableFrom(x.ContentType)).ToList();
@@ -67,14 +70,9 @@ namespace BrilliantCut.Core.Service
             var filterContentModelTypes = GetSupportedFilterContentModelTypes(searchType).ToList();
             AddFiltersToSubQueries(content, subQueries, filterContentModelTypes, filters, searchType);
 
-            foreach (var subQuery in subQueries)
-            {
-                subQuery.Value
-            }
-
             if (subQueries.Any())
             {
-                var result = GetFilterResult(subQueries, listingMode).ToList();
+                var result = GetFilterResult(subQueries, listingMode, content).ToList();
                 Cache(cacheKey, result, contentLink);
 
                 return result;
@@ -148,7 +146,7 @@ namespace BrilliantCut.Core.Service
             return filterContentModelTypes.Where(x => x.ContentType.IsAssignableFrom(searchType));
         }
 
-        private IEnumerable<FilterContentWithOptions> GetFilterResult(Dictionary<FilterContentModelType, ISearch> subQueries, ListingMode listingMode)
+        private IEnumerable<FilterContentWithOptions> GetFilterResult(Dictionary<FilterContentModelType, ISearch> subQueries, ListingMode listingMode, IContent currentContent)
         {
             var filters = new List<FilterContentWithOptions>();
 
@@ -173,7 +171,7 @@ namespace BrilliantCut.Core.Service
                 {
                     Name = filterListInResultOrderKeys[i].Name,
                     FilterContentType = filterListInResultOrderKeys[i].GetType(),
-                    FilterOptions = filterListInResultOrderKeys[i].GetFilterOptions(multiResult[i], listingMode).ToArray(),
+                    FilterOptions = filterListInResultOrderKeys[i].GetFilterOptions(multiResult[i], listingMode, currentContent).ToArray(),
                 };
 
                 var settings = filterListInResultOrder[filterListInResultOrderKeys[i]];

@@ -137,9 +137,8 @@ namespace BrilliantCut.Core.Service
             return parameters.ReferenceId;
         }
 
-        protected virtual Type GetSearchType(FilterModel filterModel)
+        protected virtual Type GetSearchType(FilterModel filterModel, Type restrictedSearchType)
         {
-            Type selectedType = null;
             foreach (var filter in filterModel.CheckedItems)
             {
                 if (!filter.Value.Any())
@@ -155,13 +154,13 @@ namespace BrilliantCut.Core.Service
                     continue;
                 }
 
-                if(selectedType == null || selectedType.IsAssignableFrom(filterContentModelType.ContentType))
+                if (restrictedSearchType == null || restrictedSearchType.IsAssignableFrom(filterContentModelType.ContentType))
                 {
-                    selectedType = filterContentModelType.ContentType;
+                    restrictedSearchType = filterContentModelType.ContentType;
                 }
             }
 
-            return selectedType;
+            return restrictedSearchType;
         }
 
         protected virtual ISearch CreateSearchQuery(Type contentType)

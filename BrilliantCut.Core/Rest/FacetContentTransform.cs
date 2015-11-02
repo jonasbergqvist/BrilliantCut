@@ -71,7 +71,7 @@ namespace BrilliantCut.Core.Rest
 
                     if (typeof(VariationContent).IsAssignableFrom(contentTypeModel.ModelType))
                     {
-                        properties["Price"] = facetContent.DefaultPrice.ToString();
+                        properties["Price"] = facetContent.DefaultPriceValue.ToString();
 
                         var instockQuantity = facetContent.Inventories != null ? facetContent.Inventories.Sum(x => x.InStockQuantity) : 0;
                         var reorderMinQuantity = facetContent.Inventories != null ? facetContent.Inventories.Max(x => x.ReorderMinQuantity) : 0;

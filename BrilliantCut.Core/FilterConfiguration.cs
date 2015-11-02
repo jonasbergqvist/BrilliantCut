@@ -43,6 +43,31 @@ namespace BrilliantCut.Core
             return this;
         }
 
+        //public FilterConfiguration Termsfacet<TContent>(
+        //    Expression<Func<TContent, IEnumerable<string>>> property,
+        //    Func<FilterBuilder<TContent>, IEnumerable<string>, FilterBuilder<TContent>> aggregate)
+        //    where TContent : IContent
+        //{
+        //    return Termsfacet(property, aggregate, new FacetFilterSetting());
+        //}
+
+        //public FilterConfiguration Termsfacet<TContent>(
+        //    Expression<Func<TContent, IEnumerable<string>>> property,
+        //    Func<FilterBuilder<TContent>, IEnumerable<string>, FilterBuilder<TContent>> aggregate,
+        //    FacetFilterSetting setting)
+        //    where TContent : IContent
+        //{
+        //    var filter = Activator.CreateInstance<TermsFacet<TContent>>();
+
+        //    filter.PropertyValuesExpression = property;
+        //    filter.Aggregate = aggregate;
+
+        //    setting.SortOrder = GetSortOrder(setting);
+        //    _filters.Add(filter, setting);
+
+        //    return this;
+        //}
+
         public FilterConfiguration RangeFacet<TContent, TValue>(
             Expression<Func<TContent, TValue>> property,
             Func<FilterBuilder<TContent>, IEnumerable<TValue>, FilterBuilder<TContent>> filterBuilder)

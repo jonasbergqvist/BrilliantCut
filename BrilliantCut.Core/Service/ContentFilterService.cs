@@ -35,10 +35,12 @@ namespace BrilliantCut.Core.Service
         {
             var filterModelString = parameters.AllParameters["filterModel"];
             var productGroupedString = parameters.AllParameters["productGrouped"];
+            var searchTypeString = parameters.AllParameters["searchType"];
             var sortColumn = parameters.SortColumns != null ? (parameters.SortColumns.FirstOrDefault() ?? new SortColumn()) : new SortColumn();
 
             bool productGrouped;
             Boolean.TryParse(productGroupedString, out productGrouped);
+            var restrictSearchType = !String.IsNullOrEmpty(searchTypeString) ? Type.GetType(searchTypeString) : null;
 
             var listingMode = GetListingMode(parameters);
             var contentLink = GetContentLink(parameters, listingMode);
@@ -51,7 +53,7 @@ namespace BrilliantCut.Core.Service
                 filters = filterModel.CheckedItems.Where(x => x.Value != null)
                     .ToDictionary(k => k.Key, v => v.Value.Select(x => x));
 
-                var receivedSearchType = GetSearchType(filterModel);
+                var receivedSearchType = GetSearchType(filterModel, restrictSearchType);
                 if (receivedSearchType != null)
                 {
                     searchType = receivedSearchType;
@@ -92,7 +94,7 @@ namespace BrilliantCut.Core.Service
             var contentList = new List<IFacetContent>();
             var linkedProductLinks = new List<ContentReference>();
 
-            var total = AddFilteredChildren(query, contentList, linkedProductLinks,
+            var total = AddFilteredChildren(query, restrictSearchType, contentList, linkedProductLinks,
                 properties, includeProductVariationRelations, startIndex, endIndex);
 
             parameters.Range.Total = includeProductVariationRelations ? contentList.Count : total;
@@ -118,7 +120,8 @@ namespace BrilliantCut.Core.Service
         }
 
         private int AddFilteredChildren(
-            ISearch query,
+            ISearch query, 
+            Type searchType,
             ICollection<IFacetContent> contentList,
             ICollection<ContentReference> linkedProductLinks,
             PropertyDataCollection properties,
@@ -129,7 +132,7 @@ namespace BrilliantCut.Core.Service
             try
             {
                 int total;
-                var queryResult = GetSearchResult(query, properties, startIndex, take, out total).ToList();
+                var queryResult = GetSearchResult(query, searchType, properties, startIndex, take, out total).ToList();
                 foreach (var resultItem in queryResult)
                 {
                     // When we ask for relations, add product links to linkedProductList if any exists, and do not add a model for the content if it has product links.
@@ -172,7 +175,7 @@ namespace BrilliantCut.Core.Service
                             (current, reference) => current.Or(x => x.ContentLink.Match(reference)));
 
                         var productQuery = Client.Search<ProductContent>().Filter(filterBuilder);
-                        total += AddFilteredChildren(productQuery, contentList,
+                        total += AddFilteredChildren(productQuery, searchType, contentList,
                             linkedProductLinks, properties, false, 0,
                             MaxItems);
                     }
@@ -186,21 +189,29 @@ namespace BrilliantCut.Core.Service
             }
         }
 
-        private IEnumerable<IFacetContent> GetSearchResult(ISearch query, PropertyDataCollection properties, int startIndex, int take, out int total)
+        private IEnumerable<IFacetContent> GetSearchResult(ISearch query, Type searchType, PropertyDataCollection properties, int startIndex, int take, out int total)
         {
             var catalogContentSearch = query as ITypeSearch<CatalogContentBase>;
             if (catalogContentSearch != null)
             {
-                return GetSearchResults(catalogContentSearch, properties, startIndex, take + 2, out total);
+                return GetSearchResults(catalogContentSearch, searchType, properties, startIndex, take + 2, out total);
             }
 
             throw new NotSupportedException(
                 "The type needs to inherit from CatalogContentBase, or implement IFacetContent");
         }
 
-        protected virtual IEnumerable<IFacetContent> GetSearchResults(ITypeSearch<CatalogContentBase> query, PropertyDataCollection properties, int skip, int take, out int total)
+        protected virtual IEnumerable<IFacetContent> GetSearchResults(ITypeSearch<CatalogContentBase> query, Type searchType, PropertyDataCollection properties, int skip, int take, out int total)
         {
+            if (searchType != null)
+            {
+                query = query.Filter(x => x.MatchTypeHierarchy(searchType));
+            }
+
             var result = query
+                //.Filter(x => x.MatchTypeHierarchy())
+                .Skip(skip)
+                .Take(take)
                 .Select(x => new FacetContent
                 {
                     PropertyCollection = properties,
@@ -208,18 +219,20 @@ namespace BrilliantCut.Core.Service
                     ContentGuid = x.ContentGuid,
                     ContentLink = x.ContentLink,
                     IsDeleted = x.IsDeleted,
-                    VariationLinks = x.VariationLinks(),
+                    VariationLinks = x.Variations(),
                     ParentLink = x.ParentLink,
                     StartPublish = x.StartPublish,
                     StopPublish = x.StopPublish,
                     Code = x.Code(),
-                    DefaultPrice = x.DefaultPrice(),
+                    DefaultPriceValue = x.DefaultPriceValue(),
                     ContentTypeID = x.ContentTypeID,
                     ApplicationId = x.ApplicationId,
                     MetaClassId = x.MetaClassId(),
-                    ProductLinks = x.ProductLinks(),
+                    ProductLinks = x.ParentProducts(),
                     NodeLinks = x.NodeLinks(),
-                    ThumbnailPath = x.ThumbnailPath(),
+                    ThumbnailPath = x.ThumbnailUrl(),
+                    LinkUrl = x.LinkUrl(),
+                    DefaultImageUrl = x.DefaultImageUrl(),
                     DefaultCurrency = x.DefaultCurrency(),
                     WeightBase = x.WeightBase(),
                     LengthBase = x.LengthBase(),
@@ -239,13 +252,15 @@ namespace BrilliantCut.Core.Service
                         StartPublish = x.StartPublish,
                         StopPublish = x.StopPublish,
                         Code = x.Code,
-                        DefaultPrice = x.DefaultPrice,
+                        DefaultPriceValue = x.DefaultPriceValue,
                         ContentTypeID = x.ContentTypeID,
                         ApplicationId = x.ApplicationId,
                         MetaClassId = x.MetaClassId,
                         ProductLinks = x.ProductLinks(),
                         NodeLinks = x.NodeLinks(),
+                        LinkUrl = x.LinkUrl,
                         ThumbnailPath = x.ThumbnailPath,
+                        DefaultImageUrl = x.DefaultImageUrl,
                         DefaultCurrency = x.DefaultCurrency,
                         WeightBase = x.WeightBase,
                         LengthBase = x.LengthBase,
