@@ -22,12 +22,12 @@ namespace BrilliantCut.Core.Filters.Implementations
         public override ITypeSearch<EntryContentBase> Filter(IContent currentCntent, ITypeSearch<EntryContentBase> query, IEnumerable<string> values)
         {
             var marketFilter = SearchClient.Instance.BuildFilter<EntryContentBase>();
-            marketFilter = values.Aggregate(marketFilter, (current, value) => current.Or(x => x.SelectedMarkets().Match(value)));
+            marketFilter = values.Aggregate(marketFilter, (current, value) => current.Or(x => x.SelectedMarkets().MatchCaseInsensitive(value)));
 
             return query.Filter(marketFilter);
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode, IContent currentContent)
         {
             var facet = searchResults
                 .TermsFacetFor<EntryContentBase>(x => x.SelectedMarkets()).Terms;

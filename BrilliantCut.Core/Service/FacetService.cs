@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrilliantCut.Core.Filters;
+using BrilliantCut.Core.FilterSettings;
+using BrilliantCut.Core.Models;
 using EPiServer;
 using EPiServer.Cms.Shell.UI.Rest.ContentQuery;
 using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Core;
 using EPiServer.Find;
-using EPiServer.Find.Api;
 using EPiServer.Find.Framework;
 using EPiServer.Framework.Cache;
 using EPiServer.ServiceLocation;
-using BrilliantCut.Core;
-using BrilliantCut.Core.Filters;
-using BrilliantCut.Core.FilterSettings;
-using BrilliantCut.Core.Models;
 using Mediachase.Commerce.Catalog;
 
 namespace BrilliantCut.Core.Service
@@ -28,8 +26,9 @@ namespace BrilliantCut.Core.Service
             ISynchronizedObjectInstanceCache synchronizedObjectInstanceCache,
             SearchSortingService searchSorter,
             ReferenceConverter referenceConverter,
-            IClient client)
-            : base(filterConfiguration, filterModelFactory, contentRepository, synchronizedObjectInstanceCache, searchSorter, referenceConverter, client)
+            IClient client,
+            IContentEvents contentEvents)
+            : base(filterConfiguration, filterModelFactory, contentRepository, synchronizedObjectInstanceCache, searchSorter, referenceConverter, client, contentEvents)
         {
         }
 
@@ -39,6 +38,9 @@ namespace BrilliantCut.Core.Service
             var contentLink = GetContentLink(parameters, listingMode);
 
             var filterModelString = parameters.AllParameters["filterModel"];
+            var searchTypeString = parameters.AllParameters["searchType"];
+
+            var restrictSearchType = !String.IsNullOrEmpty(searchTypeString) ? Type.GetType(searchTypeString) : null;
 
             var cacheKey = String.Concat("FacetService#", contentLink, "#", filterModelString);
             var cachedResult = GetCachedContent<IEnumerable<FilterContentWithOptions>>(cacheKey);
@@ -57,7 +59,7 @@ namespace BrilliantCut.Core.Service
                     .ToDictionary(k => k.Key, v => v.Value.Select(x => x));
             }
 
-            var searchType = GetSearchType(filter) ?? typeof(CatalogContentBase);
+            var searchType = GetSearchType(filter, restrictSearchType) ?? typeof(CatalogContentBase);
             var possiblefacetQueries = FilterContentsWithGenericTypes.Where(x =>
                 x.ContentType.IsAssignableFrom(searchType) ||
                 searchType.IsAssignableFrom(x.ContentType)).ToList();
@@ -70,8 +72,8 @@ namespace BrilliantCut.Core.Service
 
             if (subQueries.Any())
             {
-                var result = GetFilterResult(subQueries, listingMode).ToList();
-                Cache(cacheKey, result);
+                var result = GetFilterResult(subQueries, listingMode, content).ToList();
+                Cache(cacheKey, result, contentLink);
 
                 return result;
             }
@@ -144,7 +146,7 @@ namespace BrilliantCut.Core.Service
             return filterContentModelTypes.Where(x => x.ContentType.IsAssignableFrom(searchType));
         }
 
-        private IEnumerable<FilterContentWithOptions> GetFilterResult(Dictionary<FilterContentModelType, ISearch> subQueries, ListingMode listingMode)
+        private IEnumerable<FilterContentWithOptions> GetFilterResult(Dictionary<FilterContentModelType, ISearch> subQueries, ListingMode listingMode, IContent currentContent)
         {
             var filters = new List<FilterContentWithOptions>();
 
@@ -169,7 +171,7 @@ namespace BrilliantCut.Core.Service
                 {
                     Name = filterListInResultOrderKeys[i].Name,
                     FilterContentType = filterListInResultOrderKeys[i].GetType(),
-                    FilterOptions = filterListInResultOrderKeys[i].GetFilterOptions(multiResult[i], listingMode).ToArray(),
+                    FilterOptions = filterListInResultOrderKeys[i].GetFilterOptions(multiResult[i], listingMode, currentContent).ToArray(),
                 };
 
                 var settings = filterListInResultOrder[filterListInResultOrderKeys[i]];

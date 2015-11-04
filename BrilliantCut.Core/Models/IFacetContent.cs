@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using EPiServer.Commerce.SpecializedProperties;
 using EPiServer.Core;
 
@@ -14,14 +11,17 @@ namespace BrilliantCut.Core.Models
         DateTime? StopPublish { get; }
         int ContentTypeID { get; }
         string ApplicationId { get; }
-        int MetaClassId { get; }
+        int? MetaClassId { get; }
         string DefaultCurrency { get; }
         string WeightBase { get; }
         string LengthBase { get; }
         string Code { get; }
+        string LinkUrl { get; }
         string ThumbnailPath { get; }
-        double DefaultPrice { get; }
+        string DefaultImageUrl { get; }
+        double? DefaultPriceValue { get; }
 
+        IEnumerable<string> CategoryNames { get; }
         IEnumerable<ContentReference> NodeLinks { get; }
         IEnumerable<ContentReference> ProductLinks { get; }
         IEnumerable<ContentReference> VariationLinks { get; }

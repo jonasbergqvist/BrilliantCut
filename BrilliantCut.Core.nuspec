@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>BrilliantCut.Core</id>
-    <version>0.1</version>
+    <version>0.2</version>
     <title>Brilliant Cut Core</title>
     <authors>Jonas Bergqvist</authors>
     <owners>Jonas Bergqvist</owners>
@@ -15,10 +15,10 @@
     <copyright>Copyright Jonas Berqvist 2015</copyright>
     <tags></tags>
     <dependencies>
-      <dependency id="EPiServer.Commerce.Core" version="[7,9)" />
-      <dependency id="EPiServer.Commerce.UI" version="[7,9)" />
-      <dependency id="EPiServer.Find.Commerce" version="[8,10)" />
-      <dependency id="Newtonsoft.Json" version="[6,8)" />
+      <dependency id="EPiServer.Commerce.Core" version="[8,10)" />
+      <dependency id="EPiServer.Commerce.UI" version="[8,10)" />
+      <!--dependency id="EPiServer.Find.Commerce" version="[8,10)" /-->
+      <dependency id="Newtonsoft.Json" version="[6,9)" />
     </dependencies>
   </metadata>
   <files>

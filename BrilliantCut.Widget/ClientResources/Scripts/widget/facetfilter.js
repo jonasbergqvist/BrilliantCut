@@ -202,10 +202,7 @@
             }
 
             this.layout();
-
-            if (!unChecked) {
-                this.updateList();
-            }
+            this.updateList();
         },
 
         _setFormatterForList: function () {
