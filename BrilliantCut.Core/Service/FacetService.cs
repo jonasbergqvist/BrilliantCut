@@ -150,7 +150,7 @@ namespace BrilliantCut.Core.Service
         {
             var filters = new List<FilterContentWithOptions>();
 
-            var multSearch = SearchClient.Instance.MultiSearch<IFacetContent>();
+            var multSearch = SearchClient.Instance.MultiSearch<object>();
             var filterListInResultOrder = new Dictionary<IFilterContent, FacetFilterSetting>();
             foreach (var subQuery in subQueries.OrderBy(x => x.Key.Filter.Name))
             {
@@ -186,9 +186,9 @@ namespace BrilliantCut.Core.Service
             return filters.OrderBy(x => x.Settings.SortOrder).ToList();
         }
 
-        protected virtual void AddToMultiSearch(IMultiSearch<IFacetContent> multSearch, ITypeSearch<object> typeSearch)
+        protected virtual void AddToMultiSearch(IMultiSearch<object> multSearch, ITypeSearch<object> typeSearch)
         {
-            multSearch.Searches.Add(typeSearch.Select(x => new FacetContent()).Take(0));
+            multSearch.Searches.Add(typeSearch.Select(x => new object()).Take(0));
         }
     }
 }

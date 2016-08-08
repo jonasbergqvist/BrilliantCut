@@ -27,7 +27,7 @@ namespace BrilliantCut.Core.Filters.Implementations
             get { return "Free text search"; }
         }
 
-        public IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode, IContent currentContent)
+        public IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<object> searchResults, ListingMode mode, IContent currentContent)
         {
             yield return new FilterOptionModel("FreeTextFilter", string.Empty, string.Empty, string.Empty, -1);
         }

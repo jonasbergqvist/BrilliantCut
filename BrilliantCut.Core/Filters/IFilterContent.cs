@@ -13,7 +13,7 @@ namespace BrilliantCut.Core.Filters
         String Name { get; }
         String Description { get; }
 
-        IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode, IContent currentContent);
+        IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<object> searchResults, ListingMode mode, IContent currentContent);
         ISearch AddfacetToQuery(ISearch query, FacetFilterSetting setting);
         ISearch Filter(IContent content, ISearch query, IEnumerable<object> values);
     }

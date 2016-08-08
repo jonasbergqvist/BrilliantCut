@@ -37,7 +37,7 @@ namespace BrilliantCut.Core.Filters.Implementations
             return query.Filter(marketFilter);
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode, IContent currentContent)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<object> searchResults, ListingMode mode, IContent currentContent)
         {
             var facet = searchResults
                 .TermsFacetFor<ILocalizable>(x => x.LanguageName()).Terms;

@@ -28,7 +28,7 @@ namespace BrilliantCut.Core.Filters
             return query.Filter(marketFilter);
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode, IContent currentContent)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<object> searchResults, ListingMode mode, IContent currentContent)
         {
             var facet = searchResults
                 .TermsFacetFor(PropertyValuesExpressionObject).Terms;

@@ -42,7 +42,7 @@ namespace BrilliantCut.Core.Filters.Implementations
             return query;
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode, IContent currentContent)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<object> searchResults, ListingMode mode, IContent currentContent)
         {
             if (mode != ListingMode.WidgetListing)
             {

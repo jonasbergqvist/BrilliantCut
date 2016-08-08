@@ -15,7 +15,7 @@ namespace BrilliantCut.Core.Filters
 
         public abstract ITypeSearch<TContentData> Filter(IContent currentCntent, ITypeSearch<TContentData> query, IEnumerable<TValueType> values);
 
-        public abstract IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode, IContent currentContent);
+        public abstract IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<object> searchResults, ListingMode mode, IContent currentContent);
 
         public abstract ITypeSearch<TContentData> AddfacetToQuery(ITypeSearch<TContentData> query, FacetFilterSetting setting);
 

@@ -27,7 +27,7 @@ namespace BrilliantCut.Core.Filters.Implementations
             return query.Filter(filter);
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode, IContent currentContent)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<object> searchResults, ListingMode mode, IContent currentContent)
         {
             var facet = searchResults
                 .TermsFacetFor<CatalogContentBase>(x => x.CategoryNames()).Terms;

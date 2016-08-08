@@ -190,10 +190,10 @@ namespace BrilliantCut.Core.Service
             return supportedTypes;
         }
 
-        protected virtual IFacetContent CreateInstance()
-        {
-            return new FacetContent();
-        }
+        //protected virtual IFacetContent CreateInstance()
+        //{
+        //    return new FacetContent();
+        //}
 
         //private IEnumerable<FilterContentModelType> FilterContentsWithGenericTypesValueFactory()
         //{

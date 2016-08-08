@@ -212,7 +212,7 @@ namespace BrilliantCut.Core.Service
                 //.Filter(x => x.MatchTypeHierarchy())
                 .Skip(skip)
                 .Take(take)
-                .Select(x => new FacetContent
+                .Select(x => new SearchFacetContent
                 {
                     PropertyCollection = properties,
                     Name = x.Name,
@@ -239,39 +239,65 @@ namespace BrilliantCut.Core.Service
                     Prices = x.Prices(),
                     Inventories = x.Inventories()
                 })
-                .IncludeType<FacetContent, IFacetContent>(x =>
-                    new FacetContent
-                    {
-                        PropertyCollection = properties,
-                        Name = x.Name,
-                        ContentGuid = x.ContentGuid,
-                        ContentLink = x.ContentLink,
-                        IsDeleted = x.IsDeleted,
-                        VariationLinks = x.VariationLinks(),
-                        ParentLink = x.ParentLink,
-                        StartPublish = x.StartPublish,
-                        StopPublish = x.StopPublish,
-                        Code = x.Code,
-                        DefaultPriceValue = x.DefaultPriceValue,
-                        ContentTypeID = x.ContentTypeID,
-                        ApplicationId = x.ApplicationId,
-                        MetaClassId = x.MetaClassId,
-                        ProductLinks = x.ProductLinks(),
-                        NodeLinks = x.NodeLinks(),
-                        LinkUrl = x.LinkUrl,
-                        ThumbnailPath = x.ThumbnailPath,
-                        DefaultImageUrl = x.DefaultImageUrl,
-                        DefaultCurrency = x.DefaultCurrency,
-                        WeightBase = x.WeightBase,
-                        LengthBase = x.LengthBase,
-                        Prices = x.Prices(),
-                        Inventories = x.Inventories(),
-                        CategoryNames = x.CategoryNames
-                    })
+                //.IncludeType<FacetContent, IFacetContent>(x =>
+                //    new FacetContent
+                //    {
+                //        PropertyCollection = properties,
+                //        Name = x.Name,
+                //        ContentGuid = x.ContentGuid,
+                //        ContentLink = x.ContentLink,
+                //        IsDeleted = x.IsDeleted,
+                //        VariationLinks = x.VariationLinks(),
+                //        ParentLink = x.ParentLink,
+                //        StartPublish = x.StartPublish,
+                //        StopPublish = x.StopPublish,
+                //        Code = x.Code,
+                //        DefaultPriceValue = x.DefaultPriceValue,
+                //        ContentTypeID = x.ContentTypeID,
+                //        ApplicationId = x.ApplicationId,
+                //        MetaClassId = x.MetaClassId,
+                //        ProductLinks = x.ProductLinks(),
+                //        NodeLinks = x.NodeLinks(),
+                //        LinkUrl = x.LinkUrl,
+                //        ThumbnailPath = x.ThumbnailPath,
+                //        DefaultImageUrl = x.DefaultImageUrl,
+                //        DefaultCurrency = x.DefaultCurrency,
+                //        WeightBase = x.WeightBase,
+                //        LengthBase = x.LengthBase,
+                //        Prices = x.Prices(),
+                //        Inventories = x.Inventories(),
+                //        CategoryNames = x.CategoryNames
+                //    })
                 .GetResult();
 
             total = result.TotalMatching;
-            return result;
+            return result.Select(x => new FacetContent
+            {
+                PropertyCollection = properties,
+                Name = x.Name,
+                ContentGuid = x.ContentGuid,
+                ContentLink = x.ContentLink,
+                IsDeleted = x.IsDeleted,
+                VariationLinks = x.VariationLinks,
+                ParentLink = x.ParentLink,
+                StartPublish = x.StartPublish,
+                StopPublish = x.StopPublish,
+                Code = x.Code,
+                DefaultPriceValue = x.DefaultPriceValue,
+                ContentTypeID = x.ContentTypeID,
+                ApplicationId = x.ApplicationId,
+                MetaClassId = x.MetaClassId,
+                ProductLinks = x.ProductLinks,
+                NodeLinks = x.NodeLinks,
+                ThumbnailPath = x.ThumbnailPath,
+                LinkUrl = x.LinkUrl,
+                DefaultImageUrl = x.DefaultImageUrl,
+                DefaultCurrency = x.DefaultCurrency,
+                WeightBase = x.WeightBase,
+                LengthBase = x.LengthBase,
+                Prices = x.Prices,
+                Inventories = x.Inventories
+            });
         }
     }
 }

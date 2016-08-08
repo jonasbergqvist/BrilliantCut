@@ -30,7 +30,7 @@ namespace BrilliantCut.Core.Filters.Implementations
             return query.CurrentlyPublished().ExcludeDeleted();
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<IFacetContent> searchResults, ListingMode mode, IContent currentContent)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<object> searchResults, ListingMode mode, IContent currentContent)
         {
             yield return new FilterOptionModel("all", "All", false, false, -1);
             yield return new FilterOptionModel("active", "Active", false, false, -1);
