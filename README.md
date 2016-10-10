@@ -1,5 +1,5 @@
 #Update
-I have updated the project to go agains commerce 9.20.0. The initial tests looks good.
+This project is not upto date with the newer versions. See it more as an inspiration than a solution.
 
 # BrilliantCut
 A brilliant cut is a dimond that contains several facets, and this project is all about facets. "BrilliantCut" makes it possible to filter the catalog UI by facets using EPiServer Find. The project includes facets like language, market, and category. It also includes a free text search, and the possibility to choose if the search should apply to children or descendants.
