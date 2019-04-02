@@ -55,12 +55,14 @@ namespace BrilliantCut.Core
                 .Select(x => x != null ? x.GetOriginalType() : typeof(object))
                 .ToArray();
 
-            var cacheKey = String.Concat(type.GetHashCode(), "#", String.Join(":", argumentTypes.Select(x => x.GetHashCode())));
+            var cacheKey = string.Concat(type.GetHashCode(), "#", string.Join(":", argumentTypes.Select(x => x.GetHashCode())));
+
             var objectActivator = ObjectInstanceCache.ReadThrough(cacheKey, () =>
             {
-                var finalType = type.IsGenericTypeDefinition ? type.MakeGenericType(argumentTypes) : type;
+                Type finalType = type.IsGenericTypeDefinition ? type.MakeGenericType(argumentTypes) : type;
                 return GetObjectActivator(finalType, argumentTypes);
-            }, null);
+            },
+        null);
 
             return objectActivator(constructorArguments);
         }

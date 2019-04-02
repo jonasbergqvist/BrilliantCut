@@ -14,6 +14,8 @@ using Mediachase.Commerce.Storage;
 
 namespace BrilliantCut.Core.Rest
 {
+    using Mediachase.MetaDataPlus.Configurator;
+
     [ServiceConfiguration(typeof(IModelTransform))]
     public class FacetContentTransform : IModelTransform
     {
@@ -50,8 +52,7 @@ namespace BrilliantCut.Core.Rest
                     if (facetContent.MetaClassId.HasValue)
                     {
                         properties["MetaClassName"] =
-                            MetaHelper.LoadMetaClassCached(CatalogContext.MetaDataContext,
-                                facetContent.MetaClassId.Value).FriendlyName;
+                            MetaClass.Load(CatalogContext.MetaDataContext, facetContent.MetaClassId.Value).FriendlyName;
                     }
                     properties["StartPublish"] = facetContent.StartPublish;
                     properties["StopPublish"] = facetContent.StopPublish;
