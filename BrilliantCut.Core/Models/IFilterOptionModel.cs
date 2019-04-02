@@ -1,11 +1,21 @@
-﻿namespace BrilliantCut.Core.Models
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="IFilterOptionModel.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace BrilliantCut.Core.Models
 {
     public interface IFilterOptionModel
     {
-        string Id { get; }
-        string Text { get; }
-        object Value { get; }
-        object DefaultValue { get; }
         int Count { get; }
+
+        object DefaultValue { get; }
+
+        string Id { get; }
+
+        string Text { get; }
+
+        object Value { get; }
     }
 }

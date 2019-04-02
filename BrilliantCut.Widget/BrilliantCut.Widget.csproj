@@ -267,7 +267,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BrilliantCut.Core\BrilliantCut.Core.csproj">
       <Project>{bf5ed046-8b29-4991-8479-db2d8e36b978}</Project>
-      <Name>BrilliantCut.FacetFilter.Core</Name>
+      <Name>BrilliantCut.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

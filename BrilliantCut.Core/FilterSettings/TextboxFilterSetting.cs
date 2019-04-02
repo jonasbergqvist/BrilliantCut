@@ -1,4 +1,9 @@
-﻿
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="TextboxFilterSetting.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace BrilliantCut.Core.FilterSettings
 {
     public class TextboxFilterSetting : FacetFilterSetting
@@ -10,8 +15,8 @@ namespace BrilliantCut.Core.FilterSettings
 
         public TextboxFilterSetting(int delay)
         {
-            FilterPath = "brilliantcut/widget/TextboxfacetFilter";
-            Delay = delay;
+            this.FilterPath = "brilliantcut/widget/TextboxfacetFilter";
+            this.Delay = delay;
         }
 
         public int Delay { get; set; }

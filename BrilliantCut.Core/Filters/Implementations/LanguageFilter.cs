@@ -1,67 +1,109 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using EPiServer.Commerce.Catalog.ContentTypes;
-using EPiServer.Core;
-using EPiServer.Find;
-using EPiServer.Find.Framework;
-using BrilliantCut.Core.DataAnnotation;
-using BrilliantCut.Core.Extensions;
-using BrilliantCut.Core.FilterSettings;
-using BrilliantCut.Core.Models;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="LanguageFilter.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace BrilliantCut.Core.Filters.Implementations
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
+
+    using BrilliantCut.Core.DataAnnotation;
+    using BrilliantCut.Core.Extensions;
+    using BrilliantCut.Core.FilterSettings;
+    using BrilliantCut.Core.Models;
+
+    using EPiServer.Commerce.Catalog.ContentTypes;
+    using EPiServer.Core;
+    using EPiServer.Find;
+    using EPiServer.Find.Api.Facets;
+    using EPiServer.Find.Framework;
+
     [RadiobuttonFilter]
     public class LanguageFilter : FilterContentBase<CatalogContentBase, string>
     {
         public override string Name
         {
-            get { return "Language"; }
+            get
+            {
+                return "Language";
+            }
         }
 
-        public override ITypeSearch<CatalogContentBase> Filter(IContent currentCntent, ITypeSearch<CatalogContentBase> query, IEnumerable<string> values)
+        public override ITypeSearch<CatalogContentBase> AddFacetToQuery(
+            ITypeSearch<CatalogContentBase> query,
+            FacetFilterSetting setting)
         {
-            var localizableContent = currentCntent as ILocale;
+            return query.TermsFacetFor(
+                x => x.LanguageName(),
+                request =>
+                    {
+                        if (setting.MaxFacetHits.HasValue)
+                        {
+                            request.Size = setting.MaxFacetHits;
+                        }
+                    });
+        }
 
-            var valuesArray = values.ToArray();
-            if ((!valuesArray.Any() || (valuesArray.Length == 1 && valuesArray[0] == "current")) && localizableContent != null)
+        public override ITypeSearch<CatalogContentBase> Filter(
+            IContent currentCntent,
+            ITypeSearch<CatalogContentBase> query,
+            IEnumerable<string> values)
+        {
+            ILocale localizableContent = currentCntent as ILocale;
+
+            string[] valuesArray = values.ToArray();
+            if ((!valuesArray.Any() || (valuesArray.Length == 1 && valuesArray[0] == "current"))
+                && localizableContent != null)
             {
-                return query.Filter(x => x.LanguageName().MatchCaseInsensitive(localizableContent.Language.Name));
+                return query.Filter(
+                    x => x.LanguageName().MatchCaseInsensitive(localizableContent.Language.Name));
             }
 
-            var marketFilter = SearchClient.Instance.BuildFilter<ILocale>();
-            marketFilter = valuesArray.Aggregate(marketFilter, (current, value) => current.Or(x => x.LanguageName().Match(value)));
+            FilterBuilder<ILocale> marketFilter = SearchClient.Instance.BuildFilter<ILocale>();
+            marketFilter = valuesArray.Aggregate(
+                seed: marketFilter,
+                func: (current, value) => current.Or(x => x.LanguageName().Match(value)));
 
-            return query.Filter(marketFilter);
+            return query.Filter(filter: marketFilter);
         }
 
-        public override IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<object> searchResults, ListingMode mode, IContent currentContent)
+        public override IEnumerable<IFilterOptionModel> GetFilterOptions(
+            SearchResults<object> searchResults,
+            ListingMode mode,
+            IContent currentContent)
         {
-            var facet = searchResults
-                .TermsFacetFor<ILocalizable>(x => x.LanguageName()).Terms;
+            IEnumerable<TermCount> facet = searchResults.TermsFacetFor<ILocalizable>(x => x.LanguageName()).Terms;
 
-            var currentLocaleContent = currentContent as ILocale;
-            var currentLanguage = currentLocaleContent != null ? currentLocaleContent.Language.Name : string.Empty;
-            var filterOptionModels = new List<FilterOptionModel>
-            {
-                new FilterOptionModel("languageCurrent", "Current", "current", true, facet.Where(x => x.Term == currentLanguage).Sum(x => x.Count))
-            };
-            filterOptionModels.AddRange(facet.Select(authorCount => new FilterOptionModel("language" + authorCount.Term, String.Format(CultureInfo.InvariantCulture, "{0} ({1})", authorCount.Term, authorCount.Count), authorCount.Term, false, authorCount.Count)));
+            ILocale currentLocaleContent = currentContent as ILocale;
+            string currentLanguage = currentLocaleContent != null ? currentLocaleContent.Language.Name : string.Empty;
+            List<FilterOptionModel> filterOptionModels = new List<FilterOptionModel>
+                                                             {
+                                                                 new FilterOptionModel(
+                                                                     "languageCurrent",
+                                                                     "Current",
+                                                                     "current",
+                                                                     true,
+                                                                     facet.Where(x => x.Term == currentLanguage)
+                                                                         .Sum(x => x.Count))
+                                                             };
+            filterOptionModels.AddRange(
+                facet.Select(
+                    authorCount => new FilterOptionModel(
+                        "language" + authorCount.Term,
+                        string.Format(
+                            provider: CultureInfo.InvariantCulture,
+                            format: "{0} ({1})",
+                            arg0: authorCount.Term,
+                            arg1: authorCount.Count),
+                        value: authorCount.Term,
+                        defaultValue: false,
+                        count: authorCount.Count)));
 
             return filterOptionModels;
-        }
-
-        public override ITypeSearch<CatalogContentBase> AddfacetToQuery(ITypeSearch<CatalogContentBase> query, FacetFilterSetting setting)
-        {
-            return query.TermsFacetFor(x => x.LanguageName(), request =>
-            {
-                if (setting.MaxFacetHits.HasValue)
-                {
-                    request.Size = setting.MaxFacetHits;
-                }
-            });
         }
     }
 }

@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.539
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrilliantCut.Core", "BrilliantCut.Core\BrilliantCut.Core.csproj", "{BF5ED046-8B29-4991-8479-DB2D8E36B978}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrilliantCut.Widget", "BrilliantCut.Widget\BrilliantCut.Widget.csproj", "{A0CF0C1F-0C97-4A3B-BDAC-7AD2DA018119}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{99BF7D02-3154-4B0E-806C-1D954727A8A6}"
+	ProjectSection(SolutionItems) = preProject
+		BrilliantCut.Core.nuspec = BrilliantCut.Core.nuspec
+		BrilliantCut.Widget.nuspec = BrilliantCut.Widget.nuspec
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +30,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {76123101-03F8-4725-A32D-AA02EA7EC9A3}
 	EndGlobalSection
 EndGlobal

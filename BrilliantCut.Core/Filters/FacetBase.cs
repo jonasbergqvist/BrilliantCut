@@ -1,16 +1,35 @@
-﻿using System;
-using System.Linq.Expressions;
-using EPiServer.Core;
-using EPiServer.Find.Api.Querying;
-using BrilliantCut.Core.Filters;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FacetBase.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace BrilliantCut.Core.Filters
 {
+    using System;
+    using System.Linq.Expressions;
+
+    using EPiServer.Core;
+
     public abstract class FacetBase<T, TValue> : FilterContentBase<T, TValue>
-           where T : IContent
+        where T : IContent
     {
-        private Expression<Func<T, object>> _propertyValuesExpressionObject;
         private string _name;
+
+        private Expression<Func<T, object>> _propertyValuesExpressionObject;
+
+        public override string Name
+        {
+            get
+            {
+                if (this._name == null)
+                {
+                    this._name = GetPropertyName(expression: this.PropertyValuesExpression.Body);
+                }
+
+                return this._name;
+            }
+        }
 
         public Expression<Func<T, TValue>> PropertyValuesExpression { get; set; }
 
@@ -18,38 +37,29 @@ namespace BrilliantCut.Core.Filters
         {
             get
             {
-                if (_propertyValuesExpressionObject == null)
+                if (this._propertyValuesExpressionObject == null)
                 {
-                    var converted = Expression.Convert(PropertyValuesExpression.Body, typeof(object));
-                    _propertyValuesExpressionObject = Expression.Lambda<Func<T, object>>(converted, PropertyValuesExpression.Parameters);
+                    UnaryExpression converted = Expression.Convert(
+                        expression: this.PropertyValuesExpression.Body,
+                        type: typeof(object));
+                    this._propertyValuesExpressionObject = Expression.Lambda<Func<T, object>>(
+                        body: converted,
+                        parameters: this.PropertyValuesExpression.Parameters);
                 }
 
-                return _propertyValuesExpressionObject;
+                return this._propertyValuesExpressionObject;
             }
         }
 
-        public override string Name
-        {
-            get
-            {
-                if (_name == null)
-                {
-                     _name = GetPropertyName(PropertyValuesExpression.Body);
-                }
-
-                return _name;
-            }
-        }
-        
         private static string GetPropertyName(Expression expression)
         {
-            var memberExpression = expression as MemberExpression;
+            MemberExpression memberExpression = expression as MemberExpression;
             if (memberExpression != null)
             {
                 return memberExpression.Member.Name;
             }
 
-            var methodCallExpression = expression as MethodCallExpression;
+            MethodCallExpression methodCallExpression = expression as MethodCallExpression;
             if (methodCallExpression != null)
             {
                 return methodCallExpression.Method.Name;

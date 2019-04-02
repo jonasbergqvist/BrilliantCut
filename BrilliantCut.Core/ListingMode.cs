@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ListingMode.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace BrilliantCut.Core
 {
     public enum ListingMode
     {
         NoListing = 0,
+
         MainListing = 1,
+
         WidgetListing = 2
     }
 }

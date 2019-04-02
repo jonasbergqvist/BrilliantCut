@@ -1,21 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BrilliantCut.Core.Filters;
-using BrilliantCut.Core.FilterSettings;
-using BrilliantCut.Core.Models;
-using EPiServer;
-using EPiServer.Cms.Shell.UI.Rest.ContentQuery;
-using EPiServer.Commerce.Catalog.ContentTypes;
-using EPiServer.Core;
-using EPiServer.Find;
-using EPiServer.Find.Framework;
-using EPiServer.Framework.Cache;
-using EPiServer.ServiceLocation;
-using Mediachase.Commerce.Catalog;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FacetService.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace BrilliantCut.Core.Service
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using BrilliantCut.Core.Filters;
+    using BrilliantCut.Core.FilterSettings;
+    using BrilliantCut.Core.Models;
+
+    using EPiServer;
+    using EPiServer.Cms.Shell.UI.Rest.ContentQuery;
+    using EPiServer.Commerce.Catalog.ContentTypes;
+    using EPiServer.Core;
+    using EPiServer.Find;
+    using EPiServer.Find.Framework;
+    using EPiServer.Framework.Cache;
+    using EPiServer.ServiceLocation;
+
+    using Mediachase.Commerce.Catalog;
+
     [ServiceConfiguration(typeof(FacetService), Lifecycle = ServiceInstanceScope.Singleton)]
     public class FacetService : FilteringServiceBase<FilterContentWithOptions>
     {
@@ -28,52 +37,76 @@ namespace BrilliantCut.Core.Service
             ReferenceConverter referenceConverter,
             IClient client,
             IContentEvents contentEvents)
-            : base(filterConfiguration, filterModelFactory, contentRepository, synchronizedObjectInstanceCache, searchSorter, referenceConverter, client, contentEvents)
+            : base(
+                filterConfiguration: filterConfiguration,
+                filterModelFactory: filterModelFactory,
+                contentRepository: contentRepository,
+                synchronizedObjectInstanceCache: synchronizedObjectInstanceCache,
+                searchSorter: searchSorter,
+                referenceConverter: referenceConverter,
+                client: client,
+                contentEvents: contentEvents)
         {
         }
 
         public override IEnumerable<FilterContentWithOptions> GetItems(ContentQueryParameters parameters)
         {
-            var listingMode = GetListingMode(parameters);
-            var contentLink = GetContentLink(parameters, listingMode);
+            ListingMode listingMode = this.GetListingMode(parameters: parameters);
+            ContentReference contentLink = this.GetContentLink(parameters: parameters, listingMode: listingMode);
 
-            var filterModelString = parameters.AllParameters["filterModel"];
-            var searchTypeString = parameters.AllParameters["searchType"];
+            string filterModelString = parameters.AllParameters["filterModel"];
+            string searchTypeString = parameters.AllParameters["searchType"];
 
-            var restrictSearchType = !String.IsNullOrEmpty(searchTypeString) ? Type.GetType(searchTypeString) : null;
+            Type restrictSearchType = !string.IsNullOrEmpty(value: searchTypeString)
+                                          ? Type.GetType(typeName: searchTypeString)
+                                          : null;
 
-            var cacheKey = String.Concat("FacetService#", contentLink, "#", filterModelString);
-            var cachedResult = GetCachedContent<IEnumerable<FilterContentWithOptions>>(cacheKey);
+            string cacheKey = string.Concat("FacetService#", contentLink, "#", filterModelString);
+            IEnumerable<FilterContentWithOptions> cachedResult =
+                this.GetCachedContent<IEnumerable<FilterContentWithOptions>>(cacheKey: cacheKey);
             if (cachedResult != null)
             {
                 return cachedResult;
             }
 
-            var content = ContentRepository.Get<IContent>(contentLink);
+            IContent content = this.ContentRepository.Get<IContent>(contentLink: contentLink);
 
-            var filters = new Dictionary<string, IEnumerable<object>>();
-            var filter = CheckedOptionsService.CreateFilterModel(filterModelString);
+            Dictionary<string, IEnumerable<object>> filters = new Dictionary<string, IEnumerable<object>>();
+            FilterModel filter = this.CheckedOptionsService.CreateFilterModel(checkedOptionsString: filterModelString);
             if (filter != null && filter.CheckedItems != null)
             {
                 filters = filter.CheckedItems.Where(x => x.Value != null)
                     .ToDictionary(k => k.Key, v => v.Value.Select(x => x));
             }
 
-            var searchType = GetSearchType(filter, restrictSearchType) ?? typeof(CatalogContentBase);
-            var possiblefacetQueries = FilterContentsWithGenericTypes.Where(x =>
-                x.ContentType.IsAssignableFrom(searchType) ||
-                searchType.IsAssignableFrom(x.ContentType)).ToList();
+            Type searchType = this.GetSearchType(filterModel: filter, restrictedSearchType: restrictSearchType)
+                              ?? typeof(CatalogContentBase);
+            List<FilterContentModelType> possiblefacetQueries = this.FilterContentsWithGenericTypes.Where(
+                    x => x.ContentType.IsAssignableFrom(c: searchType) || searchType.IsAssignableFrom(c: x.ContentType))
+                .ToList();
 
-            var subQueries = new Dictionary<FilterContentModelType, ISearch>();
-            AddSubqueries(possiblefacetQueries, subQueries, searchType);
+            Dictionary<FilterContentModelType, ISearch> subQueries = new Dictionary<FilterContentModelType, ISearch>();
+            this.AddSubqueries(
+                possiblefacetQueries: possiblefacetQueries,
+                subQueries: subQueries,
+                searchType: searchType);
 
-            var filterContentModelTypes = GetSupportedFilterContentModelTypes(searchType).ToList();
-            AddFiltersToSubQueries(content, subQueries, filterContentModelTypes, filters, searchType);
+            List<FilterContentModelType> filterContentModelTypes =
+                this.GetSupportedFilterContentModelTypes(queryType: searchType).ToList();
+            AddFiltersToSubQueries(
+                content: content,
+                subQueries: subQueries,
+                filterContentModelTypes: filterContentModelTypes,
+                filters: filters,
+                searchType: searchType);
 
             if (subQueries.Any())
             {
-                var result = GetFilterResult(subQueries, listingMode, content).ToList();
-                Cache(cacheKey, result, contentLink);
+                List<FilterContentWithOptions> result = this.GetFilterResult(
+                    subQueries: subQueries,
+                    listingMode: listingMode,
+                    currentContent: content).ToList();
+                this.Cache(cacheKey: cacheKey, result: result, contentLink: contentLink);
 
                 return result;
             }
@@ -81,37 +114,38 @@ namespace BrilliantCut.Core.Service
             return Enumerable.Empty<FilterContentWithOptions>();
         }
 
-        private void AddSubqueries(IEnumerable<FilterContentModelType> possiblefacetQueries, Dictionary<FilterContentModelType, ISearch> subQueries, Type searchType)
+        protected virtual void AddToMultiSearch(IMultiSearch<object> multSearch, ITypeSearch<object> typeSearch)
         {
-            foreach (var filterContentModelType in possiblefacetQueries)
-            {
-                if (subQueries.ContainsKey(filterContentModelType))
-                {
-                    subQueries[filterContentModelType] = filterContentModelType.Filter.AddfacetToQuery(subQueries[filterContentModelType], filterContentModelType.Setting);
-                    continue;
-                }
-
-                var typeForQueryCreation = searchType.IsAssignableFrom(filterContentModelType.ContentType)
-                    ? filterContentModelType.ContentType
-                    : searchType;
-
-                var subQuery = CreateSearchQuery(typeForQueryCreation);
-                subQueries.Add(filterContentModelType, subQuery);
-            }
+            multSearch.Searches.Add(typeSearch.Select(x => new object()).Take(0));
         }
 
-        private static void AddFiltersToSubQueries(IContent content, Dictionary<FilterContentModelType, ISearch> subQueries, List<FilterContentModelType> filterContentModelTypes, Dictionary<string, IEnumerable<object>> filters, Type searchType)
+        private static void AddFiltersToSubQueries(
+            IContent content,
+            Dictionary<FilterContentModelType, ISearch> subQueries,
+            List<FilterContentModelType> filterContentModelTypes,
+            Dictionary<string, IEnumerable<object>> filters,
+            Type searchType)
         {
-            if (filters == null) throw new ArgumentNullException("filters");
-            var subQueryFilterContentModelTypes = subQueries.Keys.ToList();
-            foreach (var subQueryKey in subQueryFilterContentModelTypes)
+            if (filters == null)
             {
-                var facetAdded = false;
-                foreach (var filterContentModelType in GetSupportedFilterModelTypes(filterContentModelTypes, searchType))
+                throw new ArgumentNullException("filters");
+            }
+
+            List<FilterContentModelType> subQueryFilterContentModelTypes = subQueries.Keys.ToList();
+            foreach (FilterContentModelType subQueryKey in subQueryFilterContentModelTypes)
+            {
+                bool facetAdded = false;
+                foreach (FilterContentModelType filterContentModelType in GetSupportedFilterModelTypes(
+                    filterContentModelTypes: filterContentModelTypes,
+                    searchType: searchType))
                 {
-                    if (!facetAdded && ShouldAddFacetToQuery(subQueryKey, filterContentModelType))
+                    if (!facetAdded && ShouldAddFacetToQuery(
+                            subQueryKey: subQueryKey,
+                            filterContentModelType: filterContentModelType))
                     {
-                        subQueries[subQueryKey] = subQueryKey.Filter.AddfacetToQuery(subQueries[subQueryKey], subQueryKey.Setting);
+                        subQueries[key: subQueryKey] = subQueryKey.Filter.AddFacetToQuery(
+                            subQueries[key: subQueryKey],
+                            setting: subQueryKey.Setting);
                         facetAdded = true;
 
                         if (filterContentModelType.Filter.Name == subQueryKey.Filter.Name)
@@ -120,75 +154,117 @@ namespace BrilliantCut.Core.Service
                         }
                     }
 
-                    var filterValues = (filters.ContainsKey(filterContentModelType.Filter.Name)
-                        ? filters[filterContentModelType.Filter.Name]
-                        : Enumerable.Empty<object>()).ToArray();
+                    object[] filterValues = (filters.ContainsKey(key: filterContentModelType.Filter.Name)
+                                                 ? filters[key: filterContentModelType.Filter.Name]
+                                                 : Enumerable.Empty<object>()).ToArray();
 
-                    subQueries[subQueryKey] = filterContentModelType.Filter.Filter(content, subQueries[subQueryKey], filterValues);
+                    subQueries[key: subQueryKey] = filterContentModelType.Filter.Filter(
+                        content: content,
+                        query: subQueries[key: subQueryKey],
+                        values: filterValues);
                 }
 
                 if (!facetAdded)
                 {
-                    subQueries[subQueryKey] = subQueryKey.Filter.AddfacetToQuery(subQueries[subQueryKey], subQueryKey.Setting);
+                    subQueries[key: subQueryKey] = subQueryKey.Filter.AddFacetToQuery(
+                        subQueries[key: subQueryKey],
+                        setting: subQueryKey.Setting);
                 }
             }
         }
 
-        private static bool ShouldAddFacetToQuery(FilterContentModelType subQueryKey, FilterContentModelType filterContentModelType)
+        private static IEnumerable<FilterContentModelType> GetSupportedFilterModelTypes(
+            IEnumerable<FilterContentModelType> filterContentModelTypes,
+            Type searchType)
         {
-            return filterContentModelType.HasGenericArgument &&
-                   (filterContentModelType.Filter.Name == subQueryKey.Filter.Name ||
-                    !subQueryKey.ContentType.IsAssignableFrom(filterContentModelType.ContentType));
+            return filterContentModelTypes.Where(x => x.ContentType.IsAssignableFrom(c: searchType));
         }
 
-        private static IEnumerable<FilterContentModelType> GetSupportedFilterModelTypes(IEnumerable<FilterContentModelType> filterContentModelTypes, Type searchType)
+        private static bool ShouldAddFacetToQuery(
+            FilterContentModelType subQueryKey,
+            FilterContentModelType filterContentModelType)
         {
-            return filterContentModelTypes.Where(x => x.ContentType.IsAssignableFrom(searchType));
+            return filterContentModelType.HasGenericArgument
+                   && (filterContentModelType.Filter.Name == subQueryKey.Filter.Name
+                       || !subQueryKey.ContentType.IsAssignableFrom(c: filterContentModelType.ContentType));
         }
 
-        private IEnumerable<FilterContentWithOptions> GetFilterResult(Dictionary<FilterContentModelType, ISearch> subQueries, ListingMode listingMode, IContent currentContent)
+        private void AddSubqueries(
+            IEnumerable<FilterContentModelType> possiblefacetQueries,
+            Dictionary<FilterContentModelType, ISearch> subQueries,
+            Type searchType)
         {
-            var filters = new List<FilterContentWithOptions>();
-
-            var multSearch = SearchClient.Instance.MultiSearch<object>();
-            var filterListInResultOrder = new Dictionary<IFilterContent, FacetFilterSetting>();
-            foreach (var subQuery in subQueries.OrderBy(x => x.Key.Filter.Name))
+            foreach (FilterContentModelType filterContentModelType in possiblefacetQueries)
             {
-                var typeSearch = subQuery.Value as ITypeSearch<object>;
-                AddToMultiSearch(multSearch, typeSearch);
-
-                foreach (var filterContentModelType in FilterContentsWithGenericTypes.Where(x => x.Filter.Name == subQuery.Key.Filter.Name).Where(filterContentModelType => !filters.Select(x => x.Name).Contains(filterContentModelType.Filter.Name)))
+                if (subQueries.ContainsKey(key: filterContentModelType))
                 {
-                    filterListInResultOrder.Add(filterContentModelType.Filter, filterContentModelType.Setting);
+                    subQueries[key: filterContentModelType] = filterContentModelType.Filter.AddFacetToQuery(
+                        subQueries[key: filterContentModelType],
+                        setting: filterContentModelType.Setting);
+                    continue;
+                }
+
+                Type typeForQueryCreation = searchType.IsAssignableFrom(c: filterContentModelType.ContentType)
+                                                ? filterContentModelType.ContentType
+                                                : searchType;
+
+                ISearch subQuery = this.CreateSearchQuery(contentType: typeForQueryCreation);
+                subQueries.Add(key: filterContentModelType, value: subQuery);
+            }
+        }
+
+        private IEnumerable<FilterContentWithOptions> GetFilterResult(
+            Dictionary<FilterContentModelType, ISearch> subQueries,
+            ListingMode listingMode,
+            IContent currentContent)
+        {
+            List<FilterContentWithOptions> filters = new List<FilterContentWithOptions>();
+
+            IMultiSearch<object> multSearch = SearchClient.Instance.MultiSearch<object>();
+            Dictionary<IFilterContent, FacetFilterSetting> filterListInResultOrder =
+                new Dictionary<IFilterContent, FacetFilterSetting>();
+            foreach (KeyValuePair<FilterContentModelType, ISearch> subQuery in subQueries.OrderBy(
+                x => x.Key.Filter.Name))
+            {
+                ITypeSearch<object> typeSearch = subQuery.Value as ITypeSearch<object>;
+                this.AddToMultiSearch(multSearch: multSearch, typeSearch: typeSearch);
+
+                foreach (FilterContentModelType filterContentModelType in this.FilterContentsWithGenericTypes
+                    .Where(x => x.Filter.Name == subQuery.Key.Filter.Name).Where(
+                        filterContentModelType =>
+                            !filters.Select(x => x.Name).Contains(value: filterContentModelType.Filter.Name)))
+                {
+                    filterListInResultOrder.Add(
+                        key: filterContentModelType.Filter,
+                        value: filterContentModelType.Setting);
                 }
             }
 
-            var filterListInResultOrderKeys = filterListInResultOrder.Keys.ToArray();
-            var multiResult = multSearch.GetResult().ToList();
-            for (var i = 0; i < multiResult.Count; i++)
+            IFilterContent[] filterListInResultOrderKeys = filterListInResultOrder.Keys.ToArray();
+            List<SearchResults<object>> multiResult = multSearch.GetResult().ToList();
+            for (int i = 0; i < multiResult.Count; i++)
             {
-                var option = new FilterContentWithOptions()
-                {
-                    Name = filterListInResultOrderKeys[i].Name,
-                    FilterContentType = filterListInResultOrderKeys[i].GetType(),
-                    FilterOptions = filterListInResultOrderKeys[i].GetFilterOptions(multiResult[i], listingMode, currentContent).ToArray(),
-                };
+                FilterContentWithOptions option = new FilterContentWithOptions
+                                                      {
+                                                          Name = filterListInResultOrderKeys[i].Name,
+                                                          FilterContentType = filterListInResultOrderKeys[i].GetType(),
+                                                          FilterOptions = filterListInResultOrderKeys[i]
+                                                              .GetFilterOptions(
+                                                                  multiResult[index: i],
+                                                                  mode: listingMode,
+                                                                  currentContent: currentContent).ToArray()
+                                                      };
 
-                var settings = filterListInResultOrder[filterListInResultOrderKeys[i]];
+                FacetFilterSetting settings = filterListInResultOrder[filterListInResultOrderKeys[i]];
                 if (settings != null)
                 {
                     option.Settings = settings;
                 }
 
-                filters.Add(option);
+                filters.Add(item: option);
             }
 
             return filters.OrderBy(x => x.Settings.SortOrder).ToList();
-        }
-
-        protected virtual void AddToMultiSearch(IMultiSearch<object> multSearch, ITypeSearch<object> typeSearch)
-        {
-            multSearch.Searches.Add(typeSearch.Select(x => new object()).Take(0));
         }
     }
 }

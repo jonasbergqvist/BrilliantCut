@@ -1,9 +1,15 @@
-﻿using EPiServer.Commerce.Catalog.ContentTypes;
-using EPiServer.ServiceLocation;
-using EPiServer.Shell;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FilterCatalogContentListView.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace BrilliantCut.Core.UIDescriptors.ViewConfigurations
 {
+    using EPiServer.Commerce.Catalog.ContentTypes;
+    using EPiServer.ServiceLocation;
+    using EPiServer.Shell;
+
     [ServiceConfiguration(typeof(ViewConfiguration))]
     public class FilterCatalogContentListView : ViewConfiguration<NodeContentBase>
     {
@@ -12,12 +18,12 @@ namespace BrilliantCut.Core.UIDescriptors.ViewConfigurations
         /// </summary>
         public FilterCatalogContentListView()
         {
-            Key = "catalogcontentlist";
-            LanguagePath = "/commerce/contentediting/views/cataloglist";
-            ControllerType = "brilliantcut/widget/FilterCatalogContentlist";
-            IconClass = "epi-iconList";
-            SortOrder = 10;
-            Category = "catalog";
+            this.Key = "catalogcontentlist";
+            this.LanguagePath = "/commerce/contentediting/views/cataloglist";
+            this.ControllerType = "brilliantcut/widget/FilterCatalogContentlist";
+            this.IconClass = "epi-iconList";
+            this.SortOrder = 10;
+            this.Category = "catalog";
         }
     }
 }

@@ -1,81 +1,101 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using EPiServer.Cms.Shell.UI.Rest;
-using EPiServer.Cms.Shell.UI.Rest.Models;
-using EPiServer.Cms.Shell.UI.Rest.Models.Transforms;
-using EPiServer.Commerce.Catalog.ContentTypes;
-using EPiServer.Core;
-using EPiServer.DataAbstraction;
-using EPiServer.ServiceLocation;
-using BrilliantCut.Core.Models;
-using Mediachase.Commerce.Catalog;
-using Mediachase.Commerce.Storage;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FacetContentTransform.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace BrilliantCut.Core.Rest
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using BrilliantCut.Core.Models;
+
+    using EPiServer.Cms.Shell.UI.Rest;
+    using EPiServer.Cms.Shell.UI.Rest.Models;
+    using EPiServer.Cms.Shell.UI.Rest.Models.Transforms;
+    using EPiServer.Commerce.Catalog.ContentTypes;
+    using EPiServer.Core;
+    using EPiServer.DataAbstraction;
+    using EPiServer.DataAbstraction.RuntimeModel;
+    using EPiServer.ServiceLocation;
+
+    using Mediachase.Commerce.Catalog;
     using Mediachase.MetaDataPlus.Configurator;
 
     [ServiceConfiguration(typeof(IModelTransform))]
     public class FacetContentTransform : IModelTransform
     {
-        private readonly IContentTypeRepository _contentTypeRepository;
         private readonly ContentTypeModelRepository _contentTypeModelRepository;
 
-        public FacetContentTransform(IContentTypeRepository contentTypeRepository, ContentTypeModelRepository contentTypeModelRepository)
-        {
-            _contentTypeRepository = contentTypeRepository;
-            _contentTypeModelRepository = contentTypeModelRepository;
-        }
+        private readonly IContentTypeRepository _contentTypeRepository;
 
-        public bool CanExecute(Type targetType, DefaultQueryParameters queryParameters)
+        public FacetContentTransform(
+            IContentTypeRepository contentTypeRepository,
+            ContentTypeModelRepository contentTypeModelRepository)
         {
-            return (typeof(StructureStoreContentDataModel)).IsAssignableFrom(targetType);
+            this._contentTypeRepository = contentTypeRepository;
+            this._contentTypeModelRepository = contentTypeModelRepository;
         }
 
         public TransformOrder Order
         {
-            get { return TransformOrder.Transform + 356; }
+            get
+            {
+                return TransformOrder.Transform + 356;
+            }
+        }
+
+        public bool CanExecute(Type targetType, DefaultQueryParameters queryParameters)
+        {
+            return (typeof(StructureStoreContentDataModel)).IsAssignableFrom(c: targetType);
         }
 
         public IEnumerable<IModelTransformContext> Execute(IEnumerable<IModelTransformContext> models)
         {
-            var modelList = models.ToList();
+            List<IModelTransformContext> modelList = models.ToList();
 
-            foreach (var model in modelList)
+            foreach (IModelTransformContext model in modelList)
             {
-                var facetContent = model.Source as IFacetContent;
+                IFacetContent facetContent = model.Source as IFacetContent;
                 if (facetContent != null)
                 {
-                    var properties = model.Target.Properties;
+                    PropertyDictionary properties = model.Target.Properties;
 
                     if (facetContent.MetaClassId.HasValue)
                     {
-                        properties["MetaClassName"] =
-                            MetaClass.Load(CatalogContext.MetaDataContext, facetContent.MetaClassId.Value).FriendlyName;
+                        properties["MetaClassName"] = MetaClass.Load(
+                            context: CatalogContext.MetaDataContext,
+                            id: facetContent.MetaClassId.Value).FriendlyName;
                     }
+
                     properties["StartPublish"] = facetContent.StartPublish;
                     properties["StopPublish"] = facetContent.StopPublish;
 
-                    var contentType = _contentTypeRepository.Load(facetContent.ContentTypeID);
-                    var contentTypeModel = _contentTypeModelRepository.List()
+                    ContentType contentType = this._contentTypeRepository.Load(id: facetContent.ContentTypeID);
+                    ContentTypeModel contentTypeModel = this._contentTypeModelRepository.List()
                         .FirstOrDefault(x => x.ExistingContentType == contentType);
                     if (contentTypeModel == null)
                     {
                         continue;
                     }
 
-                    if (typeof (EntryContentBase).IsAssignableFrom(contentTypeModel.ModelType))
+                    if (typeof(EntryContentBase).IsAssignableFrom(c: contentTypeModel.ModelType))
                     {
                         properties["Code"] = facetContent.Code;
                     }
 
-                    if (typeof(VariationContent).IsAssignableFrom(contentTypeModel.ModelType))
+                    if (typeof(VariationContent).IsAssignableFrom(c: contentTypeModel.ModelType))
                     {
                         properties["Price"] = facetContent.DefaultPriceValue.ToString();
 
-                        var instockQuantity = facetContent.Inventories != null ? facetContent.Inventories.Sum(x => x.InStockQuantity) : 0;
-                        var reorderMinQuantity = facetContent.Inventories != null ? facetContent.Inventories.Max(x => x.ReorderMinQuantity) : 0;
+                        decimal instockQuantity = facetContent.Inventories != null
+                                                      ? facetContent.Inventories.Sum(x => x.InStockQuantity)
+                                                      : 0;
+                        decimal reorderMinQuantity = facetContent.Inventories != null
+                                                         ? facetContent.Inventories.Max(x => x.ReorderMinQuantity)
+                                                         : 0;
 
                         string status;
                         if (instockQuantity == 0)
@@ -95,64 +115,70 @@ namespace BrilliantCut.Core.Rest
                         properties["InStockQuantity"] = instockQuantity.ToString();
                     }
 
-                    if (typeof(NodeContent).IsAssignableFrom(contentTypeModel.ModelType))
+                    if (typeof(NodeContent).IsAssignableFrom(c: contentTypeModel.ModelType))
                     {
                         properties["Code"] = facetContent.Code;
                     }
 
-                    if (typeof (CatalogContent).IsAssignableFrom(contentTypeModel.ModelType))
+                    if (typeof(CatalogContent).IsAssignableFrom(c: contentTypeModel.ModelType))
                     {
                         properties["WeightBase"] = facetContent.WeightBase;
                         properties["DefaultCurrency"] = facetContent.DefaultCurrency;
                         properties["LengthBase"] = facetContent.LengthBase;
                     }
 
-                    if (typeof(IAssetContainer).IsAssignableFrom(contentTypeModel.ModelType))
+                    if (typeof(IAssetContainer).IsAssignableFrom(c: contentTypeModel.ModelType))
                     {
                         properties["Thumbnail"] = facetContent.ThumbnailPath;
                     }
 
                     model.Target.TypeIdentifier = contentTypeModel.ModelType.FullName.ToLowerInvariant();
 
-                    SetCurrentCategoryRelation(model, properties, facetContent);
-                    SetHasChildrenForEntryContent(model, facetContent);
+                    SetCurrentCategoryRelation(context: model, properties: properties, source: facetContent);
+                    SetHasChildrenForEntryContent(context: model, source: facetContent);
 
-                    //        var catalogProperties = new Dictionary<string, Func<object, object>>
-                    //    {
-                    //        {CatalogProperty(c => c.DefaultLanguage), GetTranslatedLanguage},
-                    //        {CatalogProperty(c => c.Owner), getDefaultValue}
-                    //    };
+                    // var catalogProperties = new Dictionary<string, Func<object, object>>
+                    // {
+                    // {CatalogProperty(c => c.DefaultLanguage), GetTranslatedLanguage},
+                    // {CatalogProperty(c => c.Owner), getDefaultValue}
+                    // };
                 }
             }
 
             return modelList;
         }
 
+        private static void SetCurrentCategoryRelation(
+            IModelTransformContext context,
+            PropertyDictionary properties,
+            IFacetContent source)
+        {
+            ContentReference currentCategoryLink;
+            if (ContentReference.TryParse(
+                context.QueryParameters.AllParameters["currentCategory"],
+                result: out currentCategoryLink))
+            {
+                properties["IsRelatedToCurrentCategory"] = source.NodeLinks != null
+                                                           && source.NodeLinks.Any(
+                                                               link => link.CompareToIgnoreWorkID(
+                                                                   contentReference: currentCategoryLink));
+            }
+            else
+            {
+                properties["IsRelatedToCurrentCategory"] = true;
+            }
+        }
+
         private static void SetHasChildrenForEntryContent(IModelTransformContext context, IFacetContent source)
         {
-            var structureStoreContentDataModel = context.Target as StructureStoreContentDataModel;
+            StructureStoreContentDataModel structureStoreContentDataModel =
+                context.Target as StructureStoreContentDataModel;
             if (structureStoreContentDataModel == null)
             {
                 return;
             }
 
             structureStoreContentDataModel.HasChildren = source.VariationLinks != null && source.VariationLinks.Any();
-        }
-
-        private static void SetCurrentCategoryRelation(IModelTransformContext context, PropertyDictionary properties, IFacetContent source)
-        {
-
-            ContentReference currentCategoryLink;
-            if (ContentReference.TryParse(context.QueryParameters.AllParameters["currentCategory"], out currentCategoryLink))
-            {
-                properties["IsRelatedToCurrentCategory"] =
-                     source.NodeLinks != null && 
-                     source.NodeLinks.Any(link => link.CompareToIgnoreWorkID(currentCategoryLink));
-            }
-            else
-            {
-                properties["IsRelatedToCurrentCategory"] = true;
-            }
         }
     }
 }

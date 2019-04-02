@@ -1,32 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using EPiServer.Commerce.SpecializedProperties;
-using EPiServer.Core;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="IFacetContent.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace BrilliantCut.Core.Models
 {
+    using System;
+    using System.Collections.Generic;
+
+    using EPiServer.Commerce.SpecializedProperties;
+    using EPiServer.Core;
+
     public interface IFacetContent : IContent
     {
-        DateTime? StartPublish { get; }
-        DateTime? StopPublish { get; }
-        int ContentTypeID { get; }
         string ApplicationId { get; }
-        int? MetaClassId { get; }
-        string DefaultCurrency { get; }
-        string WeightBase { get; }
-        string LengthBase { get; }
-        string Code { get; }
-        string LinkUrl { get; }
-        string ThumbnailPath { get; }
-        string DefaultImageUrl { get; }
-        double? DefaultPriceValue { get; }
 
         IEnumerable<string> CategoryNames { get; }
-        IEnumerable<ContentReference> NodeLinks { get; }
-        IEnumerable<ContentReference> ProductLinks { get; }
-        IEnumerable<ContentReference> VariationLinks { get; }
-        IEnumerable<Price> Prices { get; }
+
+        string Code { get; }
+
+        int ContentTypeID { get; }
+
+        string DefaultCurrency { get; }
+
+        string DefaultImageUrl { get; }
+
+        double? DefaultPriceValue { get; }
+
         IEnumerable<Inventory> Inventories { get; }
+
+        string LengthBase { get; }
+
+        string LinkUrl { get; }
+
+        int? MetaClassId { get; }
+
+        IEnumerable<ContentReference> NodeLinks { get; }
+
+        IEnumerable<Price> Prices { get; }
+
+        IEnumerable<ContentReference> ProductLinks { get; }
+
         PropertyDataCollection PropertyCollection { get; }
+
+        DateTime? StartPublish { get; }
+
+        DateTime? StopPublish { get; }
+
+        string ThumbnailPath { get; }
+
+        IEnumerable<ContentReference> VariationLinks { get; }
+
+        string WeightBase { get; }
     }
 }

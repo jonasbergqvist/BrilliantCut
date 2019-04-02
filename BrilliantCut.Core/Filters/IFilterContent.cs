@@ -1,20 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using EPiServer.Core;
-using EPiServer.Find;
-using BrilliantCut.Core.Extensions;
-using BrilliantCut.Core.FilterSettings;
-using BrilliantCut.Core.Models;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="IFilterContent.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace BrilliantCut.Core.Filters
 {
+    using System.Collections.Generic;
+
+    using BrilliantCut.Core.FilterSettings;
+    using BrilliantCut.Core.Models;
+
+    using EPiServer.Core;
+    using EPiServer.Find;
+
     public interface IFilterContent
     {
-        String Name { get; }
-        String Description { get; }
+        string Description { get; }
 
-        IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<object> searchResults, ListingMode mode, IContent currentContent);
-        ISearch AddfacetToQuery(ISearch query, FacetFilterSetting setting);
+        string Name { get; }
+
+        ISearch AddFacetToQuery(ISearch query, FacetFilterSetting setting);
+
         ISearch Filter(IContent content, ISearch query, IEnumerable<object> values);
+
+        IEnumerable<IFilterOptionModel> GetFilterOptions(
+            SearchResults<object> searchResults,
+            ListingMode mode,
+            IContent currentContent);
     }
 }

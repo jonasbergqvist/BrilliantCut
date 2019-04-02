@@ -1,20 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BrilliantCut.Core.Extensions;
-using BrilliantCut.Core.Models;
-using EPiServer;
-using EPiServer.Commerce.Catalog.ContentTypes;
-using EPiServer.Core;
-using EPiServer.Find;
-using EPiServer.Find.Cms;
-using EPiServer.Framework.Cache;
-using EPiServer.ServiceLocation;
-using EPiServer.Shell.Services.Rest;
-using Mediachase.Commerce.Catalog;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ContentFilterService.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace BrilliantCut.Core.Service
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using BrilliantCut.Core.Extensions;
+    using BrilliantCut.Core.Models;
+
+    using EPiServer;
+    using EPiServer.Cms.Shell.UI.Rest.ContentQuery;
+    using EPiServer.Commerce.Catalog.ContentTypes;
+    using EPiServer.Core;
+    using EPiServer.Find;
+    using EPiServer.Find.Cms;
+    using EPiServer.Framework.Cache;
+    using EPiServer.ServiceLocation;
+    using EPiServer.Shell.Services.Rest;
+
+    using Mediachase.Commerce.Catalog;
+
     [ServiceConfiguration(typeof(ContentFilterService), Lifecycle = ServiceInstanceScope.Singleton)]
     public class ContentFilterService : FilteringServiceBase<IContent>
     {
@@ -27,49 +37,65 @@ namespace BrilliantCut.Core.Service
             ReferenceConverter referenceConverter,
             IClient client,
             IContentEvents contentEvents)
-            : base(filterConfiguration, filterModelFactory, contentRepository, synchronizedObjectInstanceCache, searchSorter, referenceConverter, client, contentEvents)
+            : base(
+                filterConfiguration: filterConfiguration,
+                filterModelFactory: filterModelFactory,
+                contentRepository: contentRepository,
+                synchronizedObjectInstanceCache: synchronizedObjectInstanceCache,
+                searchSorter: searchSorter,
+                referenceConverter: referenceConverter,
+                client: client,
+                contentEvents: contentEvents)
         {
         }
 
-        public override IEnumerable<IContent> GetItems(EPiServer.Cms.Shell.UI.Rest.ContentQuery.ContentQueryParameters parameters)
+        public override IEnumerable<IContent> GetItems(ContentQueryParameters parameters)
         {
-            var filterModelString = parameters.AllParameters["filterModel"];
-            var productGroupedString = parameters.AllParameters["productGrouped"];
-            var searchTypeString = parameters.AllParameters["searchType"];
-            var sortColumn = parameters.SortColumns != null ? (parameters.SortColumns.FirstOrDefault() ?? new SortColumn()) : new SortColumn();
+            string filterModelString = parameters.AllParameters["filterModel"];
+            string productGroupedString = parameters.AllParameters["productGrouped"];
+            string searchTypeString = parameters.AllParameters["searchType"];
+            SortColumn sortColumn = parameters.SortColumns != null
+                                        ? (parameters.SortColumns.FirstOrDefault() ?? new SortColumn())
+                                        : new SortColumn();
 
             bool productGrouped;
-            Boolean.TryParse(productGroupedString, out productGrouped);
-            var restrictSearchType = !String.IsNullOrEmpty(searchTypeString) ? Type.GetType(searchTypeString) : null;
+            bool.TryParse(value: productGroupedString, result: out productGrouped);
+            Type restrictSearchType = !string.IsNullOrEmpty(value: searchTypeString)
+                                          ? Type.GetType(typeName: searchTypeString)
+                                          : null;
 
-            var listingMode = GetListingMode(parameters);
-            var contentLink = GetContentLink(parameters, listingMode);
-            var filterModel = CheckedOptionsService.CreateFilterModel(filterModelString);
+            ListingMode listingMode = this.GetListingMode(parameters: parameters);
+            ContentReference contentLink = this.GetContentLink(parameters: parameters, listingMode: listingMode);
+            FilterModel filterModel =
+                this.CheckedOptionsService.CreateFilterModel(checkedOptionsString: filterModelString);
 
-            var searchType = typeof(CatalogContentBase); 
-            var filters = new Dictionary<string, IEnumerable<object>>();
+            Type searchType = typeof(CatalogContentBase);
+            Dictionary<string, IEnumerable<object>> filters = new Dictionary<string, IEnumerable<object>>();
             if (filterModel != null && filterModel.CheckedItems != null)
             {
                 filters = filterModel.CheckedItems.Where(x => x.Value != null)
                     .ToDictionary(k => k.Key, v => v.Value.Select(x => x));
 
-                var receivedSearchType = GetSearchType(filterModel, restrictSearchType);
+                Type receivedSearchType = this.GetSearchType(
+                    filterModel: filterModel,
+                    restrictedSearchType: restrictSearchType);
                 if (receivedSearchType != null)
                 {
                     searchType = receivedSearchType;
                 }
             }
 
-            var content = ContentRepository.Get<IContent>(contentLink);
-            var includeProductVariationRelations = productGrouped && !(content is ProductContent);
-            var supportedFilters = GetSupportedFilterContentModelTypes(searchType).ToList();
-            var query = CreateSearchQuery(searchType);
+            IContent content = this.ContentRepository.Get<IContent>(contentLink: contentLink);
+            bool includeProductVariationRelations = productGrouped && !(content is ProductContent);
+            List<FilterContentModelType> supportedFilters =
+                this.GetSupportedFilterContentModelTypes(queryType: searchType).ToList();
+            ISearch query = this.CreateSearchQuery(contentType: searchType);
 
-            var startIndex = parameters.Range.Start ?? 0;
-            var endIndex = includeProductVariationRelations ? MaxItems : parameters.Range.End ?? MaxItems;
+            int startIndex = parameters.Range.Start ?? 0;
+            int endIndex = includeProductVariationRelations ? MaxItems : parameters.Range.End ?? MaxItems;
 
-            var cacheKey = String.Concat("ContentFilterService#", content.ContentLink.ToString(), "#");
-            if (!String.IsNullOrEmpty(sortColumn.ColumnName))
+            string cacheKey = string.Concat("ContentFilterService#", content.ContentLink.ToString(), "#");
+            if (!string.IsNullOrEmpty(value: sortColumn.ColumnName))
             {
                 cacheKey += sortColumn.ColumnName + sortColumn.SortDescending;
             }
@@ -79,48 +105,179 @@ namespace BrilliantCut.Core.Service
                 cacheKey += startIndex + endIndex;
             }
 
-            query = GetFiltersToQuery(content, supportedFilters, filters, query, ref cacheKey);
-            query = SearchSortingService.Sort(sortColumn, query);
+            query = GetFiltersToQuery(
+                content: content,
+                supportedFilters: supportedFilters,
+                filters: filters,
+                query: query,
+                cacheKey: ref cacheKey);
+            query = this.SearchSortingService.Sort(sortColumn: sortColumn, query: query);
 
-            var cachedItems = GetCachedContent<Tuple<IEnumerable<IFacetContent>, int>>(cacheKey);
+            Tuple<IEnumerable<IFacetContent>, int> cachedItems =
+                this.GetCachedContent<Tuple<IEnumerable<IFacetContent>, int>>(cacheKey: cacheKey);
             if (cachedItems != null)
             {
                 parameters.Range.Total = cachedItems.Item2;
                 return cachedItems.Item1;
             }
 
-            var properties = ContentRepository.GetDefault<FacetContent>(content.ContentLink).Property;
+            PropertyDataCollection properties = this.ContentRepository
+                .GetDefault<FacetContent>(parentLink: content.ContentLink).Property;
 
-            var contentList = new List<IFacetContent>();
-            var linkedProductLinks = new List<ContentReference>();
+            List<IFacetContent> contentList = new List<IFacetContent>();
+            List<ContentReference> linkedProductLinks = new List<ContentReference>();
 
-            var total = AddFilteredChildren(query, restrictSearchType, contentList, linkedProductLinks,
-                properties, includeProductVariationRelations, startIndex, endIndex);
+            int total = this.AddFilteredChildren(
+                query: query,
+                searchType: restrictSearchType,
+                contentList: contentList,
+                linkedProductLinks: linkedProductLinks,
+                properties: properties,
+                includeProductVariationRelations: includeProductVariationRelations,
+                startIndex: startIndex,
+                take: endIndex);
 
             parameters.Range.Total = includeProductVariationRelations ? contentList.Count : total;
 
-            Cache(cacheKey, new Tuple<IEnumerable<IFacetContent>, int>(contentList, parameters.Range.Total.Value), contentLink);
+            this.Cache(
+                cacheKey: cacheKey,
+                result: new Tuple<IEnumerable<IFacetContent>, int>(
+                    item1: contentList,
+                    item2: parameters.Range.Total.Value),
+                contentLink: contentLink);
             return contentList;
         }
 
-        private static ISearch GetFiltersToQuery(IContent content, IEnumerable<FilterContentModelType> supportedFilters, Dictionary<string, IEnumerable<object>> filters, ISearch query, ref string cacheKey)
+        protected virtual IEnumerable<IFacetContent> GetSearchResults(
+            ITypeSearch<CatalogContentBase> query,
+            Type searchType,
+            PropertyDataCollection properties,
+            int skip,
+            int take,
+            out int total)
         {
-            foreach (var supportedFilter in supportedFilters)
+            if (searchType != null)
             {
-                var filterValues = (filters.ContainsKey(supportedFilter.Filter.Name)
-                    ? filters[supportedFilter.Filter.Name]
-                    : Enumerable.Empty<object>()).ToArray();
+                query = query.Filter(x => x.MatchTypeHierarchy(searchType));
+            }
 
-                query = supportedFilter.Filter.Filter(content, query, filterValues);
+            SearchResults<SearchFacetContent> result = query
 
-                cacheKey += String.Join(";", filterValues);
+                // .Filter(x => x.MatchTypeHierarchy())
+                .Skip(skip: skip).Take(take: take).Select(
+                    x => new SearchFacetContent
+                             {
+                                 PropertyCollection = properties,
+                                 Name = x.Name,
+                                 ContentGuid = x.ContentGuid,
+                                 ContentLink = x.ContentLink,
+                                 IsDeleted = x.IsDeleted,
+                                 VariationLinks = x.Variations(),
+                                 ParentLink = x.ParentLink,
+                                 StartPublish = x.StartPublish,
+                                 StopPublish = x.StopPublish,
+                                 Code = x.Code(),
+                                 DefaultPriceValue = x.DefaultPriceValue(),
+                                 ContentTypeID = x.ContentTypeID,
+                                 ApplicationId = x.ApplicationId,
+                                 MetaClassId = x.MetaClassId(),
+                                 ProductLinks = x.ParentProducts(),
+                                 NodeLinks = x.NodeLinks(),
+                                 ThumbnailPath = x.ThumbnailUrl(),
+                                 LinkUrl = x.LinkUrl(),
+                                 DefaultImageUrl = x.DefaultImageUrl(),
+                                 DefaultCurrency = x.DefaultCurrency(),
+                                 WeightBase = x.WeightBase(),
+                                 LengthBase = x.LengthBase(),
+                                 Prices = x.Prices(),
+                                 Inventories = x.Inventories()
+                             })
+
+                // .IncludeType<FacetContent, IFacetContent>(x =>
+                // new FacetContent
+                // {
+                // PropertyCollection = properties,
+                // Name = x.Name,
+                // ContentGuid = x.ContentGuid,
+                // ContentLink = x.ContentLink,
+                // IsDeleted = x.IsDeleted,
+                // VariationLinks = x.VariationLinks(),
+                // ParentLink = x.ParentLink,
+                // StartPublish = x.StartPublish,
+                // StopPublish = x.StopPublish,
+                // Code = x.Code,
+                // DefaultPriceValue = x.DefaultPriceValue,
+                // ContentTypeID = x.ContentTypeID,
+                // ApplicationId = x.ApplicationId,
+                // MetaClassId = x.MetaClassId,
+                // ProductLinks = x.ProductLinks(),
+                // NodeLinks = x.NodeLinks(),
+                // LinkUrl = x.LinkUrl,
+                // ThumbnailPath = x.ThumbnailPath,
+                // DefaultImageUrl = x.DefaultImageUrl,
+                // DefaultCurrency = x.DefaultCurrency,
+                // WeightBase = x.WeightBase,
+                // LengthBase = x.LengthBase,
+                // Prices = x.Prices(),
+                // Inventories = x.Inventories(),
+                // CategoryNames = x.CategoryNames
+                // })
+                .GetResult();
+
+            total = result.TotalMatching;
+            return result.Select(
+                x => new FacetContent
+                         {
+                             PropertyCollection = properties,
+                             Name = x.Name,
+                             ContentGuid = x.ContentGuid,
+                             ContentLink = x.ContentLink,
+                             IsDeleted = x.IsDeleted,
+                             VariationLinks = x.VariationLinks,
+                             ParentLink = x.ParentLink,
+                             StartPublish = x.StartPublish,
+                             StopPublish = x.StopPublish,
+                             Code = x.Code,
+                             DefaultPriceValue = x.DefaultPriceValue,
+                             ContentTypeID = x.ContentTypeID,
+                             ApplicationId = x.ApplicationId,
+                             MetaClassId = x.MetaClassId,
+                             ProductLinks = x.ProductLinks,
+                             NodeLinks = x.NodeLinks,
+                             ThumbnailPath = x.ThumbnailPath,
+                             LinkUrl = x.LinkUrl,
+                             DefaultImageUrl = x.DefaultImageUrl,
+                             DefaultCurrency = x.DefaultCurrency,
+                             WeightBase = x.WeightBase,
+                             LengthBase = x.LengthBase,
+                             Prices = x.Prices,
+                             Inventories = x.Inventories
+                         });
+        }
+
+        private static ISearch GetFiltersToQuery(
+            IContent content,
+            IEnumerable<FilterContentModelType> supportedFilters,
+            Dictionary<string, IEnumerable<object>> filters,
+            ISearch query,
+            ref string cacheKey)
+        {
+            foreach (FilterContentModelType supportedFilter in supportedFilters)
+            {
+                object[] filterValues = (filters.ContainsKey(key: supportedFilter.Filter.Name)
+                                             ? filters[key: supportedFilter.Filter.Name]
+                                             : Enumerable.Empty<object>()).ToArray();
+
+                query = supportedFilter.Filter.Filter(content: content, query: query, values: filterValues);
+
+                cacheKey += string.Join(";", values: filterValues);
             }
 
             return query;
         }
 
         private int AddFilteredChildren(
-            ISearch query, 
+            ISearch query,
             Type searchType,
             ICollection<IFacetContent> contentList,
             ICollection<ContentReference> linkedProductLinks,
@@ -132,52 +289,76 @@ namespace BrilliantCut.Core.Service
             try
             {
                 int total;
-                var queryResult = GetSearchResult(query, searchType, properties, startIndex, take, out total).ToList();
-                foreach (var resultItem in queryResult)
+                List<IFacetContent> queryResult = this.GetSearchResult(
+                    query: query,
+                    searchType: searchType,
+                    properties: properties,
+                    startIndex: startIndex,
+                    take: take,
+                    total: out total).ToList();
+                foreach (IFacetContent resultItem in queryResult)
                 {
                     // When we ask for relations, add product links to linkedProductList if any exists, and do not add a model for the content if it has product links.
                     if (includeProductVariationRelations)
                     {
                         if (resultItem.ProductLinks != null && resultItem.ProductLinks.Any())
                         {
-                            foreach (var productLink in resultItem.ProductLinks.Where(productLink => !linkedProductLinks.Contains(productLink)))
+                            foreach (ContentReference productLink in resultItem.ProductLinks.Where(
+                                productLink => !linkedProductLinks.Contains(item: productLink)))
                             {
-                                linkedProductLinks.Add(productLink);
+                                linkedProductLinks.Add(item: productLink);
                             }
 
                             continue;
                         }
                     }
 
-                    if (!contentList.Any(x => x.ContentLink.CompareToIgnoreWorkID(resultItem.ContentLink)))
+                    if (!contentList.Any(
+                            x => x.ContentLink.CompareToIgnoreWorkID(contentReference: resultItem.ContentLink)))
                     {
-                        contentList.Add(resultItem);
+                        contentList.Add(item: resultItem);
                     }
                 }
 
                 if (includeProductVariationRelations)
                 {
                     // get parent products in the query result
-                    var addedContentLinks = contentList.Select(x => x.ContentLink);
-                    var links = addedContentLinks;
-                    var notAddedLinkedProducts = linkedProductLinks.Where(x => !links.Contains(x)).ToArray();
-                    foreach (var resultItem in notAddedLinkedProducts.Select(linkedProductLink => queryResult.FirstOrDefault(x => x.ContentLink.CompareToIgnoreWorkID(linkedProductLink))).Where(resultItem => resultItem != null))
+                    IEnumerable<ContentReference> addedContentLinks = contentList.Select(x => x.ContentLink);
+                    IEnumerable<ContentReference> links = addedContentLinks;
+                    ContentReference[] notAddedLinkedProducts =
+                        linkedProductLinks.Where(x => !links.Contains(value: x)).ToArray();
+                    foreach (IFacetContent resultItem in notAddedLinkedProducts
+                        .Select(
+                            linkedProductLink => queryResult.FirstOrDefault(
+                                x => x.ContentLink.CompareToIgnoreWorkID(contentReference: linkedProductLink)))
+                        .Where(resultItem => resultItem != null))
                     {
-                        contentList.Add(resultItem);
+                        contentList.Add(item: resultItem);
                     }
 
                     addedContentLinks = contentList.Select(x => x.ContentLink);
-                    notAddedLinkedProducts = linkedProductLinks.Where(x => !addedContentLinks.Contains(x)).ToArray();
+                    notAddedLinkedProducts =
+                        linkedProductLinks.Where(x => !addedContentLinks.Contains(value: x)).ToArray();
                     if (notAddedLinkedProducts.Any())
                     {
-                        var filterBuilder = new FilterBuilder<ProductContent>(Client);
-                        filterBuilder = notAddedLinkedProducts.Aggregate(filterBuilder,
-                            (current, reference) => current.Or(x => x.ContentLink.Match(reference)));
+                        FilterBuilder<ProductContent> filterBuilder =
+                            new FilterBuilder<ProductContent>(client: this.Client);
+                        filterBuilder = notAddedLinkedProducts.Aggregate(
+                            seed: filterBuilder,
+                            func: (current, reference) =>
+                                current.Or(x => x.ContentLink.Match(reference)));
 
-                        var productQuery = Client.Search<ProductContent>().Filter(filterBuilder);
-                        total += AddFilteredChildren(productQuery, searchType, contentList,
-                            linkedProductLinks, properties, false, 0,
-                            MaxItems);
+                        ITypeSearch<ProductContent> productQuery =
+                            this.Client.Search<ProductContent>().Filter(filter: filterBuilder);
+                        total += this.AddFilteredChildren(
+                            query: productQuery,
+                            searchType: searchType,
+                            contentList: contentList,
+                            linkedProductLinks: linkedProductLinks,
+                            properties: properties,
+                            includeProductVariationRelations: false,
+                            startIndex: 0,
+                            take: MaxItems);
                     }
                 }
 
@@ -189,115 +370,28 @@ namespace BrilliantCut.Core.Service
             }
         }
 
-        private IEnumerable<IFacetContent> GetSearchResult(ISearch query, Type searchType, PropertyDataCollection properties, int startIndex, int take, out int total)
+        private IEnumerable<IFacetContent> GetSearchResult(
+            ISearch query,
+            Type searchType,
+            PropertyDataCollection properties,
+            int startIndex,
+            int take,
+            out int total)
         {
-            var catalogContentSearch = query as ITypeSearch<CatalogContentBase>;
+            ITypeSearch<CatalogContentBase> catalogContentSearch = query as ITypeSearch<CatalogContentBase>;
             if (catalogContentSearch != null)
             {
-                return GetSearchResults(catalogContentSearch, searchType, properties, startIndex, take + 2, out total);
+                return this.GetSearchResults(
+                    query: catalogContentSearch,
+                    searchType: searchType,
+                    properties: properties,
+                    skip: startIndex,
+                    take: take + 2,
+                    total: out total);
             }
 
             throw new NotSupportedException(
                 "The type needs to inherit from CatalogContentBase, or implement IFacetContent");
-        }
-
-        protected virtual IEnumerable<IFacetContent> GetSearchResults(ITypeSearch<CatalogContentBase> query, Type searchType, PropertyDataCollection properties, int skip, int take, out int total)
-        {
-            if (searchType != null)
-            {
-                query = query.Filter(x => x.MatchTypeHierarchy(searchType));
-            }
-
-            var result = query
-                //.Filter(x => x.MatchTypeHierarchy())
-                .Skip(skip)
-                .Take(take)
-                .Select(x => new SearchFacetContent
-                {
-                    PropertyCollection = properties,
-                    Name = x.Name,
-                    ContentGuid = x.ContentGuid,
-                    ContentLink = x.ContentLink,
-                    IsDeleted = x.IsDeleted,
-                    VariationLinks = x.Variations(),
-                    ParentLink = x.ParentLink,
-                    StartPublish = x.StartPublish,
-                    StopPublish = x.StopPublish,
-                    Code = x.Code(),
-                    DefaultPriceValue = x.DefaultPriceValue(),
-                    ContentTypeID = x.ContentTypeID,
-                    ApplicationId = x.ApplicationId,
-                    MetaClassId = x.MetaClassId(),
-                    ProductLinks = x.ParentProducts(),
-                    NodeLinks = x.NodeLinks(),
-                    ThumbnailPath = x.ThumbnailUrl(),
-                    LinkUrl = x.LinkUrl(),
-                    DefaultImageUrl = x.DefaultImageUrl(),
-                    DefaultCurrency = x.DefaultCurrency(),
-                    WeightBase = x.WeightBase(),
-                    LengthBase = x.LengthBase(),
-                    Prices = x.Prices(),
-                    Inventories = x.Inventories()
-                })
-                //.IncludeType<FacetContent, IFacetContent>(x =>
-                //    new FacetContent
-                //    {
-                //        PropertyCollection = properties,
-                //        Name = x.Name,
-                //        ContentGuid = x.ContentGuid,
-                //        ContentLink = x.ContentLink,
-                //        IsDeleted = x.IsDeleted,
-                //        VariationLinks = x.VariationLinks(),
-                //        ParentLink = x.ParentLink,
-                //        StartPublish = x.StartPublish,
-                //        StopPublish = x.StopPublish,
-                //        Code = x.Code,
-                //        DefaultPriceValue = x.DefaultPriceValue,
-                //        ContentTypeID = x.ContentTypeID,
-                //        ApplicationId = x.ApplicationId,
-                //        MetaClassId = x.MetaClassId,
-                //        ProductLinks = x.ProductLinks(),
-                //        NodeLinks = x.NodeLinks(),
-                //        LinkUrl = x.LinkUrl,
-                //        ThumbnailPath = x.ThumbnailPath,
-                //        DefaultImageUrl = x.DefaultImageUrl,
-                //        DefaultCurrency = x.DefaultCurrency,
-                //        WeightBase = x.WeightBase,
-                //        LengthBase = x.LengthBase,
-                //        Prices = x.Prices(),
-                //        Inventories = x.Inventories(),
-                //        CategoryNames = x.CategoryNames
-                //    })
-                .GetResult();
-
-            total = result.TotalMatching;
-            return result.Select(x => new FacetContent
-            {
-                PropertyCollection = properties,
-                Name = x.Name,
-                ContentGuid = x.ContentGuid,
-                ContentLink = x.ContentLink,
-                IsDeleted = x.IsDeleted,
-                VariationLinks = x.VariationLinks,
-                ParentLink = x.ParentLink,
-                StartPublish = x.StartPublish,
-                StopPublish = x.StopPublish,
-                Code = x.Code,
-                DefaultPriceValue = x.DefaultPriceValue,
-                ContentTypeID = x.ContentTypeID,
-                ApplicationId = x.ApplicationId,
-                MetaClassId = x.MetaClassId,
-                ProductLinks = x.ProductLinks,
-                NodeLinks = x.NodeLinks,
-                ThumbnailPath = x.ThumbnailPath,
-                LinkUrl = x.LinkUrl,
-                DefaultImageUrl = x.DefaultImageUrl,
-                DefaultCurrency = x.DefaultCurrency,
-                WeightBase = x.WeightBase,
-                LengthBase = x.LengthBase,
-                Prices = x.Prices,
-                Inventories = x.Inventories
-            });
         }
     }
 }

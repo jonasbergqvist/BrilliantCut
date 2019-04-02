@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>BrilliantCut.Widget</id>
-    <version>0.2.1</version>
+    <version>1.0.0</version>
     <title>Brilliant Cut Widget</title>
     <authors>Jonas Bergqvist</authors>
     <owners>Jonas Bergqvist</owners>
@@ -15,12 +15,11 @@
     <copyright>Copyright Jonas Berqvist 2015</copyright>
     <tags></tags>
     <dependencies>
-      <dependency id="BrilliantCut.Core" version="[0.2.1,2)" />
+      <dependency id="BrilliantCut.Core" version="[1,2)" />
     </dependencies>
   </metadata>
   <files>
     <file src="BrilliantCut.Widget\bin\debug\BrilliantCut.Widget.dll" target="lib\net45" />
-    <file src="BrilliantCut.Widget\bin\debug\BrilliantCut.Widget.dll" target="content\net45\modulesbin" />
     <file src="BrilliantCut.Widget\ClientResources\**\*.*" target="content\net45\modules\_protected\BrilliantCut.Widget" />
     <file src="BrilliantCut.Widget\module.config" target="content\net45\modules\_protected\BrilliantCut.Widget" />
     <file src="BrilliantCut.Widget\Web.Config.install.xdt" target="content\net45" />

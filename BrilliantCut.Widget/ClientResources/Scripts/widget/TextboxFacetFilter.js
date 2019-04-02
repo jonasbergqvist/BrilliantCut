@@ -33,7 +33,7 @@
         CreateDijitForm: function (filterOption, checked, filterContentName, attribute, updateList) {
             return new TextBox({
                 name: filterOption.id,
-                value: '',
+                value: "",
                 onKeyDown: function () {
                     clearTimeout(this.timeoutId);
                     this.timeoutId = setTimeout(updateList, attribute.delay);

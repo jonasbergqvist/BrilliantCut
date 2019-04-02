@@ -1,4 +1,9 @@
-﻿
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="SliderFilterSetting.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace BrilliantCut.Core.FilterSettings
 {
     public class SliderFilterSetting : FacetFilterSetting
@@ -6,18 +11,17 @@ namespace BrilliantCut.Core.FilterSettings
         public SliderFilterSetting()
             : this(0, 100)
         {
-            
         }
 
         public SliderFilterSetting(int min, int max)
         {
-            FilterPath = "brilliantcut/widget/SliderfacetFilter";
-            Min = min;
-            Max = max;
+            this.FilterPath = "brilliantcut/widget/SliderfacetFilter";
+            this.Min = min;
+            this.Max = max;
         }
 
-        public int Min { get; set; }
-
         public int Max { get; set; }
+
+        public int Min { get; set; }
     }
 }
