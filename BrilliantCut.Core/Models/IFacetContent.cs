@@ -20,8 +20,6 @@ namespace BrilliantCut.Core.Models
 
         string Code { get; }
 
-        int ContentTypeID { get; }
-
         string DefaultCurrency { get; }
 
         string DefaultImageUrl { get; }

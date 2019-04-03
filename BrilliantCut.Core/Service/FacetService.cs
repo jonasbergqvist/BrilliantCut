@@ -36,7 +36,8 @@ namespace BrilliantCut.Core.Service
             SearchSortingService searchSorter,
             ReferenceConverter referenceConverter,
             IClient client,
-            IContentEvents contentEvents)
+            IContentEvents contentEvents,
+            IContentCacheKeyCreator contentCacheKeyCreator)
             : base(
                 filterConfiguration: filterConfiguration,
                 filterModelFactory: filterModelFactory,
@@ -45,7 +46,8 @@ namespace BrilliantCut.Core.Service
                 searchSorter: searchSorter,
                 referenceConverter: referenceConverter,
                 client: client,
-                contentEvents: contentEvents)
+                contentEvents: contentEvents,
+                contentCacheKeyCreator:contentCacheKeyCreator)
         {
         }
 
@@ -209,7 +211,11 @@ namespace BrilliantCut.Core.Service
                                                 : searchType;
 
                 ISearch subQuery = this.CreateSearchQuery(contentType: typeForQueryCreation);
-                subQueries.Add(key: filterContentModelType, value: subQuery);
+
+                if (subQuery != null)
+                {
+                    subQueries.Add(key: filterContentModelType, value: subQuery);
+                }
             }
         }
 

@@ -18,6 +18,7 @@ namespace BrilliantCut.Core
     using EPiServer.Framework;
     using EPiServer.Framework.Initialization;
     using EPiServer.ServiceLocation;
+    using EPiServer.ServiceLocation.Compatibility;
 
     /// <summary>
     /// Initialization module for Find against Commerce.
@@ -28,7 +29,10 @@ namespace BrilliantCut.Core
     {
         public void ConfigureContainer(ServiceConfigurationContext context)
         {
-            context.Container.Configure(ce => ce.For<IClient>().Use(@object: SearchClient.Instance));
+            context.Services.Configure(c =>
+                {
+                    c.For<IClient>().Use(instance: SearchClient.Instance);
+                });
         }
 
         /// <summary>

@@ -8,7 +8,9 @@ namespace BrilliantCut.Core.Service
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Reflection;
 
     using BrilliantCut.Core.Extensions;
     using BrilliantCut.Core.Models;
@@ -20,6 +22,7 @@ namespace BrilliantCut.Core.Service
     using EPiServer.Find;
     using EPiServer.Find.Cms;
     using EPiServer.Framework.Cache;
+    using EPiServer.Logging;
     using EPiServer.ServiceLocation;
     using EPiServer.Shell.Services.Rest;
 
@@ -36,7 +39,8 @@ namespace BrilliantCut.Core.Service
             SearchSortingService searchSorter,
             ReferenceConverter referenceConverter,
             IClient client,
-            IContentEvents contentEvents)
+            IContentEvents contentEvents,
+            IContentCacheKeyCreator contentCacheKeyCreator)
             : base(
                 filterConfiguration: filterConfiguration,
                 filterModelFactory: filterModelFactory,
@@ -45,107 +49,120 @@ namespace BrilliantCut.Core.Service
                 searchSorter: searchSorter,
                 referenceConverter: referenceConverter,
                 client: client,
-                contentEvents: contentEvents)
+                contentEvents: contentEvents,
+                contentCacheKeyCreator: contentCacheKeyCreator)
         {
         }
 
         public override IEnumerable<IContent> GetItems(ContentQueryParameters parameters)
         {
-            string filterModelString = parameters.AllParameters["filterModel"];
-            string productGroupedString = parameters.AllParameters["productGrouped"];
-            string searchTypeString = parameters.AllParameters["searchType"];
-            SortColumn sortColumn = parameters.SortColumns != null
-                                        ? (parameters.SortColumns.FirstOrDefault() ?? new SortColumn())
-                                        : new SortColumn();
-
-            bool productGrouped;
-            bool.TryParse(value: productGroupedString, result: out productGrouped);
-            Type restrictSearchType = !string.IsNullOrEmpty(value: searchTypeString)
-                                          ? Type.GetType(typeName: searchTypeString)
-                                          : null;
-
-            ListingMode listingMode = this.GetListingMode(parameters: parameters);
-            ContentReference contentLink = this.GetContentLink(parameters: parameters, listingMode: listingMode);
-            FilterModel filterModel =
-                this.CheckedOptionsService.CreateFilterModel(checkedOptionsString: filterModelString);
-
-            Type searchType = typeof(CatalogContentBase);
-            Dictionary<string, IEnumerable<object>> filters = new Dictionary<string, IEnumerable<object>>();
-            if (filterModel != null && filterModel.CheckedItems != null)
+            try
             {
-                filters = filterModel.CheckedItems.Where(x => x.Value != null)
-                    .ToDictionary(k => k.Key, v => v.Value.Select(x => x));
+                string filterModelString = parameters.AllParameters["filterModel"];
+                string productGroupedString = parameters.AllParameters["productGrouped"];
+                string searchTypeString = parameters.AllParameters["searchType"];
+                SortColumn sortColumn = parameters.SortColumns != null
+                                            ? (parameters.SortColumns.FirstOrDefault() ?? new SortColumn())
+                                            : new SortColumn();
 
-                Type receivedSearchType = this.GetSearchType(
-                    filterModel: filterModel,
-                    restrictedSearchType: restrictSearchType);
-                if (receivedSearchType != null)
+                bool productGrouped;
+                bool.TryParse(value: productGroupedString, result: out productGrouped);
+                Type restrictSearchType = !string.IsNullOrEmpty(value: searchTypeString)
+                                              ? Type.GetType(typeName: searchTypeString)
+                                              : null;
+
+                ListingMode listingMode = this.GetListingMode(parameters: parameters);
+                ContentReference contentLink = this.GetContentLink(parameters: parameters, listingMode: listingMode);
+                FilterModel filterModel = this.CheckedOptionsService.CreateFilterModel(checkedOptionsString: filterModelString);
+
+                Type searchType = typeof(CatalogContentBase);
+                Dictionary<string, IEnumerable<object>> filters = new Dictionary<string, IEnumerable<object>>();
+
+                if (filterModel?.CheckedItems != null)
                 {
-                    searchType = receivedSearchType;
+                    filters = filterModel.CheckedItems.Where(x => x.Value != null)
+                        .ToDictionary(k => k.Key, v => v.Value.Select(x => x));
+
+                    Type receivedSearchType = this.GetSearchType(
+                        filterModel: filterModel,
+                        restrictedSearchType: restrictSearchType);
+
+                    if (receivedSearchType != null)
+                    {
+                        searchType = receivedSearchType;
+                    }
                 }
+
+                IContent content = this.ContentRepository.Get<IContent>(contentLink: contentLink);
+                bool includeProductVariationRelations = productGrouped && !(content is ProductContent);
+                List<FilterContentModelType> supportedFilters = this.GetSupportedFilterContentModelTypes(queryType: searchType).ToList();
+                ISearch query = this.CreateSearchQuery(contentType: searchType);
+
+                int startIndex = parameters.Range.Start ?? 0;
+                int endIndex = includeProductVariationRelations ? MaxItems : parameters.Range.End ?? MaxItems;
+
+                string cacheKey = string.Concat("ContentFilterService#", content.ContentLink.ToString(), "#");
+
+                if (!string.IsNullOrEmpty(value: sortColumn.ColumnName))
+                {
+                    cacheKey += string.Format("{0}{1}", sortColumn.ColumnName, sortColumn.SortDescending);
+                }
+
+                if (!includeProductVariationRelations)
+                {
+                    cacheKey += startIndex + endIndex;
+                }
+
+                query = GetFiltersToQuery(
+                    content: content,
+                    supportedFilters: supportedFilters,
+                    filters: filters,
+                    query: query,
+                    cacheKey: ref cacheKey);
+
+                query = this.SearchSortingService.Sort(sortColumn: sortColumn, query: query);
+
+                Tuple<IEnumerable<IFacetContent>, int> cachedItems =
+                    this.GetCachedContent<Tuple<IEnumerable<IFacetContent>, int>>(cacheKey: cacheKey);
+
+                if (cachedItems != null)
+                {
+                    parameters.Range.Total = cachedItems.Item2;
+                    return cachedItems.Item1;
+                }
+
+                PropertyDataCollection properties = this.ContentRepository
+                    .GetDefault<FacetContent>(parentLink: content.ContentLink).Property;
+
+                List<IFacetContent> contentList = new List<IFacetContent>();
+                List<ContentReference> linkedProductLinks = new List<ContentReference>();
+
+                int total = this.AddFilteredChildren(
+                    query: query,
+                    searchType: restrictSearchType,
+                    contentList: contentList,
+                    linkedProductLinks: linkedProductLinks,
+                    properties: properties,
+                    includeProductVariationRelations: includeProductVariationRelations,
+                    startIndex: startIndex,
+                    take: endIndex);
+
+                parameters.Range.Total = includeProductVariationRelations ? contentList.Count : total;
+
+                this.Cache(
+                    cacheKey: cacheKey,
+                    result: new Tuple<IEnumerable<IFacetContent>, int>(
+                        item1: contentList,
+                        item2: parameters.Range.Total.Value),
+                    contentLink: contentLink);
+                return contentList;
             }
-
-            IContent content = this.ContentRepository.Get<IContent>(contentLink: contentLink);
-            bool includeProductVariationRelations = productGrouped && !(content is ProductContent);
-            List<FilterContentModelType> supportedFilters =
-                this.GetSupportedFilterContentModelTypes(queryType: searchType).ToList();
-            ISearch query = this.CreateSearchQuery(contentType: searchType);
-
-            int startIndex = parameters.Range.Start ?? 0;
-            int endIndex = includeProductVariationRelations ? MaxItems : parameters.Range.End ?? MaxItems;
-
-            string cacheKey = string.Concat("ContentFilterService#", content.ContentLink.ToString(), "#");
-            if (!string.IsNullOrEmpty(value: sortColumn.ColumnName))
+            catch (Exception exception)
             {
-                cacheKey += sortColumn.ColumnName + sortColumn.SortDescending;
+                this.Logger.Log(level: Level.Error, message: exception.Message, exception: exception);
             }
-
-            if (!includeProductVariationRelations)
-            {
-                cacheKey += startIndex + endIndex;
-            }
-
-            query = GetFiltersToQuery(
-                content: content,
-                supportedFilters: supportedFilters,
-                filters: filters,
-                query: query,
-                cacheKey: ref cacheKey);
-            query = this.SearchSortingService.Sort(sortColumn: sortColumn, query: query);
-
-            Tuple<IEnumerable<IFacetContent>, int> cachedItems =
-                this.GetCachedContent<Tuple<IEnumerable<IFacetContent>, int>>(cacheKey: cacheKey);
-            if (cachedItems != null)
-            {
-                parameters.Range.Total = cachedItems.Item2;
-                return cachedItems.Item1;
-            }
-
-            PropertyDataCollection properties = this.ContentRepository
-                .GetDefault<FacetContent>(parentLink: content.ContentLink).Property;
-
-            List<IFacetContent> contentList = new List<IFacetContent>();
-            List<ContentReference> linkedProductLinks = new List<ContentReference>();
-
-            int total = this.AddFilteredChildren(
-                query: query,
-                searchType: restrictSearchType,
-                contentList: contentList,
-                linkedProductLinks: linkedProductLinks,
-                properties: properties,
-                includeProductVariationRelations: includeProductVariationRelations,
-                startIndex: startIndex,
-                take: endIndex);
-
-            parameters.Range.Total = includeProductVariationRelations ? contentList.Count : total;
-
-            this.Cache(
-                cacheKey: cacheKey,
-                result: new Tuple<IEnumerable<IFacetContent>, int>(
-                    item1: contentList,
-                    item2: parameters.Range.Total.Value),
-                contentLink: contentLink);
-            return contentList;
+            
+            return new List<IContent>();
         }
 
         protected virtual IEnumerable<IFacetContent> GetSearchResults(
@@ -179,7 +196,6 @@ namespace BrilliantCut.Core.Service
                                  Code = x.Code(),
                                  DefaultPriceValue = x.DefaultPriceValue(),
                                  ContentTypeID = x.ContentTypeID,
-                                 ApplicationId = x.ApplicationId,
                                  MetaClassId = x.MetaClassId(),
                                  ProductLinks = x.ParentProducts(),
                                  NodeLinks = x.NodeLinks(),
@@ -240,7 +256,6 @@ namespace BrilliantCut.Core.Service
                              Code = x.Code,
                              DefaultPriceValue = x.DefaultPriceValue,
                              ContentTypeID = x.ContentTypeID,
-                             ApplicationId = x.ApplicationId,
                              MetaClassId = x.MetaClassId,
                              ProductLinks = x.ProductLinks,
                              NodeLinks = x.NodeLinks,
@@ -379,6 +394,7 @@ namespace BrilliantCut.Core.Service
             out int total)
         {
             ITypeSearch<CatalogContentBase> catalogContentSearch = query as ITypeSearch<CatalogContentBase>;
+
             if (catalogContentSearch != null)
             {
                 return this.GetSearchResults(

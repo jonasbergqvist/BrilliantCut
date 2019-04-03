@@ -18,7 +18,7 @@ namespace BrilliantCut.Core.Extensions
     using EPiServer.ServiceLocation;
     using EPiServer.Web.Routing;
 
-    using Mediachase.Commerce.Inventory;
+    using Mediachase.Commerce.InventoryService;
     using Mediachase.Commerce.Markets;
 
     using ICategorizable = EPiServer.Commerce.Catalog.ContentTypes.ICategorizable;
@@ -34,7 +34,7 @@ namespace BrilliantCut.Core.Extensions
             }
 
             IContentLoader contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
-            IEnumerable<ContentReference> contentLinks = productContent.GetNodeRelations().Select(x => x.Target);
+            IEnumerable<ContentReference> contentLinks = productContent.GetNodeRelations().Select(x => x.Parent);
 
             IEnumerable<IContent> contentItems = contentLoader.GetItems(
                 contentLinks: contentLinks,
@@ -186,7 +186,7 @@ namespace BrilliantCut.Core.Extensions
                 return Enumerable.Empty<ContentReference>();
             }
 
-            return productContent.GetNodeRelations().Select(x => x.Target);
+            return productContent.GetNodeRelations().Select(x => x.Parent);
         }
 
         public static IEnumerable<ContentReference> ParentProducts(this CatalogContentBase content)
@@ -237,17 +237,17 @@ namespace BrilliantCut.Core.Extensions
 
         public static double? TotalInStock(this VariationContent content)
         {
-            IWarehouseInventoryService warehouseInventoryService =
-                ServiceLocator.Current.GetInstance<IWarehouseInventoryService>();
+            IInventoryService inventoryService =
+                ServiceLocator.Current.GetInstance<IInventoryService>();
 
-            IEnumerable<IWarehouseInventory> allWarehouses = warehouseInventoryService.ListAll();
+            IEnumerable<InventoryRecord> allWarehouses = inventoryService.List();
             if (!allWarehouses.Any())
             {
                 return default(double?);
             }
 
-            decimal totalInStock = warehouseInventoryService.ListAll()
-                .Where(x => x.CatalogKey.CatalogEntryCode == content.Code).Select(x => x.InStockQuantity).Sum();
+            decimal totalInStock = inventoryService.List()
+                .Where(x => x.CatalogEntryCode == content.Code).Select(x => x.PurchaseAvailableQuantity).Sum();
 
             return Convert.ToDouble(value: totalInStock);
         }

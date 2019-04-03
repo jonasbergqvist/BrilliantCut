@@ -21,6 +21,7 @@ namespace BrilliantCut.Core.Service
     using EPiServer.Core;
     using EPiServer.Find;
     using EPiServer.Framework.Cache;
+    using EPiServer.Logging;
     using EPiServer.ServiceLocation;
 
     using Mediachase.Commerce.Catalog;
@@ -33,12 +34,14 @@ namespace BrilliantCut.Core.Service
 
         private const string SearchMethodName = "Search";
 
-        private readonly FilterConfiguration _filterConfiguration;
+        private readonly FilterConfiguration filterConfiguration;
 
-        private readonly ISynchronizedObjectInstanceCache _synchronizedObjectInstanceCache;
+        private readonly ISynchronizedObjectInstanceCache synchronizedObjectInstanceCache;
 
-        private IEnumerable<FilterContentModelType> _filterContentsWithGenericTypes;
+        private readonly IContentCacheKeyCreator contentCacheKeyCreator;
 
+        private IEnumerable<FilterContentModelType> filterContentsWithGenericTypes;
+        
         protected FilteringServiceBase(
             FilterConfiguration filterConfiguration,
             CheckedOptionsService filterModelFactory,
@@ -47,15 +50,18 @@ namespace BrilliantCut.Core.Service
             SearchSortingService searchSorter,
             ReferenceConverter referenceConverter,
             IClient client,
-            IContentEvents contentEvents)
+            IContentEvents contentEvents,
+            IContentCacheKeyCreator contentCacheKeyCreator)
         {
-            this._filterConfiguration = filterConfiguration;
+            this.filterConfiguration = filterConfiguration;
             this.CheckedOptionsService = filterModelFactory;
             this.ContentRepository = contentRepository;
-            this._synchronizedObjectInstanceCache = synchronizedObjectInstanceCache;
+            this.synchronizedObjectInstanceCache = synchronizedObjectInstanceCache;
             this.SearchSortingService = searchSorter;
             this.ReferenceConverter = referenceConverter;
             this.Client = client;
+            this.Logger = LogManager.GetLogger();
+            this.contentCacheKeyCreator = contentCacheKeyCreator;
 
             contentEvents.PublishedContent += (s, e) => CacheManager.Remove(key: MasterKey);
             contentEvents.DeletedContent += (s, e) => CacheManager.Remove(key: MasterKey);
@@ -72,10 +78,10 @@ namespace BrilliantCut.Core.Service
         {
             get
             {
-                if (this._filterContentsWithGenericTypes == null)
+                if (this.filterContentsWithGenericTypes == null)
                 {
                     List<FilterContentModelType> filterContentModelTypes = new List<FilterContentModelType>();
-                    foreach (KeyValuePair<IFilterContent, FacetFilterSetting> filterContent in this._filterConfiguration
+                    foreach (KeyValuePair<IFilterContent, FacetFilterSetting> filterContent in this.filterConfiguration
                         .Filters)
                     {
                         Type contentType = GetContentType(filterContent.Key.GetType());
@@ -89,12 +95,14 @@ namespace BrilliantCut.Core.Service
                                 });
                     }
 
-                    this._filterContentsWithGenericTypes = filterContentModelTypes;
+                    this.filterContentsWithGenericTypes = filterContentModelTypes;
                 }
 
-                return this._filterContentsWithGenericTypes;
+                return this.filterContentsWithGenericTypes;
             }
         }
+
+        protected ILogger Logger { get; private set; }
 
         protected ReferenceConverter ReferenceConverter { get; private set; }
 
@@ -107,47 +115,56 @@ namespace BrilliantCut.Core.Service
         protected virtual void Cache<TCache>(string cacheKey, TCache result, ContentReference contentLink)
             where TCache : class
         {
-            this._synchronizedObjectInstanceCache.Insert(
+            this.synchronizedObjectInstanceCache.Insert(
                 key: cacheKey,
                 value: result,
                 evictionPolicy: new CacheEvictionPolicy(
                     null,
-                    null,
                     new[]
                         {
-                            MasterKey, DataFactoryCache.RootKeyName, "EP:CatalogKeyPricesMasterCacheKey",
+                            MasterKey, this.contentCacheKeyCreator.RootKeyName, "EP:CatalogKeyPricesMasterCacheKey",
                             "Mediachase.Commerce.InventoryService.Storage$MASTER"
                         }));
         }
 
+        /// <summary>
+        /// Creates the search query.
+        /// </summary>
+        /// <param name="contentType">Type of the content.</param>
+        /// <returns>The search query.</returns>
         protected virtual ISearch CreateSearchQuery(Type contentType)
         {
-            // Consider another way of creating an instance of the generic search. Invoke is pretty slow.
-            MethodInfo method = typeof(Client).GetMethod(name: SearchMethodName, types: Type.EmptyTypes);
-            MethodInfo genericMethod = method.MakeGenericMethod(contentType);
-            return genericMethod.Invoke(obj: this.Client, parameters: null) as ISearch;
+            // TODO: Consider another way of creating an instance of the generic search. Invoke is pretty slow.
+            try
+            {
+                MethodInfo method = typeof(Client).GetMethod(name: SearchMethodName, types: Type.EmptyTypes);
+                MethodInfo genericMethod = method?.MakeGenericMethod(contentType);
+                return genericMethod?.Invoke(obj: this.Client, parameters: null) as ISearch;
+            }
+            catch (Exception exception)
+            {
+                this.Logger.Log(level: Level.Error, message: exception.Message, exception: exception);
+            }
+
+            return null;
         }
 
         protected virtual TCache GetCachedContent<TCache>(string cacheKey)
             where TCache : class
         {
-            return this._synchronizedObjectInstanceCache.Get(key: cacheKey) as TCache;
+            return this.synchronizedObjectInstanceCache.Get(key: cacheKey) as TCache;
         }
 
         protected virtual ContentReference GetContentLink(ContentQueryParameters parameters, ListingMode listingMode)
         {
-            if (listingMode == ListingMode.WidgetListing)
-            {
-                return this.ReferenceConverter.GetRootLink();
-            }
-
-            return parameters.ReferenceId;
+            return listingMode == ListingMode.WidgetListing ? this.ReferenceConverter.GetRootLink() : parameters.ReferenceId;
         }
 
         protected virtual ListingMode GetListingMode(ContentQueryParameters parameters)
         {
             string listingModeString = parameters.AllParameters["listingMode"];
             ListingMode listingMode;
+
             if (listingModeString != null && Enum.TryParse(value: listingModeString, result: out listingMode))
             {
                 return listingMode;

@@ -14,8 +14,6 @@ namespace BrilliantCut.Core.Models
 
     public class SearchFacetContent
     {
-        public string ApplicationId { get; set; }
-
         public IEnumerable<string> CategoryNames { get; set; }
 
         public string Code { get; set; }
