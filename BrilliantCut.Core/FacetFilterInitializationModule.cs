@@ -29,10 +29,10 @@ namespace BrilliantCut.Core
     {
         public void ConfigureContainer(ServiceConfigurationContext context)
         {
-            context.Services.Configure(c =>
-                {
-                    c.For<IClient>().Use(instance: SearchClient.Instance);
-                });
+            //context.Services.Configure(c =>
+            //    {
+            //        c.For<IClient>().Use(instance: SearchClient.Instance);
+            //    });
         }
 
         /// <summary>

@@ -7,7 +7,7 @@
 namespace BrilliantCut.Widget.Components
 {
     using EPiServer.Shell.ViewComposition;
-
+    
     [Component]
     public sealed class FacetFilterComponent : ComponentDefinitionBase
     {
@@ -20,7 +20,8 @@ namespace BrilliantCut.Widget.Components
             this.PlugInAreas = new[]
                                    {
                                        EPiServer.Shell.PlugInArea.AssetsDefaultGroup,
-                                       "/episerver/commerce/assets/defaultgroup"
+                                       EPiServer.Commerce.Shell.CommercePlugInArea.MarketingTools,
+                                       EPiServer.Commerce.Shell.CommercePlugInArea.AssetsDefaultGroup
                                    };
             this.Categories = new[] { "commerce" };
 
