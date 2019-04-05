@@ -156,7 +156,7 @@ namespace BrilliantCut.Core.Extensions
 
         public static string LinkUrl(this CatalogContentBase content)
         {
-            return ServiceLocator.Current.GetInstance<UrlResolver>().GetUrl(
+            return ServiceLocator.Current.GetInstance<IUrlResolver>().GetUrl(
                 contentLink: content.ContentLink,
                 language: content.Language.Name);
         }

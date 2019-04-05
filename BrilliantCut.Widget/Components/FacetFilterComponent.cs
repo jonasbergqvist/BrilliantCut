@@ -12,7 +12,7 @@ namespace BrilliantCut.Widget.Components
     public sealed class FacetFilterComponent : ComponentDefinitionBase
     {
         public FacetFilterComponent()
-            : base("brilliantcut.widget.facetfilter")
+            : base("brilliantcut/widget/facetfilter")
         {
             this.Title = "BrilliantCut";
             this.Description = "Filters the catalog";
