@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		BrilliantCut.Core.nuspec = BrilliantCut.Core.nuspec
 		BrilliantCut.Widget.nuspec = BrilliantCut.Widget.nuspec
+		Packager\Main.targets = Packager\Main.targets
 	EndProjectSection
 EndProject
 Global

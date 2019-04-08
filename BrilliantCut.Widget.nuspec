@@ -13,16 +13,15 @@
     <description>Facet support in commerce UI</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright Jonas Berqvist 2015</copyright>
-    <tags></tags>
+    <tags>EPiServerModulePackage</tags>
     <dependencies>
       <dependency id="BrilliantCut.Core" version="[1,2)" />
     </dependencies>
   </metadata>
   <files>
-    <file src="BrilliantCut.Widget\bin\debug\BrilliantCut.Widget.dll" target="lib\net45" />
-    <file src="BrilliantCut.Widget\ClientResources\**\*.*" target="content\net45\modules\_protected\BrilliantCut.Widget" />
-    <file src="BrilliantCut.Widget\module.config" target="content\net45\modules\_protected\BrilliantCut.Widget" />
-    <file src="BrilliantCut.Widget\Web.Config.install.xdt" target="content\net45" />
-    <file src="BrilliantCut.Widget\Web.Config.uninstall.xdt" target="content\net45" />
+    <file src="BrilliantCut.Widget\bin\$configuration$\BrilliantCut.Widget.dll" target="lib\net461" />
+    <file src="BrilliantCut.Widget\bin\$configuration$\BrilliantCut.Widget.zip" target="content\net461\modules\_protected\BrilliantCut.Widget" />
+    <file src="BrilliantCut.Widget\Web.Config.install.xdt" target="content\net461" />
+    <file src="BrilliantCut.Widget\Web.Config.uninstall.xdt" target="content\net461" />
   </files>
 </package>

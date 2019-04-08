@@ -17,11 +17,11 @@
     <dependencies>
       <dependency id="EPiServer.Commerce.Core" version="[11,13)" />
       <dependency id="EPiServer.Commerce.UI" version="[11,13)" />
-      <!--dependency id="EPiServer.Find.Commerce" version="[8,10)" /-->
+      <dependency id="EPiServer.Find.Commerce" version="[11,13)" />
       <dependency id="Newtonsoft.Json" version="[9,12)" />
     </dependencies>
   </metadata>
   <files>
-    <file src="BrilliantCut.Core\bin\debug\BrilliantCut.Core.dll" target="lib\net45" />
+    <file src="BrilliantCut.Core\bin\$configuration$\BrilliantCut.Core.dll" target="lib\net461" />
   </files>
 </package>
