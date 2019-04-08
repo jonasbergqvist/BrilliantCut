@@ -14,9 +14,9 @@ namespace BrilliantCut.Widget.Components
         public FacetFilterComponent()
             : base("brilliantcut/widget/facetfilter")
         {
-            this.Title = "BrilliantCut";
+            this.Title = "Catalog filter";
             this.Description = "Filters the catalog";
-            this.SortOrder = 50;
+            this.SortOrder = 40;
             this.PlugInAreas = new[]
                                    {
                                        EPiServer.Shell.PlugInArea.AssetsDefaultGroup,
