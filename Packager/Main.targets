@@ -61,7 +61,7 @@
     <MakeDir Directories="$(TmpOutDir)\content\$(Version)" />
 
    <ItemGroup>
-      <MySourceFiles Include="$(SolutionDir)BrilliantCut.Widget\ClientResources\Scripts\**\*.*"/>
+      <MySourceFiles Include="$(SolutionDir)BrilliantCut.Widget\ClientResources\**\*.*"/>
    </ItemGroup>
    
     <Copy SourceFiles="$(SolutionDir)BrilliantCut.Widget\module.config" DestinationFolder="$(TmpOutDir)\content" />
