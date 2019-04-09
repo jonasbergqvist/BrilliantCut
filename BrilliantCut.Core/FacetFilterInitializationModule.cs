@@ -27,21 +27,21 @@ namespace BrilliantCut.Core
     [ModuleDependency(typeof(IndexingModule))]
     public class FacetFilterInitializationModule : IConfigurableModule
     {
+        private IClient client;
+
         public void ConfigureContainer(ServiceConfigurationContext context)
         {
-            //context.Services.Configure(c =>
-            //    {
-            //        c.For<IClient>().Use(instance: SearchClient.Instance);
-            //    });
         }
 
         /// <summary>
         /// Sets client conventions in Find against Commerce, and register unified search for products.
         /// </summary>
         /// <param name="context">The initialization engine.</param>
+        /// <exception cref="T:EPiServer.ServiceLocation.ActivationException">if there is are errors resolving the service instance.</exception>
         public void Initialize(InitializationEngine context)
         {
-            ClientConventions(client: SearchClient.Instance);
+            this.client = context.Locate.Advanced.GetInstance<IClient>();
+            this.SetClientConventions();
         }
 
         public void Preload(string[] parameters)
@@ -56,11 +56,11 @@ namespace BrilliantCut.Core
         {
         }
 
-        private static void ClientConventions(IClient client)
+        private void SetClientConventions()
         {
-            client.Conventions.ForInstancesOf<Price>().ExcludeField(x => x.EntryContent);
+            this.client.Conventions.ForInstancesOf<Price>().ExcludeField(x => x.EntryContent);
 
-            client.Conventions.ForInstancesOf<CatalogContentBase>().IncludeField(x => x.ParentProducts())
+            this.client.Conventions.ForInstancesOf<CatalogContentBase>().IncludeField(x => x.ParentProducts())
                 .IncludeField(x => x.Variations()).IncludeField(x => x.ThumbnailUrl()).IncludeField(x => x.LinkUrl())
                 .IncludeField(x => x.NodeLinks()).IncludeField(x => x.CategoryNames())
                 .IncludeField(x => x.DefaultCurrency()).IncludeField(x => x.LengthBase())
@@ -68,9 +68,9 @@ namespace BrilliantCut.Core
                 .IncludeField(x => x.Prices()).IncludeField(x => x.Inventories()).IncludeField(x => x.LanguageName())
                 .IncludeField(x => x.StartPublishedNormalized());
 
-            client.Conventions.ForInstancesOf<EntryContentBase>().IncludeField(x => x.SelectedMarkets());
+            this.client.Conventions.ForInstancesOf<EntryContentBase>().IncludeField(x => x.SelectedMarkets());
 
-            client.Conventions.ForInstancesOf<VariationContent>().IncludeField(x => x.TotalInStock());
+            this.client.Conventions.ForInstancesOf<VariationContent>().IncludeField(x => x.TotalInStock());
         }
     }
 }
