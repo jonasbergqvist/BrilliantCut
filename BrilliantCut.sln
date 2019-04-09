@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution 
 		BrilliantCut.Core.nuspec = BrilliantCut.Core.nuspec
 		BrilliantCut.Widget.nuspec = BrilliantCut.Widget.nuspec
 		Packager\Main.targets = Packager\Main.targets
+		README.md = README.md
 		BrilliantCut.Widget\Web.config = BrilliantCut.Widget\Web.config
 	EndProjectSection
 EndProject
