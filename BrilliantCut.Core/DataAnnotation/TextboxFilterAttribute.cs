@@ -8,7 +8,7 @@ namespace BrilliantCut.Core.DataAnnotation
 {
     using BrilliantCut.Core.FilterSettings;
 
-    public class TextboxFilterAttribute : FacetFilterAttribute
+    public sealed class TextboxFilterAttribute : FacetFilterAttribute
     {
         public TextboxFilterAttribute()
             : this(1000)

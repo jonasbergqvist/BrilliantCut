@@ -8,7 +8,7 @@ namespace BrilliantCut.Core.DataAnnotation
 {
     using BrilliantCut.Core.FilterSettings;
 
-    public class CheckboxFilterAttribute : FacetFilterAttribute
+    public sealed class CheckboxFilterAttribute : FacetFilterAttribute
     {
         public CheckboxFilterAttribute()
         {

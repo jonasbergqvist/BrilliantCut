@@ -10,6 +10,7 @@ namespace BrilliantCut.Core.DataAnnotation
 
     using BrilliantCut.Core.FilterSettings;
 
+    [AttributeUsage(AttributeTargets.Class)]
     public class FacetFilterAttribute : Attribute
     {
         public FacetFilterSetting Setting { get; set; }

@@ -8,7 +8,7 @@ namespace BrilliantCut.Core.DataAnnotation
 {
     using BrilliantCut.Core.FilterSettings;
 
-    public class RadiobuttonFilterAttribute : FacetFilterAttribute
+    public sealed class RadiobuttonFilterAttribute : FacetFilterAttribute
     {
         public RadiobuttonFilterAttribute()
         {

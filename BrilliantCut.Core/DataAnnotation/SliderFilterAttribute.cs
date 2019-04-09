@@ -8,7 +8,7 @@ namespace BrilliantCut.Core.DataAnnotation
 {
     using BrilliantCut.Core.FilterSettings;
 
-    public class SliderFilterAttribute : FacetFilterAttribute
+    public sealed class SliderFilterAttribute : FacetFilterAttribute
     {
         public SliderFilterAttribute()
             : this(0, 100)
