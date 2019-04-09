@@ -13,7 +13,7 @@
     <description>Facet support in commerce UI</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright Jonas Berqvist 2015</copyright>
-    <tags></tags>
+    <tags>EPiServer, Search, Commerce, UI</tags>
     <dependencies>
       <dependency id="EPiServer.Commerce.Core" version="[11,13)" />
       <dependency id="EPiServer.Commerce.UI" version="[11,13)" />

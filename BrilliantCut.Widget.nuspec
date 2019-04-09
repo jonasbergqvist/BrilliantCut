@@ -13,7 +13,7 @@
     <description>Facet support in commerce UI</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright Jonas Berqvist 2015</copyright>
-    <tags>EPiServerModulePackage</tags>
+    <tags>EPiServer, Search, Commerce, UI, EPiServerModulePackage, EPiServerAddon</tags>
     <dependencies>
       <dependency id="BrilliantCut.Core" version="[1,2)" />
     </dependencies>
