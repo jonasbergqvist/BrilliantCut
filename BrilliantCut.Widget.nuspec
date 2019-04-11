@@ -19,8 +19,8 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="BrilliantCut.Widget\bin\$configuration$\BrilliantCut.Widget.dll" target="lib\net461" />
-    <file src="BrilliantCut.Widget\bin\$configuration$\BrilliantCut.Widget.zip" target="content\net461\modules\_protected\BrilliantCut.Widget" />
+    <file src="BrilliantCut.Widget\bin\release\BrilliantCut.Widget.dll" target="lib\net461" />
+    <file src="BrilliantCut.Widget\bin\release\BrilliantCut.Widget.zip" target="content\net461\modules\_protected\BrilliantCut.Widget" />
     <file src="BrilliantCut.Widget\Web.Config" target="content\net461\modules\_protected\BrilliantCut.Widget" />
     <file src="BrilliantCut.Widget\Web.Config.install.xdt" target="content\net461" />
     <file src="BrilliantCut.Widget\Web.Config.uninstall.xdt" target="content\net461" />
