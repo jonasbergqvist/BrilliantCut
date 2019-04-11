@@ -22,11 +22,23 @@ namespace BrilliantCut.Core.Filters.Implementations
     using EPiServer.Find;
     using EPiServer.Find.Api.Querying;
 
+    /// <summary>
+    /// Class TextFilter.
+    /// Implements the <see cref="IFilterContent" />
+    /// </summary>
+    /// <seealso cref="IFilterContent" />
     [TextboxFilter]
     public class TextFilter : IFilterContent
     {
+        /// <summary>
+        /// For method name
+        /// </summary>
         private const string ForMethodName = "For";
 
+        /// <summary>
+        /// Gets the description.
+        /// </summary>
+        /// <value>The description.</value>
         public string Description
         {
             get
@@ -35,6 +47,10 @@ namespace BrilliantCut.Core.Filters.Implementations
             }
         }
 
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>The name.</value>
         public string Name
         {
             get
@@ -43,13 +59,30 @@ namespace BrilliantCut.Core.Filters.Implementations
             }
         }
 
+        /// <summary>
+        /// Gets or sets the sort order.
+        /// </summary>
+        /// <value>The sort order.</value>
         public int SortOrder { get; set; }
 
+        /// <summary>
+        /// Adds the facet to query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="setting">The setting.</param>
+        /// <returns>The facet search.</returns>
         public ISearch AddFacetToQuery(ISearch query, FacetFilterSetting setting)
         {
             return query;
         }
 
+        /// <summary>
+        /// Filters the specified content.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <param name="query">The query.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>The filtered search.</returns>
         public ISearch Filter(IContent content, ISearch query, IEnumerable<object> values)
         {
             object[] valueArray = values as string[] ?? values.ToArray();
@@ -94,6 +127,13 @@ namespace BrilliantCut.Core.Filters.Implementations
             return search;
         }
 
+        /// <summary>
+        /// Gets the filter options.
+        /// </summary>
+        /// <param name="searchResults">The search results.</param>
+        /// <param name="mode">The mode.</param>
+        /// <param name="currentContent">Content of the current.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="IFilterOptionModel"/>.</returns>
         public IEnumerable<IFilterOptionModel> GetFilterOptions(
             SearchResults<object> searchResults,
             ListingMode mode,
@@ -107,6 +147,13 @@ namespace BrilliantCut.Core.Filters.Implementations
                 count: -1);
         }
 
+        /// <summary>
+        /// Adds the filter expression.
+        /// </summary>
+        /// <param name="filterExpression">The filter expression.</param>
+        /// <param name="genericArgument">The generic argument.</param>
+        /// <param name="search">The search.</param>
+        /// <returns>The <see cref="ITypeSearch{TSource}" /> of <see cref="CatalogContentBase"/>.</returns>
         private static ITypeSearch<CatalogContentBase> AddFilterExpression(
             Expression<Func<CatalogContentBase, Filter>> filterExpression,
             Type genericArgument,

@@ -8,8 +8,16 @@ namespace BrilliantCut.Core.DataAnnotation
 {
     using BrilliantCut.Core.FilterSettings;
 
+    /// <summary>
+    /// Class RadiobuttonFilterAttribute. This class cannot be inherited.
+    /// Implements the <see cref="BrilliantCut.Core.DataAnnotation.FacetFilterAttribute" />
+    /// </summary>
+    /// <seealso cref="BrilliantCut.Core.DataAnnotation.FacetFilterAttribute" />
     public sealed class RadiobuttonFilterAttribute : FacetFilterAttribute
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RadiobuttonFilterAttribute"/> class.
+        /// </summary>
         public RadiobuttonFilterAttribute()
         {
             this.Setting = new RadiobuttonFilterSetting();

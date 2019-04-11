@@ -10,6 +10,12 @@ namespace BrilliantCut.Core.Filters
 
     using EPiServer.Core;
 
+    /// <summary>
+    /// Class DateTimeFacet.
+    /// Implements the <see cref="RangeFacet{TContent,TValue}" />
+    /// </summary>
+    /// <typeparam name="TContent">The type of the t content.</typeparam>
+    /// <seealso cref="RangeFacet{TContent,TValue}" />
     public class DateTimeFacet<TContent> : RangeFacet<TContent, DateTime>
         where TContent : IContent
     {

@@ -22,20 +22,34 @@ namespace BrilliantCut.Core
 
     /// <summary>
     /// Allows find to index catalog content
+    /// Implements the <see cref="EPiServer.Find.Cms.IReindexInformation" />
     /// </summary>
+    /// <seealso cref="EPiServer.Find.Cms.IReindexInformation" />
     [ServiceConfiguration(typeof(IReindexInformation), Lifecycle = ServiceInstanceScope.Singleton)]
     public class CommerceReIndexInformation : IReindexInformation
     {
+        /// <summary>
+        /// The content loader
+        /// </summary>
         private readonly IContentLoader contentLoader;
 
+        /// <summary>
+        /// The language selector factory
+        /// </summary>
         private readonly LanguageSelectorFactory languageSelectorFactory;
 
+        /// <summary>
+        /// The reference converter
+        /// </summary>
         private readonly ReferenceConverter referenceConverter;
 
+        /// <summary>
+        /// The allow indexing catalog content
+        /// </summary>
         private bool? allowIndexingCatalogContent;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CommerceReIndexInformation"/> class.
+        /// Initializes a new instance of the <see cref="CommerceReIndexInformation" /> class.
         /// </summary>
         /// <param name="referenceConverter">The reference converter.</param>
         /// <param name="contentLoader">The content loader.</param>
@@ -67,8 +81,7 @@ namespace BrilliantCut.Core
                 {
                     bool allowIndexingCatalogContentSetting;
                     this.allowIndexingCatalogContent = !bool.TryParse(
-                                                           ConfigurationManager.AppSettings[
-                                                               "episerver:FindIndexCatalogContent"],
+                                                           ConfigurationManager.AppSettings["episerver:FindIndexCatalogContent"],
                                                            result: out allowIndexingCatalogContentSetting)
                                                        || allowIndexingCatalogContentSetting;
                 }
@@ -82,8 +95,9 @@ namespace BrilliantCut.Core
         }
 
         /// <summary>
-        /// Gets all descendants of the <see cref="Root"/>.
+        /// Gets all descendants of the <see cref="Root" />.
         /// </summary>
+        /// <value>The reindex targets.</value>
         public virtual IEnumerable<ReindexTarget> ReindexTargets
         {
             get
@@ -112,6 +126,7 @@ namespace BrilliantCut.Core
         /// <summary>
         /// Gets the reference of the catalog root.
         /// </summary>
+        /// <value>The root.</value>
         public virtual ContentReference Root
         {
             get
@@ -143,10 +158,10 @@ namespace BrilliantCut.Core
         }
 
         /// <summary>
-        /// The languages the <paramref name="catalogContent"/> should be indexed in.
+        /// The languages the <paramref name="catalogContent" /> should be indexed in.
         /// </summary>
         /// <param name="catalogContent">The content that will be indexed.</param>
-        /// <returns>The languages the <paramref name="catalogContent"/> will be indexed in.</returns>
+        /// <returns>The languages the <paramref name="catalogContent" /> will be indexed in.</returns>
         protected virtual IEnumerable<CultureInfo> GetLanguagesToIndex(CatalogContent catalogContent)
         {
             List<CultureInfo> languages = catalogContent.ExistingLanguages.ToList();

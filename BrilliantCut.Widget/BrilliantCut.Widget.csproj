@@ -25,6 +25,7 @@
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>bin\Debug\BrilliantCut.Widget.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -308,10 +309,6 @@
     <None Include="module.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="modules\_protected\CMS\CMS.zip" />
-    <None Include="modules\_protected\Commerce\Commerce.zip" />
-    <None Include="modules\_protected\EPiServer.Commerce.Shell\EPiServer.Commerce.Shell.zip" />
-    <None Include="modules\_protected\Shell\Shell.zip" />
     <None Include="packages.config" />
     <None Include="web.config.uninstall.xdt">
       <SubType>Designer</SubType>

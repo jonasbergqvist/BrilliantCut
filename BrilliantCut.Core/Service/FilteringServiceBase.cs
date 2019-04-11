@@ -26,22 +26,59 @@ namespace BrilliantCut.Core.Service
 
     using Mediachase.Commerce.Catalog;
 
+    /// <summary>
+    /// Class FilteringServiceBase.
+    /// </summary>
+    /// <typeparam name="T">The type of filter</typeparam>
     public abstract class FilteringServiceBase<T>
     {
+        /// <summary>
+        /// The maximum items
+        /// </summary>
         protected const int MaxItems = 500;
 
+        /// <summary>
+        /// The master key
+        /// </summary>
         private const string MasterKey = "BC:FilterContentModelType";
 
+        /// <summary>
+        /// The search method name
+        /// </summary>
         private const string SearchMethodName = "Search";
 
+        /// <summary>
+        /// The filter configuration
+        /// </summary>
         private readonly FilterConfiguration filterConfiguration;
 
+        /// <summary>
+        /// The synchronized object instance cache
+        /// </summary>
         private readonly ISynchronizedObjectInstanceCache synchronizedObjectInstanceCache;
 
+        /// <summary>
+        /// The content cache key creator
+        /// </summary>
         private readonly IContentCacheKeyCreator contentCacheKeyCreator;
 
+        /// <summary>
+        /// The filter contents with generic types
+        /// </summary>
         private IEnumerable<FilterContentModelType> filterContentsWithGenericTypes;
-        
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FilteringServiceBase{T}"/> class.
+        /// </summary>
+        /// <param name="filterConfiguration">The filter configuration.</param>
+        /// <param name="filterModelFactory">The filter model factory.</param>
+        /// <param name="contentRepository">The content repository.</param>
+        /// <param name="synchronizedObjectInstanceCache">The synchronized object instance cache.</param>
+        /// <param name="searchSorter">The search sorter.</param>
+        /// <param name="referenceConverter">The reference converter.</param>
+        /// <param name="client">The client.</param>
+        /// <param name="contentEvents">The content events.</param>
+        /// <param name="contentCacheKeyCreator">The content cache key creator.</param>
         protected FilteringServiceBase(
             FilterConfiguration filterConfiguration,
             CheckedOptionsService filterModelFactory,
@@ -68,50 +105,97 @@ namespace BrilliantCut.Core.Service
             contentEvents.SavedContent += (s, e) => CacheManager.Remove(key: MasterKey);
         }
 
-        protected CheckedOptionsService CheckedOptionsService { get; private set; }
+        /// <summary>
+        /// Gets the checked options service.
+        /// </summary>
+        /// <value>The checked options service.</value>
+        protected CheckedOptionsService CheckedOptionsService { get; }
 
-        protected IClient Client { get; private set; }
+        /// <summary>
+        /// Gets the search client.
+        /// </summary>
+        /// <value>The search client.</value>
+        protected IClient Client { get; }
 
-        protected IContentRepository ContentRepository { get; private set; }
+        /// <summary>
+        /// Gets the content repository.
+        /// </summary>
+        /// <value>The content repository.</value>
+        protected IContentRepository ContentRepository { get; }
 
+        /// <summary>
+        /// Gets the filtered contents with generic types.
+        /// </summary>
+        /// <value>An <see cref="IEnumerable{T}"/> of <see cref="FilterContentModelType"/>.</value>
         protected IEnumerable<FilterContentModelType> FilterContentsWithGenericTypes
         {
             get
             {
-                if (this.filterContentsWithGenericTypes == null)
+                if (this.filterContentsWithGenericTypes != null)
                 {
-                    List<FilterContentModelType> filterContentModelTypes = new List<FilterContentModelType>();
-                    foreach (KeyValuePair<IFilterContent, FacetFilterSetting> filterContent in this.filterConfiguration
-                        .Filters)
-                    {
-                        Type contentType = GetContentType(filterContent.Key.GetType());
-                        filterContentModelTypes.Add(
-                            new FilterContentModelType
-                                {
-                                    Filter = filterContent.Key,
-                                    Setting = filterContent.Value,
-                                    ContentType = contentType ?? typeof(CatalogContentBase),
-                                    HasGenericArgument = contentType != null
-                                });
-                    }
-
-                    this.filterContentsWithGenericTypes = filterContentModelTypes;
+                    return this.filterContentsWithGenericTypes;
                 }
+
+                List<FilterContentModelType> filterContentModelTypes = new List<FilterContentModelType>();
+
+                foreach (KeyValuePair<IFilterContent, FacetFilterSetting> filterContent in this.filterConfiguration
+                    .Filters)
+                {
+                    Type contentType = GetContentType(filterContent.Key.GetType());
+                    filterContentModelTypes.Add(
+                        new FilterContentModelType
+                            {
+                                Filter = filterContent.Key,
+                                Setting = filterContent.Value,
+                                ContentType = contentType ?? typeof(CatalogContentBase),
+                                HasGenericArgument = contentType != null
+                            });
+                }
+
+                this.filterContentsWithGenericTypes = filterContentModelTypes;
 
                 return this.filterContentsWithGenericTypes;
             }
         }
 
-        protected ILogger Logger { get; private set; }
+        /// <summary>
+        /// Gets the logger.
+        /// </summary>
+        /// <value>The logger.</value>
+        protected ILogger Logger { get; }
 
-        protected ReferenceConverter ReferenceConverter { get; private set; }
+        /// <summary>
+        /// Gets the reference converter.
+        /// </summary>
+        /// <value>The reference converter.</value>
+        protected ReferenceConverter ReferenceConverter { get; }
 
-        protected SearchSortingService SearchSortingService { get; private set; }
+        /// <summary>
+        /// Gets the search sorting service.
+        /// </summary>
+        /// <value>The search sorting service.</value>
+        protected SearchSortingService SearchSortingService { get; }
 
-        protected IServiceLocator ServiceLocator { get; private set; }
+        /// <summary>
+        /// Gets the service locator.
+        /// </summary>
+        /// <value>The service locator.</value>
+        protected IServiceLocator ServiceLocator { get; }
 
+        /// <summary>
+        /// Gets the items.
+        /// </summary>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of items.</returns>
         public abstract IEnumerable<T> GetItems(ContentQueryParameters parameters);
 
+        /// <summary>
+        /// Caches the specified cache key.
+        /// </summary>
+        /// <typeparam name="TCache">The type of the t cache.</typeparam>
+        /// <param name="cacheKey">The cache key.</param>
+        /// <param name="result">The result.</param>
+        /// <param name="contentLink">The content link.</param>
         protected virtual void Cache<TCache>(string cacheKey, TCache result, ContentReference contentLink)
             where TCache : class
         {
@@ -149,17 +233,34 @@ namespace BrilliantCut.Core.Service
             return null;
         }
 
+        /// <summary>
+        /// Gets the content of the cached.
+        /// </summary>
+        /// <typeparam name="TCache">The type of the t cache.</typeparam>
+        /// <param name="cacheKey">The cache key.</param>
+        /// <returns>The cached content.</returns>
         protected virtual TCache GetCachedContent<TCache>(string cacheKey)
             where TCache : class
         {
             return this.synchronizedObjectInstanceCache.Get(key: cacheKey) as TCache;
         }
 
+        /// <summary>
+        /// Gets the content link.
+        /// </summary>
+        /// <param name="parameters">The parameters.</param>
+        /// <param name="listingMode">The listing mode.</param>
+        /// <returns>A <see cref="ContentReference"/>.</returns>
         protected virtual ContentReference GetContentLink(ContentQueryParameters parameters, ListingMode listingMode)
         {
             return listingMode == ListingMode.WidgetListing ? this.ReferenceConverter.GetRootLink() : parameters.ReferenceId;
         }
 
+        /// <summary>
+        /// Gets the listing mode.
+        /// </summary>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>The <see cref="ListingMode"/>.</returns>
         protected virtual ListingMode GetListingMode(ContentQueryParameters parameters)
         {
             string listingModeString = parameters.AllParameters["listingMode"];
@@ -173,6 +274,12 @@ namespace BrilliantCut.Core.Service
             return ListingMode.NoListing;
         }
 
+        /// <summary>
+        /// Gets the type of the search.
+        /// </summary>
+        /// <param name="filterModel">The filter model.</param>
+        /// <param name="restrictedSearchType">Type of the restricted search.</param>
+        /// <returns>The type to search for.</returns>
         protected virtual Type GetSearchType(FilterModel filterModel, Type restrictedSearchType)
         {
             foreach (KeyValuePair<string, List<object>> filter in filterModel.CheckedItems)
@@ -200,6 +307,11 @@ namespace BrilliantCut.Core.Service
             return restrictedSearchType;
         }
 
+        /// <summary>
+        /// Gets the supported filter content model types.
+        /// </summary>
+        /// <param name="queryType">Type of the query.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="FilterContentModelType"/>.</returns>
         protected virtual IEnumerable<FilterContentModelType> GetSupportedFilterContentModelTypes(Type queryType)
         {
             FilterContentModelType[] supportedTypes = this.FilterContentsWithGenericTypes
@@ -238,6 +350,12 @@ namespace BrilliantCut.Core.Service
 
         // return filterContentModelTypes;
         // }
+
+        /// <summary>
+        /// Gets the type of the content.
+        /// </summary>
+        /// <param name="filterContentType">Type of the filter content.</param>
+        /// <returns>The content type.</returns>
         private static Type GetContentType(Type filterContentType)
         {
             if (filterContentType.Name == typeof(FilterContentBase<,>).Name)
@@ -253,15 +371,35 @@ namespace BrilliantCut.Core.Service
             return GetContentType(filterContentType: filterContentType.BaseType);
         }
 
+        /// <summary>
+        /// Class FilterContentModelType.
+        /// </summary>
         protected class FilterContentModelType
         {
+            /// <summary>
+            /// Gets or sets the type of the content.
+            /// </summary>
+            /// <value>The type of the content.</value>
             public Type ContentType { get; set; }
 
+            /// <summary>
+            /// Gets or sets the filter.
+            /// </summary>
+            /// <value>The filter.</value>
             public IFilterContent Filter { get; set; }
 
             // public bool FacetAdded { get; set; }
+
+            /// <summary>
+            /// Gets or sets a value indicating whether this instance has a generic argument.
+            /// </summary>
+            /// <value><c>true</c> if this instance has a generic argument; otherwise, <c>false</c>.</value>
             public bool HasGenericArgument { get; set; }
 
+            /// <summary>
+            /// Gets or sets the setting.
+            /// </summary>
+            /// <value>The setting.</value>
             public FacetFilterSetting Setting { get; set; }
         }
     }

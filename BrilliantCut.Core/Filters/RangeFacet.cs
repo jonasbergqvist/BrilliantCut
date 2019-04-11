@@ -20,23 +20,48 @@ namespace BrilliantCut.Core.Filters
     using EPiServer.Find.Api.Facets;
     using EPiServer.Find.Framework;
 
+    /// <summary>
+    /// Class RangeFacet.
+    /// Implements the <see cref="FacetBase{TContent, TValue}" />
+    /// </summary>
+    /// <typeparam name="TContent">The type of the t content.</typeparam>
+    /// <typeparam name="TValue">The type of the t value.</typeparam>
+    /// <seealso cref="FacetBase{TContent, TValue}" />
     [SliderFilter]
     public class RangeFacet<TContent, TValue> : FacetBase<TContent, TValue>
         where TContent : IContent
     {
+        /// <summary>
+        /// Gets or sets the filter builder.
+        /// </summary>
+        /// <value>The filter builder.</value>
         public Func<FilterBuilder<TContent>, IEnumerable<TValue>, FilterBuilder<TContent>> FilterBuilder { get; set; }
 
+        /// <summary>
+        /// Adds the facet to the query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="setting">The setting.</param>
+        /// <returns>The <see cref="T:EPiServer.Find.ITypeSearch`1" /> of <see cref="T:EPiServer.Core.IContent" />.</returns>
         public override ITypeSearch<TContent> AddFacetToQuery(ITypeSearch<TContent> query, FacetFilterSetting setting)
         {
             return query.StatisticalFacetFor(fieldSelector: this.PropertyValuesExpressionObject);
         }
 
+        /// <summary>
+        /// Filters the specified current content.
+        /// </summary>
+        /// <param name="currentContent">The current content.</param>
+        /// <param name="query">The query.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>The <see cref="ITypeSearch{TSource}"/>;.</returns>
         public override ITypeSearch<TContent> Filter(
-            IContent currentCntent,
+            IContent currentContent,
             ITypeSearch<TContent> query,
             IEnumerable<TValue> values)
         {
             TValue[] selectedValueArray = values.ToArray();
+
             if (!selectedValueArray.Any())
             {
                 return query;
@@ -48,6 +73,13 @@ namespace BrilliantCut.Core.Filters
             return query.Filter(filter: marketFilter);
         }
 
+        /// <summary>
+        /// Gets the filter options.
+        /// </summary>
+        /// <param name="searchResults">The search results.</param>
+        /// <param name="mode">The mode.</param>
+        /// <param name="currentContent">The current content.</param>
+        /// <returns>An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <see cref="T:BrilliantCut.Core.Models.IFilterOptionModel" />.</returns>
         public override IEnumerable<IFilterOptionModel> GetFilterOptions(
             SearchResults<object> searchResults,
             ListingMode mode,
@@ -56,8 +88,8 @@ namespace BrilliantCut.Core.Filters
             StatisticalFacet facet =
                 searchResults.StatisticalFacetFor(fieldSelector: this.PropertyValuesExpressionObject);
 
-            const int defaultMin = 0;
-            const int defaultMax = 100;
+            int defaultMin = 0;
+            int defaultMax = 100;
 
             double min = facet.Count > 0 ? facet.Min : defaultMin;
             double max = facet.Count > 0 ? facet.Max : defaultMax;

@@ -11,8 +11,16 @@ namespace BrilliantCut.Core.Extensions
     using EPiServer.Commerce.Catalog.ContentTypes;
     using EPiServer.Find;
 
+    /// <summary>
+    /// Class FilterConfigurationExtensions.
+    /// </summary>
     public static class FilterConfigurationExtensions
     {
+        /// <summary>
+        /// Gets the default price filter.
+        /// </summary>
+        /// <param name="filterConfiguration">The filter configuration.</param>
+        /// <returns>The <see cref="FilterConfiguration"/>.</returns>
         public static FilterConfiguration DefaultPriceFilter(this FilterConfiguration filterConfiguration)
         {
             return filterConfiguration.RangeFacet<VariationContent, double>(
@@ -21,6 +29,11 @@ namespace BrilliantCut.Core.Extensions
                     .And(x => x.DefaultPriceValue().Value.LessThan(values.Max() + 0.1)));
         }
 
+        /// <summary>
+        /// Gets the inventory filter.
+        /// </summary>
+        /// <param name="filterConfiguration">The filter configuration.</param>
+        /// <returns>The <see cref="FilterConfiguration"/>.</returns>
         public static FilterConfiguration InventoryFilter(this FilterConfiguration filterConfiguration)
         {
             return filterConfiguration.RangeFacet<VariationContent, double>(

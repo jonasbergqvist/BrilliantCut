@@ -11,10 +11,15 @@ namespace BrilliantCut.Widget.Edit
     using EPiServer.Framework.Web.Resources;
     using EPiServer.Shell.Modules;
 
+    /// <summary>
+    /// Class FilterContentModule.
+    /// Implements the <see cref="EPiServer.Shell.Modules.ShellModule" />
+    /// </summary>
+    /// <seealso cref="EPiServer.Shell.Modules.ShellModule" />
     public class FilterContentModule : ShellModule
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="FilterContentModule"/> class.
+        /// Initializes a new instance of the <see cref="FilterContentModule" /> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="routeBasePath">The route base path.</param>
@@ -38,9 +43,14 @@ namespace BrilliantCut.Widget.Edit
                 moduleTable: moduleTable,
                 clientResourceService: clientResourceService);
             this.AddUiRoute(viewModel: model);
+
             return model;
         }
 
+        /// <summary>
+        /// Adds the UI route.
+        /// </summary>
+        /// <param name="viewModel">The view model.</param>
         private void AddUiRoute(ModuleViewModel viewModel)
         {
             viewModel.Routes.Add(

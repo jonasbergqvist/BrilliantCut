@@ -26,26 +26,43 @@ namespace BrilliantCut.Core.Rest.Query
 
     using Mediachase.Commerce.Catalog;
 
+    /// <summary>
+    /// Class GetFilteredChildrenQuery.
+    /// Implements the <see cref="EPiServer.Cms.Shell.UI.Rest.ContentQuery.GetChildrenQuery" />
+    /// </summary>
+    /// <seealso cref="EPiServer.Cms.Shell.UI.Rest.ContentQuery.GetChildrenQuery" />
     [ServiceConfiguration(typeof(IContentQuery))]
     public class GetFilteredChildrenQuery : GetChildrenQuery
     {
-        private static DateTime _lastConnectionCheck = DateTime.Now;
+        /// <summary>
+        /// The last connection check
+        /// </summary>
+        private static DateTime lastConnectionCheck = DateTime.Now;
 
-        private readonly IContentProviderManager _contentProviderManager;
+        /// <summary>
+        /// The content provider manager
+        /// </summary>
+        private readonly IContentProviderManager contentProviderManager;
 
-        private readonly ContentFilterService _filterContentFactory;
+        /// <summary>
+        /// The filter content factory
+        /// </summary>
+        private readonly ContentFilterService filterContentFactory;
 
-        private readonly ReferenceConverter _referenceConverter;
+        /// <summary>
+        /// The reference converter
+        /// </summary>
+        private readonly ReferenceConverter referenceConverter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GetFilteredChildrenQuery" /> class.
         /// </summary>
-        /// <param name="queryHelper">The query helper.</param>
-        /// <param name="contentRepository">The content repository.</param>
-        /// <param name="languageSelectorFactory">The language selector factory.</param>
         /// <param name="contentProviderManager">The content provider manager.</param>
-        /// <param name="filterContentFactory"></param>
-        /// <param name="referenceConverter"></param>
+        /// <param name="contentRepository">The content repository.</param>
+        /// <param name="filterContentFactory">The filter content factory.</param>
+        /// <param name="queryHelper">The query helper.</param>
+        /// <param name="languageSelectorFactory">The language selector factory.</param>
+        /// <param name="referenceConverter">The reference converter.</param>
         public GetFilteredChildrenQuery(
             IContentProviderManager contentProviderManager,
             IContentRepository contentRepository,
@@ -58,11 +75,15 @@ namespace BrilliantCut.Core.Rest.Query
                 contentRepository: contentRepository,
                 languageSelectorFactory: languageSelectorFactory)
         {
-            this._contentProviderManager = contentProviderManager;
-            this._filterContentFactory = filterContentFactory;
-            this._referenceConverter = referenceConverter;
+            this.contentProviderManager = contentProviderManager;
+            this.filterContentFactory = filterContentFactory;
+            this.referenceConverter = referenceConverter;
         }
 
+        /// <summary>
+        /// Gets the rank.
+        /// </summary>
+        /// <value>The rank.</value>
         public override int Rank
         {
             get
@@ -71,6 +92,11 @@ namespace BrilliantCut.Core.Rest.Query
             }
         }
 
+        /// <summary>
+        /// Determines whether this instance [can handle query] the specified parameters.
+        /// </summary>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns><c>true</c> if this instance [can handle query] the specified parameters; otherwise, <c>false</c>.</returns>
         public override bool CanHandleQuery(IQueryParameters parameters)
         {
             if (!IsFindRunning())
@@ -93,7 +119,7 @@ namespace BrilliantCut.Core.Rest.Query
             }
 
             ContentReference referenceId = listingMode == ListingMode.WidgetListing
-                                               ? this._referenceConverter.GetRootLink()
+                                               ? this.referenceConverter.GetRootLink()
                                                : itemQueryParam.ReferenceId;
 
             if (ContentReference.IsNullOrEmpty(contentLink: referenceId))
@@ -102,7 +128,7 @@ namespace BrilliantCut.Core.Rest.Query
             }
 
             CatalogContentProvider provider =
-                this._contentProviderManager.ProviderMap.GetProvider(
+                this.contentProviderManager.ProviderMap.GetProvider(
                     contentLink: referenceId) as CatalogContentProvider;
             if (provider == null)
             {
@@ -112,32 +138,47 @@ namespace BrilliantCut.Core.Rest.Query
             return true;
         }
 
+        /// <summary>
+        /// Gets the content.
+        /// </summary>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="IContent"/>.</returns>
         protected override IEnumerable<IContent> GetContent(ContentQueryParameters parameters)
         {
             try
             {
-                return this._filterContentFactory.GetItems(parameters: parameters);
+                return this.filterContentFactory.GetItems(parameters: parameters);
             }
             catch (SocketException)
             {
-                _lastConnectionCheck = DateTime.UtcNow.AddDays(-1);
+                lastConnectionCheck = DateTime.UtcNow.AddDays(-1);
                 return Enumerable.Empty<IContent>();
             }
         }
 
+        /// <summary>
+        /// Sorts the specified items.
+        /// </summary>
+        /// <param name="items">The items.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="IContent"/>.</returns>
         protected override IEnumerable<IContent> Sort(IEnumerable<IContent> items, ContentQueryParameters parameters)
         {
             return items;
         }
 
+        /// <summary>
+        /// Determines whether [find is running].
+        /// </summary>
+        /// <returns><c>true</c> if [find is running]; otherwise, <c>false</c>.</returns>
         private static bool IsFindRunning()
         {
             try
             {
-                if (DateTime.UtcNow - _lastConnectionCheck < new TimeSpan(0, 1, 0))
+                if (DateTime.UtcNow - lastConnectionCheck < new TimeSpan(0, 1, 0))
                 {
                     SearchClient.Instance.Search<CatalogContentBase>().Take(0);
-                    _lastConnectionCheck = DateTime.UtcNow;
+                    lastConnectionCheck = DateTime.UtcNow;
                 }
             }
             catch

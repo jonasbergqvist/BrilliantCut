@@ -18,16 +18,37 @@ namespace BrilliantCut.Widget.Rest
     using EPiServer.Security;
     using EPiServer.Shell.Services.Rest;
 
+    /// <summary>
+    /// Class FacetFilterStore.
+    /// Implements the <see cref="EPiServer.Shell.Services.Rest.RestControllerBase" />
+    /// </summary>
+    /// <seealso cref="EPiServer.Shell.Services.Rest.RestControllerBase" />
     [RestStore("facetfilter")]
     public class FacetFilterStore : RestControllerBase
     {
+        /// <summary>
+        /// The facet service
+        /// </summary>
         private readonly FacetService facetService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FacetFilterStore"/> class.
+        /// </summary>
+        /// <param name="facetService">The facet service.</param>
         public FacetFilterStore(FacetService facetService)
         {
             this.facetService = facetService;
         }
 
+        /// <summary>
+        /// Gets the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="query">The query.</param>
+        /// <param name="referenceId">The reference identifier.</param>
+        /// <param name="sortColumns">The sort columns.</param>
+        /// <param name="range">The range.</param>
+        /// <returns>The RestResult.</returns>
         [HttpGet]
         public RestResult Get(
             ContentReference id,
@@ -48,6 +69,7 @@ namespace BrilliantCut.Widget.Rest
 
             List<FilterContentWithOptions> filterOptions =
                 this.facetService.GetItems(parameters: queryParameters).ToList();
+
             return this.Rest(data: filterOptions);
         }
     }

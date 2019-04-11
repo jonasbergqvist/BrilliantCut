@@ -24,21 +24,41 @@ namespace BrilliantCut.Core.Rest
     using Mediachase.Commerce.Catalog;
     using Mediachase.MetaDataPlus.Configurator;
 
+    /// <summary>
+    /// Class FacetContentTransform.
+    /// Implements the <see cref="EPiServer.Cms.Shell.UI.Rest.Models.Transforms.IModelTransform" />
+    /// </summary>
+    /// <seealso cref="EPiServer.Cms.Shell.UI.Rest.Models.Transforms.IModelTransform" />
     [ServiceConfiguration(typeof(IModelTransform))]
     public class FacetContentTransform : IModelTransform
     {
-        private readonly ContentTypeModelRepository _contentTypeModelRepository;
+        /// <summary>
+        /// The content type model repository
+        /// </summary>
+        private readonly ContentTypeModelRepository contentTypeModelRepository;
 
-        private readonly IContentTypeRepository _contentTypeRepository;
+        /// <summary>
+        /// The content type repository
+        /// </summary>
+        private readonly IContentTypeRepository contentTypeRepository;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FacetContentTransform"/> class.
+        /// </summary>
+        /// <param name="contentTypeRepository">The content type repository.</param>
+        /// <param name="contentTypeModelRepository">The content type model repository.</param>
         public FacetContentTransform(
             IContentTypeRepository contentTypeRepository,
             ContentTypeModelRepository contentTypeModelRepository)
         {
-            this._contentTypeRepository = contentTypeRepository;
-            this._contentTypeModelRepository = contentTypeModelRepository;
+            this.contentTypeRepository = contentTypeRepository;
+            this.contentTypeModelRepository = contentTypeModelRepository;
         }
 
+        /// <summary>
+        /// Gets the order.
+        /// </summary>
+        /// <value>The order.</value>
         public TransformOrder Order
         {
             get
@@ -47,11 +67,22 @@ namespace BrilliantCut.Core.Rest
             }
         }
 
+        /// <summary>
+        /// Determines whether this instance can execute the specified target type.
+        /// </summary>
+        /// <param name="targetType">Type of the target.</param>
+        /// <param name="queryParameters">The query parameters.</param>
+        /// <returns><c>true</c> if this instance can execute the specified target type; otherwise, <c>false</c>.</returns>
         public bool CanExecute(Type targetType, DefaultQueryParameters queryParameters)
         {
-            return (typeof(StructureStoreContentDataModel)).IsAssignableFrom(c: targetType);
+            return typeof(StructureStoreContentDataModel).IsAssignableFrom(c: targetType);
         }
 
+        /// <summary>
+        /// Executes the specified models.
+        /// </summary>
+        /// <param name="models">The models.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="IModelTransformContext"/>.</returns>
         public IEnumerable<IModelTransformContext> Execute(IEnumerable<IModelTransformContext> models)
         {
             List<IModelTransformContext> modelList = models.ToList();
@@ -73,9 +104,10 @@ namespace BrilliantCut.Core.Rest
                     properties["StartPublish"] = facetContent.StartPublish;
                     properties["StopPublish"] = facetContent.StopPublish;
 
-                    ContentType contentType = this._contentTypeRepository.Load(id: facetContent.ContentTypeID);
-                    ContentTypeModel contentTypeModel = this._contentTypeModelRepository.List()
+                    ContentType contentType = this.contentTypeRepository.Load(id: facetContent.ContentTypeID);
+                    ContentTypeModel contentTypeModel = this.contentTypeModelRepository.List()
                         .FirstOrDefault(x => x.ExistingContentType == contentType);
+
                     if (contentTypeModel == null)
                     {
                         continue;
@@ -148,6 +180,12 @@ namespace BrilliantCut.Core.Rest
             return modelList;
         }
 
+        /// <summary>
+        /// Sets the current category relation.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="properties">The properties.</param>
+        /// <param name="source">The source.</param>
         private static void SetCurrentCategoryRelation(
             IModelTransformContext context,
             PropertyDictionary properties,
@@ -169,6 +207,11 @@ namespace BrilliantCut.Core.Rest
             }
         }
 
+        /// <summary>
+        /// Sets the content of the has children for entry.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="source">The source.</param>
         private static void SetHasChildrenForEntryContent(IModelTransformContext context, IFacetContent source)
         {
             StructureStoreContentDataModel structureStoreContentDataModel =

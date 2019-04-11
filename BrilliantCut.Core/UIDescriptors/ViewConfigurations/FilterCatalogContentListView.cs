@@ -10,11 +10,16 @@ namespace BrilliantCut.Core.UIDescriptors.ViewConfigurations
     using EPiServer.ServiceLocation;
     using EPiServer.Shell;
 
+    /// <summary>
+    /// Class FilterCatalogContentListView.
+    /// Implements the <see cref="EPiServer.Shell.ViewConfiguration{T}" />
+    /// </summary>
+    /// <seealso cref="EPiServer.Shell.ViewConfiguration{T}" />
     [ServiceConfiguration(typeof(ViewConfiguration))]
     public class FilterCatalogContentListView : ViewConfiguration<NodeContentBase>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="FilterCatalogContentListView"/> class.
+        /// Initializes a new instance of the <see cref="FilterCatalogContentListView" /> class.
         /// </summary>
         public FilterCatalogContentListView()
         {

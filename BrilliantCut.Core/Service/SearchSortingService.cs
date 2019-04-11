@@ -13,8 +13,17 @@ namespace BrilliantCut.Core.Service
     using EPiServer.Find;
     using EPiServer.Shell.Services.Rest;
 
+    /// <summary>
+    /// Class SearchSortingService.
+    /// </summary>
     public class SearchSortingService
     {
+        /// <summary>
+        /// Sorts the specified sort column.
+        /// </summary>
+        /// <param name="sortColumn">The sort column.</param>
+        /// <param name="query">The query.</param>
+        /// <returns>The sorted search.</returns>
         public ISearch Sort(SortColumn sortColumn, ISearch query)
         {
             if (string.IsNullOrEmpty(value: sortColumn.ColumnName))
@@ -23,12 +32,14 @@ namespace BrilliantCut.Core.Service
             }
 
             ITypeSearch<CatalogContentBase> catalogContentSearch = query as ITypeSearch<CatalogContentBase>;
+
             if (catalogContentSearch != null)
             {
                 return GetSortedSearch(sortColumn: sortColumn, query: catalogContentSearch);
             }
 
             ITypeSearch<IFacetContent> otherSupportedModel = query as ITypeSearch<IFacetContent>;
+
             if (otherSupportedModel != null)
             {
                 return GetSortedSearch(sortColumn: sortColumn, query: otherSupportedModel);
@@ -37,6 +48,12 @@ namespace BrilliantCut.Core.Service
             return query;
         }
 
+        /// <summary>
+        /// Gets the sorted search.
+        /// </summary>
+        /// <param name="sortColumn">The sort column.</param>
+        /// <param name="query">The query.</param>
+        /// <returns>An <see cref="ITypeSearch{TSource}"/>.</returns>
         private static ITypeSearch<object> GetSortedSearch(SortColumn sortColumn, ITypeSearch<CatalogContentBase> query)
         {
             switch (sortColumn.ColumnName)
@@ -92,6 +109,12 @@ namespace BrilliantCut.Core.Service
             }
         }
 
+        /// <summary>
+        /// Gets the sorted search.
+        /// </summary>
+        /// <param name="sortColumn">The sort column.</param>
+        /// <param name="query">The query.</param>
+        /// <returns>ITypeSearch&lt;System.Object&gt;.</returns>
         private static ITypeSearch<object> GetSortedSearch(SortColumn sortColumn, ITypeSearch<IFacetContent> query)
         {
             switch (sortColumn.ColumnName)

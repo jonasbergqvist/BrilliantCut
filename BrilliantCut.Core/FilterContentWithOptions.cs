@@ -14,28 +14,51 @@ namespace BrilliantCut.Core
     using BrilliantCut.Core.FilterSettings;
     using BrilliantCut.Core.Models;
 
+    /// <summary>
+    /// Class FilterContentWithOptions.
+    /// </summary>
     public class FilterContentWithOptions
     {
-        private FacetFilterSetting _settings;
+        /// <summary>
+        /// The settings
+        /// </summary>
+        private FacetFilterSetting settings;
 
         // [JsonIgnore]
         // public IFilterContent FilterContent { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type of the filter content.
+        /// </summary>
+        /// <value>The type of the filter content.</value>
         public Type FilterContentType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the filter options.
+        /// </summary>
+        /// <value>The filter options.</value>
         public IEnumerable<IFilterOptionModel> FilterOptions { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>The name.</value>
         public string Name { get; set; }
 
+        /// <summary>
+        /// Gets or sets the settings.
+        /// </summary>
+        /// <value>The settings.</value>
         public FacetFilterSetting Settings
         {
             get
             {
-                if (this._settings != null && !string.IsNullOrEmpty(value: this._settings.FilterPath))
+                if (this.settings != null && !string.IsNullOrEmpty(value: this.settings.FilterPath))
                 {
-                    return this._settings;
+                    return this.settings;
                 }
 
-                int sortOrder = this._settings != null ? this._settings.SortOrder : 0;
+                int sortOrder = this.settings != null ? this.settings.SortOrder : 0;
                 FacetFilterAttribute attribute = this.FilterContentType
                     .GetCustomAttributes(typeof(FacetFilterAttribute), true).OfType<FacetFilterAttribute>()
                     .FirstOrDefault();
@@ -46,13 +69,13 @@ namespace BrilliantCut.Core
                     settings.SortOrder = sortOrder;
                 }
 
-                this._settings = settings;
-                return this._settings;
+                this.settings = settings;
+                return this.settings;
             }
 
             set
             {
-                this._settings = value;
+                this.settings = value;
             }
         }
     }

@@ -25,9 +25,26 @@ namespace BrilliantCut.Core.Service
 
     using Mediachase.Commerce.Catalog;
 
+    /// <summary>
+    /// Class FacetService.
+    /// Implements the <see cref="FilteringServiceBase{T}" />
+    /// </summary>
+    /// <seealso cref="FilteringServiceBase{T}" />
     [ServiceConfiguration(typeof(FacetService), Lifecycle = ServiceInstanceScope.Singleton)]
     public class FacetService : FilteringServiceBase<FilterContentWithOptions>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FacetService"/> class.
+        /// </summary>
+        /// <param name="filterConfiguration">The filter configuration.</param>
+        /// <param name="filterModelFactory">The filter model factory.</param>
+        /// <param name="contentRepository">The content repository.</param>
+        /// <param name="synchronizedObjectInstanceCache">The synchronized object instance cache.</param>
+        /// <param name="searchSorter">The search sorter.</param>
+        /// <param name="referenceConverter">The reference converter.</param>
+        /// <param name="client">The client.</param>
+        /// <param name="contentEvents">The content events.</param>
+        /// <param name="contentCacheKeyCreator">The content cache key creator.</param>
         public FacetService(
             FilterConfiguration filterConfiguration,
             CheckedOptionsService filterModelFactory,
@@ -51,6 +68,11 @@ namespace BrilliantCut.Core.Service
         {
         }
 
+        /// <summary>
+        /// Gets the items.
+        /// </summary>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of items.</returns>
         public override IEnumerable<FilterContentWithOptions> GetItems(ContentQueryParameters parameters)
         {
             ListingMode listingMode = this.GetListingMode(parameters: parameters);
@@ -66,6 +88,7 @@ namespace BrilliantCut.Core.Service
             string cacheKey = string.Concat("FacetService#", contentLink, "#", filterModelString);
             IEnumerable<FilterContentWithOptions> cachedResult =
                 this.GetCachedContent<IEnumerable<FilterContentWithOptions>>(cacheKey: cacheKey);
+
             if (cachedResult != null)
             {
                 return cachedResult;
@@ -75,6 +98,7 @@ namespace BrilliantCut.Core.Service
 
             Dictionary<string, IEnumerable<object>> filters = new Dictionary<string, IEnumerable<object>>();
             FilterModel filter = this.CheckedOptionsService.CreateFilterModel(checkedOptionsString: filterModelString);
+
             if (filter != null && filter.CheckedItems != null)
             {
                 filters = filter.CheckedItems.Where(x => x.Value != null)
@@ -88,13 +112,15 @@ namespace BrilliantCut.Core.Service
                 .ToList();
 
             Dictionary<FilterContentModelType, ISearch> subQueries = new Dictionary<FilterContentModelType, ISearch>();
-            this.AddSubqueries(
-                possiblefacetQueries: possiblefacetQueries,
+
+            this.AddSubQueries(
+                possibleFacetQueries: possiblefacetQueries,
                 subQueries: subQueries,
                 searchType: searchType);
 
             List<FilterContentModelType> filterContentModelTypes =
                 this.GetSupportedFilterContentModelTypes(queryType: searchType).ToList();
+
             AddFiltersToSubQueries(
                 content: content,
                 subQueries: subQueries,
@@ -116,11 +142,25 @@ namespace BrilliantCut.Core.Service
             return Enumerable.Empty<FilterContentWithOptions>();
         }
 
-        protected virtual void AddToMultiSearch(IMultiSearch<object> multSearch, ITypeSearch<object> typeSearch)
+        /// <summary>
+        /// Adds to multi search.
+        /// </summary>
+        /// <param name="multiSearch">The multi search.</param>
+        /// <param name="typeSearch">The type search.</param>
+        protected virtual void AddToMultiSearch(IMultiSearch<object> multiSearch, ITypeSearch<object> typeSearch)
         {
-            multSearch.Searches.Add(typeSearch.Select(x => new object()).Take(0));
+            multiSearch.Searches.Add(typeSearch.Select(x => new object()).Take(0));
         }
 
+        /// <summary>
+        /// Adds the filters to sub queries.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <param name="subQueries">The sub queries.</param>
+        /// <param name="filterContentModelTypes">The filter content model types.</param>
+        /// <param name="filters">The filters.</param>
+        /// <param name="searchType">Type of the search.</param>
+        /// <exception cref="ArgumentNullException">The <paramref name="filters"/> are null</exception>
         private static void AddFiltersToSubQueries(
             IContent content,
             Dictionary<FilterContentModelType, ISearch> subQueries,
@@ -130,10 +170,11 @@ namespace BrilliantCut.Core.Service
         {
             if (filters == null)
             {
-                throw new ArgumentNullException("filters");
+                throw new ArgumentNullException(nameof(filters));
             }
 
             List<FilterContentModelType> subQueryFilterContentModelTypes = subQueries.Keys.ToList();
+
             foreach (FilterContentModelType subQueryKey in subQueryFilterContentModelTypes)
             {
                 bool facetAdded = false;
@@ -175,6 +216,12 @@ namespace BrilliantCut.Core.Service
             }
         }
 
+        /// <summary>
+        /// Gets the supported filter model types.
+        /// </summary>
+        /// <param name="filterContentModelTypes">The filter content model types.</param>
+        /// <param name="searchType">Type of the search.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="FilterContentWithOptions"/>.</returns>
         private static IEnumerable<FilterContentModelType> GetSupportedFilterModelTypes(
             IEnumerable<FilterContentModelType> filterContentModelTypes,
             Type searchType)
@@ -182,6 +229,12 @@ namespace BrilliantCut.Core.Service
             return filterContentModelTypes.Where(x => x.ContentType.IsAssignableFrom(c: searchType));
         }
 
+        /// <summary>
+        /// Should add facet to query.
+        /// </summary>
+        /// <param name="subQueryKey">The sub query key.</param>
+        /// <param name="filterContentModelType">Type of the filter content model.</param>
+        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         private static bool ShouldAddFacetToQuery(
             FilterContentModelType subQueryKey,
             FilterContentModelType filterContentModelType)
@@ -191,12 +244,18 @@ namespace BrilliantCut.Core.Service
                        || !subQueryKey.ContentType.IsAssignableFrom(c: filterContentModelType.ContentType));
         }
 
-        private void AddSubqueries(
-            IEnumerable<FilterContentModelType> possiblefacetQueries,
+        /// <summary>
+        /// Adds the sub queries.
+        /// </summary>
+        /// <param name="possibleFacetQueries">The possible facet queries.</param>
+        /// <param name="subQueries">The sub queries.</param>
+        /// <param name="searchType">Type of the search.</param>
+        private void AddSubQueries(
+            IEnumerable<FilterContentModelType> possibleFacetQueries,
             Dictionary<FilterContentModelType, ISearch> subQueries,
             Type searchType)
         {
-            foreach (FilterContentModelType filterContentModelType in possiblefacetQueries)
+            foreach (FilterContentModelType filterContentModelType in possibleFacetQueries)
             {
                 if (subQueries.ContainsKey(key: filterContentModelType))
                 {
@@ -219,6 +278,13 @@ namespace BrilliantCut.Core.Service
             }
         }
 
+        /// <summary>
+        /// Gets the filter result.
+        /// </summary>
+        /// <param name="subQueries">The sub queries.</param>
+        /// <param name="listingMode">The listing mode.</param>
+        /// <param name="currentContent">Content of the current.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="FilterContentWithOptions"/>.</returns>
         private IEnumerable<FilterContentWithOptions> GetFilterResult(
             Dictionary<FilterContentModelType, ISearch> subQueries,
             ListingMode listingMode,
@@ -229,11 +295,11 @@ namespace BrilliantCut.Core.Service
             IMultiSearch<object> multSearch = SearchClient.Instance.MultiSearch<object>();
             Dictionary<IFilterContent, FacetFilterSetting> filterListInResultOrder =
                 new Dictionary<IFilterContent, FacetFilterSetting>();
-            foreach (KeyValuePair<FilterContentModelType, ISearch> subQuery in subQueries.OrderBy(
-                x => x.Key.Filter.Name))
+
+            foreach (KeyValuePair<FilterContentModelType, ISearch> subQuery in subQueries.OrderBy(x => x.Key.Filter.Name))
             {
                 ITypeSearch<object> typeSearch = subQuery.Value as ITypeSearch<object>;
-                this.AddToMultiSearch(multSearch: multSearch, typeSearch: typeSearch);
+                this.AddToMultiSearch(multiSearch: multSearch, typeSearch: typeSearch);
 
                 foreach (FilterContentModelType filterContentModelType in this.FilterContentsWithGenericTypes
                     .Where(x => x.Filter.Name == subQuery.Key.Filter.Name).Where(

@@ -18,9 +18,18 @@ namespace BrilliantCut.Core.Filters.Implementations
     using EPiServer.Find;
     using EPiServer.Find.Cms;
 
+    /// <summary>
+    /// Class IsActiveFilter.
+    /// Implements the <see cref="FilterContentBase{TContentData,TValueType}" />
+    /// </summary>
+    /// <seealso cref="FilterContentBase{TContentData,TValueType}" />
     [RadiobuttonFilter]
     public class IsActiveFilter : FilterContentBase<CatalogContentBase, string>
     {
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>The name.</value>
         public override string Name
         {
             get
@@ -29,6 +38,12 @@ namespace BrilliantCut.Core.Filters.Implementations
             }
         }
 
+        /// <summary>
+        /// Adds the facet to query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="setting">The setting.</param>
+        /// <returns>The <see cref="ITypeSearch{TSource}" /> of <see cref="CatalogContentBase"/>.</returns>
         public override ITypeSearch<CatalogContentBase> AddFacetToQuery(
             ITypeSearch<CatalogContentBase> query,
             FacetFilterSetting setting)
@@ -36,8 +51,15 @@ namespace BrilliantCut.Core.Filters.Implementations
             return query;
         }
 
+        /// <summary>
+        /// Filters the specified current content.
+        /// </summary>
+        /// <param name="currentContent">The current content.</param>
+        /// <param name="query">The query.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>The <see cref="ITypeSearch{TSource}" /> of <see cref="CatalogContentBase"/>.</returns>
         public override ITypeSearch<CatalogContentBase> Filter(
-            IContent currentCntent,
+            IContent currentContent,
             ITypeSearch<CatalogContentBase> query,
             IEnumerable<string> values)
         {
@@ -50,6 +72,13 @@ namespace BrilliantCut.Core.Filters.Implementations
             return query.CurrentlyPublished().ExcludeDeleted();
         }
 
+        /// <summary>
+        /// Gets the filter options.
+        /// </summary>
+        /// <param name="searchResults">The search results.</param>
+        /// <param name="mode">The mode.</param>
+        /// <param name="currentContent">Content of the current.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="IFilterOptionModel"/>.</returns>
         public override IEnumerable<IFilterOptionModel> GetFilterOptions(
             SearchResults<object> searchResults,
             ListingMode mode,

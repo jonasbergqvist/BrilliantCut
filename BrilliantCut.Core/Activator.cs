@@ -17,15 +17,27 @@ namespace BrilliantCut.Core
     using EPiServer.ServiceLocation;
 
     /// <summary>
-    /// Creates an instance of <see cref="T"/>.
+    /// Creates an instance of the specified type.
     /// </summary>
     /// <typeparam name="T">The type to activate</typeparam>
     public class Activator<T>
     {
+        /// <summary>
+        /// The object instance cache
+        /// </summary>
         private IObjectInstanceCache objectInstanceCache;
 
+        /// <summary>
+        /// Delegate ObjectActivator
+        /// </summary>
+        /// <param name="args">The arguments.</param>
+        /// <returns>An instance of T.</returns>
         private delegate T ObjectActivator(params object[] args);
 
+        /// <summary>
+        /// Gets or sets the object instance cache.
+        /// </summary>
+        /// <value>The object instance cache.</value>
         private IObjectInstanceCache ObjectInstanceCache
         {
             get
@@ -41,26 +53,26 @@ namespace BrilliantCut.Core
         }
 
         /// <summary>
-        /// Creates an instance of the <see cref="T"/>.
+        /// Creates an instance of the <typeparamref name="T"> name="T">The type to activate</typeparamref>.
         /// </summary>
         /// <param name="args">Arguments, used for constructor creation, and for creating a generic type</param>
-        /// <returns>The requested <see cref="T"/>.</returns>
-        /// <remarks>The supports generic arguments.</remarks>
+        /// <returns>The requested <typeparamref name="T"> name="T">The type to activate</typeparamref>.</returns>
         /// <exception cref="T:System.Exception">A delegate callback throws an exception.</exception>
+        /// <remarks>The supports generic arguments.</remarks>
         public T Activate(params object[] args)
         {
             return this.Activate(typeof(T), constructorArguments: args);
         }
 
         /// <summary>
-        /// Creates an instance of the <paramref name="type"/>.
+        /// Creates an instance of the <paramref name="type" />.
         /// </summary>
         /// <param name="type">The type to create.</param>
         /// <param name="constructorArguments">Arguments, used for constructor creation.</param>
-        /// <returns>The requested <paramref name="type"/>.</returns>
-        /// <remarks>The supports generic arguments.</remarks>
+        /// <returns>The requested <paramref name="type" />.</returns>
         /// <exception cref="T:System.Exception">A delegate callback throws an exception.</exception>
         /// <exception cref="T:System.ArgumentNullException"><paramref name="constructorArguments" /> is <see langword="null" />.</exception>
+        /// <remarks>The supports generic arguments.</remarks>
         public T Activate(Type type, params object[] constructorArguments)
         {
             Type[] argumentTypes = constructorArguments.Select(x => x != null ? x.GetOriginalType() : typeof(object))
@@ -86,12 +98,12 @@ namespace BrilliantCut.Core
         }
 
         /// <summary>
-        /// Creates <see cref="ObjectActivator"/>, that will be used to create the requested type.
+        /// Creates <see cref="ObjectActivator" />, that will be used to create the requested type.
         /// </summary>
         /// <param name="constructorInfo">The constructor information.</param>
         /// <param name="constructorTypeExpressions">Expressions for the constructor types.</param>
         /// <param name="delegateParameterExpression">The delegate parameter expression.</param>
-        /// <returns>The <see cref="ObjectActivator"/></returns>
+        /// <returns>The <see cref="ObjectActivator" /></returns>
         private static ObjectActivator CreateDelegate(
             ConstructorInfo constructorInfo,
             IEnumerable<Expression> constructorTypeExpressions,

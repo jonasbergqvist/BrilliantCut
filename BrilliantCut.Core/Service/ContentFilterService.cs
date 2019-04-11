@@ -8,10 +8,8 @@ namespace BrilliantCut.Core.Service
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
-    using System.Reflection;
-
+    
     using BrilliantCut.Core.Extensions;
     using BrilliantCut.Core.Models;
 
@@ -28,9 +26,26 @@ namespace BrilliantCut.Core.Service
 
     using Mediachase.Commerce.Catalog;
 
+    /// <summary>
+    /// Class ContentFilterService.
+    /// Implements the <see cref="FilteringServiceBase{T}" />
+    /// </summary>
+    /// <seealso cref="FilteringServiceBase{T}" />
     [ServiceConfiguration(typeof(ContentFilterService), Lifecycle = ServiceInstanceScope.Singleton)]
     public class ContentFilterService : FilteringServiceBase<IContent>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ContentFilterService"/> class.
+        /// </summary>
+        /// <param name="filterConfiguration">The filter configuration.</param>
+        /// <param name="filterModelFactory">The filter model factory.</param>
+        /// <param name="contentRepository">The content repository.</param>
+        /// <param name="synchronizedObjectInstanceCache">The synchronized object instance cache.</param>
+        /// <param name="searchSorter">The search sorter.</param>
+        /// <param name="referenceConverter">The reference converter.</param>
+        /// <param name="client">The client.</param>
+        /// <param name="contentEvents">The content events.</param>
+        /// <param name="contentCacheKeyCreator">The content cache key creator.</param>
         public ContentFilterService(
             FilterConfiguration filterConfiguration,
             CheckedOptionsService filterModelFactory,
@@ -54,6 +69,11 @@ namespace BrilliantCut.Core.Service
         {
         }
 
+        /// <summary>
+        /// Gets the items.
+        /// </summary>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="IContent"/>.</returns>
         public override IEnumerable<IContent> GetItems(ContentQueryParameters parameters)
         {
             try
@@ -62,7 +82,7 @@ namespace BrilliantCut.Core.Service
                 string productGroupedString = parameters.AllParameters["productGrouped"];
                 string searchTypeString = parameters.AllParameters["searchType"];
                 SortColumn sortColumn = parameters.SortColumns != null
-                                            ? (parameters.SortColumns.FirstOrDefault() ?? new SortColumn())
+                                            ? parameters.SortColumns.FirstOrDefault() ?? new SortColumn()
                                             : new SortColumn();
 
                 bool productGrouped;
@@ -165,6 +185,16 @@ namespace BrilliantCut.Core.Service
             return new List<IContent>();
         }
 
+        /// <summary>
+        /// Gets the search results.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="searchType">Type of the search.</param>
+        /// <param name="properties">The properties.</param>
+        /// <param name="skip">The skip.</param>
+        /// <param name="take">The take.</param>
+        /// <param name="total">The total.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="IFacetContent"/>.</returns>
         protected virtual IEnumerable<IFacetContent> GetSearchResults(
             ITypeSearch<CatalogContentBase> query,
             Type searchType,
@@ -270,6 +300,15 @@ namespace BrilliantCut.Core.Service
                          });
         }
 
+        /// <summary>
+        /// Gets the filters to query.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <param name="supportedFilters">The supported filters.</param>
+        /// <param name="filters">The filters.</param>
+        /// <param name="query">The query.</param>
+        /// <param name="cacheKey">The cache key.</param>
+        /// <returns>The filtered query.</returns>
         private static ISearch GetFiltersToQuery(
             IContent content,
             IEnumerable<FilterContentModelType> supportedFilters,
@@ -291,6 +330,18 @@ namespace BrilliantCut.Core.Service
             return query;
         }
 
+        /// <summary>
+        /// Adds the filtered children.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="searchType">Type of the search.</param>
+        /// <param name="contentList">The content list.</param>
+        /// <param name="linkedProductLinks">The linked product links.</param>
+        /// <param name="properties">The properties.</param>
+        /// <param name="includeProductVariationRelations">if set to <c>true</c> [include product variation relations].</param>
+        /// <param name="startIndex">The start index.</param>
+        /// <param name="take">The take.</param>
+        /// <returns>The total added.</returns>
         private int AddFilteredChildren(
             ISearch query,
             Type searchType,
@@ -311,6 +362,7 @@ namespace BrilliantCut.Core.Service
                     startIndex: startIndex,
                     take: take,
                     total: out total).ToList();
+
                 foreach (IFacetContent resultItem in queryResult)
                 {
                     // When we ask for relations, add product links to linkedProductList if any exists, and do not add a model for the content if it has product links.
@@ -354,6 +406,7 @@ namespace BrilliantCut.Core.Service
                     addedContentLinks = contentList.Select(x => x.ContentLink);
                     notAddedLinkedProducts =
                         linkedProductLinks.Where(x => !addedContentLinks.Contains(value: x)).ToArray();
+
                     if (notAddedLinkedProducts.Any())
                     {
                         FilterBuilder<ProductContent> filterBuilder =
@@ -385,6 +438,17 @@ namespace BrilliantCut.Core.Service
             }
         }
 
+        /// <summary>
+        /// Gets the search result.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="searchType">Type of the search.</param>
+        /// <param name="properties">The properties.</param>
+        /// <param name="startIndex">The start index.</param>
+        /// <param name="take">The take.</param>
+        /// <param name="total">The total.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="IFacetContent"/>.</returns>
+        /// <exception cref="NotSupportedException">The type needs to inherit from CatalogContentBase, or implement IFacetContent</exception>
         private IEnumerable<IFacetContent> GetSearchResult(
             ISearch query,
             Type searchType,
