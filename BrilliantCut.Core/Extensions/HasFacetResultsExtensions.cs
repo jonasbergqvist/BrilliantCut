@@ -7,6 +7,7 @@
 namespace BrilliantCut.Core.Extensions
 {
     using System;
+    using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
 
@@ -165,7 +166,7 @@ namespace BrilliantCut.Core.Extensions
         {
             return GetFacetFor<StatisticalFacet>(
                 facetsResultsContainer: facetsResultsContainer,
-                facetName: string.Format("StatisticalFacet_{0}", fieldSelector.GetFieldPath()));
+                facetName: string.Format(provider: CultureInfo.InvariantCulture, format: "StatisticalFacet_{0}", arg0: fieldSelector.GetFieldPath()));
         }
 
         /// <summary>
@@ -188,7 +189,7 @@ namespace BrilliantCut.Core.Extensions
 
             return GetFacetFor<StatisticalFacet>(
                 facetsResultsContainer: facetsResultsContainer,
-                facetName: string.Format("StatisticalFacet_{0}", string.Join("_", fieldSelectors.Select(x => x.GetFieldPath()))));
+                facetName: string.Format(provider: CultureInfo.InvariantCulture, format: "StatisticalFacet_{0}", arg0: string.Join("_", fieldSelectors.Select(x => x.GetFieldPath()))));
         }
     }
 }

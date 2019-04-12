@@ -8,6 +8,7 @@ namespace BrilliantCut.Core.Rest
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
 
     using BrilliantCut.Core.Models;
@@ -125,11 +126,13 @@ namespace BrilliantCut.Core.Rest
                         decimal instockQuantity = facetContent.Inventories != null
                                                       ? facetContent.Inventories.Sum(x => x.InStockQuantity)
                                                       : 0;
+
                         decimal reorderMinQuantity = facetContent.Inventories != null
                                                          ? facetContent.Inventories.Max(x => x.ReorderMinQuantity)
                                                          : 0;
 
                         string status;
+
                         if (instockQuantity == 0)
                         {
                             status = "unavailable";
@@ -144,7 +147,7 @@ namespace BrilliantCut.Core.Rest
                         }
 
                         properties["InStockStatus"] = status;
-                        properties["InStockQuantity"] = instockQuantity.ToString();
+                        properties["InStockQuantity"] = instockQuantity.ToString(new CultureInfo("en-US"));
                     }
 
                     if (typeof(NodeContent).IsAssignableFrom(c: contentTypeModel.ModelType))
