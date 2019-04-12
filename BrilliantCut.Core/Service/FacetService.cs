@@ -75,6 +75,12 @@ namespace BrilliantCut.Core.Service
         /// <returns>An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of items.</returns>
         public override IEnumerable<FilterContentWithOptions> GetItems(ContentQueryParameters parameters)
         {
+
+            if (parameters == null)
+            {
+                return new List<FilterContentWithOptions>();
+            }
+
             ListingMode listingMode = this.GetListingMode(parameters: parameters);
             ContentReference contentLink = this.GetContentLink(parameters: parameters, listingMode: listingMode);
 
@@ -149,6 +155,11 @@ namespace BrilliantCut.Core.Service
         /// <param name="typeSearch">The type search.</param>
         protected virtual void AddToMultiSearch(IMultiSearch<object> multiSearch, ITypeSearch<object> typeSearch)
         {
+            if (multiSearch == null)
+            {
+                return;
+            }
+
             multiSearch.Searches.Add(typeSearch.Select(x => new object()).Take(0));
         }
 

@@ -6,6 +6,8 @@
 
 namespace BrilliantCut.Core.DataAnnotation
 {
+    using System;
+
     using BrilliantCut.Core.FilterSettings;
 
     /// <summary>
@@ -14,8 +16,12 @@ namespace BrilliantCut.Core.DataAnnotation
     /// </summary>
     /// <seealso cref="BrilliantCut.Core.DataAnnotation.FacetFilterAttribute" />
     /// <remarks>Delay = 1000</remarks>
+
+    [AttributeUsage(AttributeTargets.Class)]
     public sealed class TextboxFilterAttribute : FacetFilterAttribute
     {
+        private readonly int delay;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TextboxFilterAttribute"/> class.
         /// </summary>
@@ -30,7 +36,20 @@ namespace BrilliantCut.Core.DataAnnotation
         /// <param name="delay">The delay.</param>
         public TextboxFilterAttribute(int delay)
         {
-            this.Setting = new TextboxFilterSetting();
+            this.delay = delay;
+            this.Setting = new TextboxFilterSetting(delay: delay);
+        }
+
+        /// <summary>
+        /// Gets the delay.
+        /// </summary>
+        /// <value>The delay.</value>
+        public int Delay
+        {
+            get
+            {
+                return this.delay;
+            }
         }
     }
 }

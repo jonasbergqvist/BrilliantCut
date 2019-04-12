@@ -50,6 +50,11 @@ namespace BrilliantCut.Core
         /// method will be called repeatedly for each request reaching the site until the method succeeds.</remarks>
         public void Initialize(InitializationEngine context)
         {
+            if (context == null)
+            {
+                return;
+            }
+
             this.client = context.Locate.Advanced.GetInstance<IClient>();
             this.SetClientConventions();
         }

@@ -8,6 +8,7 @@ namespace BrilliantCut.Core.Service
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     
     using BrilliantCut.Core.Extensions;
@@ -78,6 +79,11 @@ namespace BrilliantCut.Core.Service
         {
             try
             {
+                if (parameters == null)
+                {
+                    return new List<IContent>();
+                }
+
                 string filterModelString = parameters.AllParameters["filterModel"];
                 string productGroupedString = parameters.AllParameters["productGrouped"];
                 string searchTypeString = parameters.AllParameters["searchType"];
@@ -125,7 +131,7 @@ namespace BrilliantCut.Core.Service
 
                 if (!string.IsNullOrEmpty(value: sortColumn.ColumnName))
                 {
-                    cacheKey += string.Format("{0}{1}", sortColumn.ColumnName, sortColumn.SortDescending);
+                    cacheKey += string.Format(CultureInfo.InvariantCulture, "{0}{1}", sortColumn.ColumnName, sortColumn.SortDescending);
                 }
 
                 if (!includeProductVariationRelations)

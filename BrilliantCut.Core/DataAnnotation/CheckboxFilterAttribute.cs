@@ -6,6 +6,8 @@
 
 namespace BrilliantCut.Core.DataAnnotation
 {
+    using System;
+
     using BrilliantCut.Core.FilterSettings;
 
     /// <summary>
@@ -13,6 +15,7 @@ namespace BrilliantCut.Core.DataAnnotation
     /// Implements the <see cref="BrilliantCut.Core.DataAnnotation.FacetFilterAttribute" />
     /// </summary>
     /// <seealso cref="BrilliantCut.Core.DataAnnotation.FacetFilterAttribute" />
+    [AttributeUsage(AttributeTargets.Class)]
     public sealed class CheckboxFilterAttribute : FacetFilterAttribute
     {
         /// <summary>

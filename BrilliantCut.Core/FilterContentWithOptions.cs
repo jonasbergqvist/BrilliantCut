@@ -63,13 +63,14 @@ namespace BrilliantCut.Core
                     .GetCustomAttributes(typeof(FacetFilterAttribute), true).OfType<FacetFilterAttribute>()
                     .FirstOrDefault();
 
-                FacetFilterSetting settings = attribute != null ? attribute.Setting : new CheckboxFilterSetting();
-                if (settings.SortOrder < 1)
+                FacetFilterSetting facetFilterSetting = attribute != null ? attribute.Setting : new CheckboxFilterSetting();
+
+                if (facetFilterSetting.SortOrder < 1)
                 {
-                    settings.SortOrder = sortOrder;
+                    facetFilterSetting.SortOrder = sortOrder;
                 }
 
-                this.settings = settings;
+                this.settings = facetFilterSetting;
                 return this.settings;
             }
 

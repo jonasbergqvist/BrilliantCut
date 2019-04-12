@@ -26,6 +26,8 @@
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Debug\BrilliantCut.Core.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -36,6 +38,7 @@
     <WarningLevel>4</WarningLevel>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AjaxControlToolkit, Version=3.0.30930.28736, Culture=neutral, PublicKeyToken=28f01b0e84b6d53e, processorArchitecture=MSIL">
@@ -291,6 +294,7 @@
     <Compile Include="Extensions\FacetContentExtensions.cs" />
     <Compile Include="FacetFilterInitializationModule.cs" />
     <Compile Include="Filters\Implementations\CategoryFilter.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="ListingMode.cs" />
     <Compile Include="Models\FilterOptionModel.cs" />
     <Compile Include="Models\IFilterOptionModel.cs" />

@@ -23,6 +23,11 @@ namespace BrilliantCut.Core.Extensions
         /// <returns>The <see cref="FilterConfiguration"/>.</returns>
         public static FilterConfiguration DefaultPriceFilter(this FilterConfiguration filterConfiguration)
         {
+            if (filterConfiguration == null)
+            {
+                return null;
+            }
+
             return filterConfiguration.RangeFacet<VariationContent, double>(
                 x => x.DefaultPriceValue().Value,
                 (builder, values) => builder.And(x => x.DefaultPriceValue().Value.GreaterThan(values.Min() - 0.1))
@@ -36,6 +41,11 @@ namespace BrilliantCut.Core.Extensions
         /// <returns>The <see cref="FilterConfiguration"/>.</returns>
         public static FilterConfiguration InventoryFilter(this FilterConfiguration filterConfiguration)
         {
+            if (filterConfiguration == null)
+            {
+                return null;
+            }
+
             return filterConfiguration.RangeFacet<VariationContent, double>(
                 x => x.TotalInStock().Value,
                 (builder, values) => builder.And(x => x.TotalInStock().Value.GreaterThan(values.Min() - 0.1))

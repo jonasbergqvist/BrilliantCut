@@ -104,8 +104,14 @@ namespace BrilliantCut.Core.Rest.Query
                 return false;
             }
 
+            if (parameters == null)
+            {
+                return false;
+            }
+
             string listingModeString = parameters.AllParameters["listingMode"];
             ListingMode listingMode;
+
             if (listingModeString == null || !Enum.TryParse(value: listingModeString, result: out listingMode)
                                           || listingMode == ListingMode.NoListing)
             {
@@ -113,6 +119,7 @@ namespace BrilliantCut.Core.Rest.Query
             }
 
             ContentQueryParameters itemQueryParam = parameters as ContentQueryParameters;
+
             if (itemQueryParam == null)
             {
                 return false;

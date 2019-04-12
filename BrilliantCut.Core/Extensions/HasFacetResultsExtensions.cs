@@ -46,6 +46,11 @@ namespace BrilliantCut.Core.Extensions
         public static TFacet GetFacetFor<TFacet>(IHasFacetResults facetsResultsContainer, string facetName)
             where TFacet : Facet
         {
+            if (facetsResultsContainer == null)
+            {
+                return null;
+            }
+
             Facet facet = facetsResultsContainer.Facets[name: facetName];
 
             if (facet.IsNull())

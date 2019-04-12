@@ -8,6 +8,7 @@ namespace BrilliantCut.Core.Filters
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
 
     using BrilliantCut.Core.FilterSettings;
@@ -89,7 +90,7 @@ namespace BrilliantCut.Core.Filters
             return this.Filter(
                 currentContent: currentContent,
                 query: (ITypeSearch<TContentData>)query,
-                values: values.Select(x => Convert.ChangeType(value: x, conversionType: typeof(TValueType))).Cast<TValueType>());
+                values: values.Select(x => Convert.ChangeType(value: x, conversionType: typeof(TValueType), provider: CultureInfo.InvariantCulture)).Cast<TValueType>());
         }
 
         /// <summary>

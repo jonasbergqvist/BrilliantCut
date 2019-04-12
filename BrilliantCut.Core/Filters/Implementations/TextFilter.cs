@@ -92,9 +92,15 @@ namespace BrilliantCut.Core.Filters.Implementations
             }
 
             string value = valueArray.OfType<string>().First();
+
             if (string.IsNullOrEmpty(value: value))
             {
                 return query;
+            }
+
+            if (query == null)
+            {
+                return null;
             }
 
             Type typeSearchInterface = query.GetType().GetInterface(name: typeof(ITypeSearch<>).Name);
@@ -105,6 +111,7 @@ namespace BrilliantCut.Core.Filters.Implementations
 
             Type genericArgument = typeSearchInterface.GetGenericArguments().First();
             MethodInfo methodInfoFor = typeof(TypeSearchExtensions).GetMethods().First(x => x.Name == ForMethodName);
+
             methodInfoFor = methodInfoFor.MakeGenericMethod(genericArgument);
 
             ITypeSearch<CatalogContentBase> search =
@@ -112,6 +119,7 @@ namespace BrilliantCut.Core.Filters.Implementations
 
             Expression<Func<CatalogContentBase, Filter>> nameFilterExpression =
                 x => x.Name.AnyWordBeginsWith(value);
+
             search = AddFilterExpression(
                 filterExpression: nameFilterExpression,
                 genericArgument: genericArgument,
@@ -119,6 +127,7 @@ namespace BrilliantCut.Core.Filters.Implementations
 
             Expression<Func<CatalogContentBase, Filter>> codeFilterExpression =
                 x => x.Code().AnyWordBeginsWith(value);
+
             search = AddFilterExpression(
                 filterExpression: codeFilterExpression,
                 genericArgument: genericArgument,

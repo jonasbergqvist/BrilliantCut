@@ -26,7 +26,7 @@ namespace BrilliantCut.Core.Service
         /// <returns>The sorted search.</returns>
         public ISearch Sort(SortColumn sortColumn, ISearch query)
         {
-            if (string.IsNullOrEmpty(value: sortColumn.ColumnName))
+            if (sortColumn == null || string.IsNullOrEmpty(value: sortColumn.ColumnName))
             {
                 return query;
             }

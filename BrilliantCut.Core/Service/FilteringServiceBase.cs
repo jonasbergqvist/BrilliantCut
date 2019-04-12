@@ -100,6 +100,11 @@ namespace BrilliantCut.Core.Service
             this.Logger = LogManager.GetLogger();
             this.contentCacheKeyCreator = contentCacheKeyCreator;
 
+            if (contentEvents == null)
+            {
+                return;
+            }
+
             contentEvents.PublishedContent += (s, e) => CacheManager.Remove(key: MasterKey);
             contentEvents.DeletedContent += (s, e) => CacheManager.Remove(key: MasterKey);
             contentEvents.SavedContent += (s, e) => CacheManager.Remove(key: MasterKey);
@@ -253,6 +258,11 @@ namespace BrilliantCut.Core.Service
         /// <returns>A <see cref="ContentReference"/>.</returns>
         protected virtual ContentReference GetContentLink(ContentQueryParameters parameters, ListingMode listingMode)
         {
+            if (parameters == null)
+            {
+                return this.ReferenceConverter.GetRootLink();
+            }
+
             return listingMode == ListingMode.WidgetListing ? this.ReferenceConverter.GetRootLink() : parameters.ReferenceId;
         }
 
@@ -263,6 +273,11 @@ namespace BrilliantCut.Core.Service
         /// <returns>The <see cref="ListingMode"/>.</returns>
         protected virtual ListingMode GetListingMode(ContentQueryParameters parameters)
         {
+            if (parameters == null)
+            {
+                return ListingMode.NoListing;
+            }
+
             string listingModeString = parameters.AllParameters["listingMode"];
             ListingMode listingMode;
 
@@ -282,6 +297,11 @@ namespace BrilliantCut.Core.Service
         /// <returns>The type to search for.</returns>
         protected virtual Type GetSearchType(FilterModel filterModel, Type restrictedSearchType)
         {
+            if (filterModel == null)
+            {
+                return restrictedSearchType;
+            }
+
             foreach (KeyValuePair<string, List<object>> filter in filterModel.CheckedItems)
             {
                 if (!filter.Value.Any())

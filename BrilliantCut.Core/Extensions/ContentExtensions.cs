@@ -395,7 +395,7 @@ namespace BrilliantCut.Core.Extensions
         /// <returns>The language name for the catalog content.</returns>
         public static string LanguageName(this ILocale content)
         {
-            return content.Language.Name;
+            return content?.Language.Name;
         }
 
         /// <summary>
@@ -418,7 +418,7 @@ namespace BrilliantCut.Core.Extensions
         /// <exception cref="T:EPiServer.ServiceLocation.ActivationException">if there are errors resolving the service instance.</exception>
         public static string LinkUrl(this CatalogContentBase content)
         {
-            return UrlResolver.GetUrl(contentLink: content.ContentLink, language: content.Language.Name);
+            return content == null ? string.Empty : UrlResolver.GetUrl(contentLink: content.ContentLink, language: content.Language.Name);
         }
 
         /// <summary>

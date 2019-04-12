@@ -130,6 +130,11 @@ namespace BrilliantCut.Core
             filter.PropertyValuesExpression = property;
             filter.FilterBuilder = filterBuilder;
 
+            if (setting == null)
+            {
+                return this;
+            }
+
             setting.SortOrder = this.GetSortOrder(setting: setting);
             this.filters.Add(key: filter, value: setting);
 
@@ -170,6 +175,11 @@ namespace BrilliantCut.Core
             filter.PropertyValuesExpression = property;
             filter.Aggregate = aggregate;
 
+            if (setting == null)
+            {
+                return this;
+            }
+
             setting.SortOrder = this.GetSortOrder(setting: setting);
             this.filters.Add(key: filter, value: setting);
 
@@ -183,6 +193,11 @@ namespace BrilliantCut.Core
         /// <returns>The sort order.</returns>
         protected virtual int GetSortOrder(FacetFilterSetting setting)
         {
+            if (setting == null)
+            {
+                return 1;
+            }
+
             if (setting.SortOrder > 0)
             {
                 return setting.SortOrder;

@@ -153,6 +153,11 @@ namespace BrilliantCut.Core
         /// <returns>The content that will be indexed for a catalog</returns>
         protected virtual IEnumerable<ContentReference> GetContentToIndex(CatalogContent catalogContent)
         {
+            if (catalogContent == null)
+            {
+                return new List<ContentReference>();
+            }
+
             return this.contentLoader.GetDescendents(contentLink: catalogContent.ContentLink)
                 .Union(new List<ContentReference> { catalogContent.ContentLink });
         }
@@ -164,7 +169,13 @@ namespace BrilliantCut.Core
         /// <returns>The languages the <paramref name="catalogContent" /> will be indexed in.</returns>
         protected virtual IEnumerable<CultureInfo> GetLanguagesToIndex(CatalogContent catalogContent)
         {
+            if (catalogContent == null)
+            {
+                return new List<CultureInfo>();
+            }
+
             List<CultureInfo> languages = catalogContent.ExistingLanguages.ToList();
+
             if (!languages.Select(x => x.Name).Contains(value: catalogContent.DefaultLanguage))
             {
                 languages.Add(CultureInfo.GetCultureInfo(name: catalogContent.DefaultLanguage));
