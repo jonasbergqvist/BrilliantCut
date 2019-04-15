@@ -81,14 +81,14 @@ namespace BrilliantCut.Core.Filters
         /// <summary>
         /// Filters the specified current content.
         /// </summary>
-        /// <param name="currentContent">The current content.</param>
+        /// <param name="content">The current content.</param>
         /// <param name="query">The query.</param>
         /// <param name="values">The values.</param>
         /// <returns>The filtered search.</returns>
-        public ISearch Filter(IContent currentContent, ISearch query, IEnumerable<object> values)
+        public ISearch Filter(IContent content, ISearch query, IEnumerable<object> values)
         {
             return this.Filter(
-                currentContent: currentContent,
+                currentContent: content,
                 query: (ITypeSearch<TContentData>)query,
                 values: values.Select(x => Convert.ChangeType(value: x, conversionType: typeof(TValueType), provider: CultureInfo.InvariantCulture)).Cast<TValueType>());
         }
