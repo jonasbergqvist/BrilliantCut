@@ -56,7 +56,7 @@
                     valueString: "",
                     listingMode: "0",
                     productGrouped: false
-                }
+                };
             }
 
             var currentCategory = id;

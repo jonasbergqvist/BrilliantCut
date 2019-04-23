@@ -33,7 +33,9 @@
         CreateDijitForm: function (filterOption, checked, filterContentName, attribute, updateList) {
             return new TextBox({
                 name: filterOption.id,
-                value: '',
+                value: "",
+                class: "dijit dijitReset dijitInline dijitLeft dijitTextBox epi-searchInput epi-contentSearchBox",
+                placeholder: "Filter on ...",
                 onKeyDown: function () {
                     clearTimeout(this.timeoutId);
                     this.timeoutId = setTimeout(updateList, attribute.delay);

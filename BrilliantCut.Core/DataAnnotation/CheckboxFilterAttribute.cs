@@ -1,13 +1,29 @@
-﻿
-using BrilliantCut.Core.FilterSettings;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="CheckboxFilterAttribute.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace BrilliantCut.Core.DataAnnotation
 {
-    public class CheckboxFilterAttribute : FacetFilterAttribute
+    using System;
+
+    using BrilliantCut.Core.FilterSettings;
+
+    /// <summary>
+    /// Class CheckboxFilterAttribute. This class cannot be inherited.
+    /// Implements the <see cref="BrilliantCut.Core.DataAnnotation.FacetFilterAttribute" />
+    /// </summary>
+    /// <seealso cref="BrilliantCut.Core.DataAnnotation.FacetFilterAttribute" />
+    [AttributeUsage(AttributeTargets.Class)]
+    public sealed class CheckboxFilterAttribute : FacetFilterAttribute
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CheckboxFilterAttribute"/> class.
+        /// </summary>
         public CheckboxFilterAttribute()
         {
-            Setting = new CheckboxFilterSetting();
+            this.Setting = new CheckboxFilterSetting();
         }
     }
 }

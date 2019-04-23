@@ -1,81 +1,137 @@
-﻿using System.Collections.Generic;
-using System.Configuration;
-using System.Globalization;
-using System.Linq;
-using EPiServer;
-using EPiServer.Commerce.Catalog.ContentTypes;
-using EPiServer.Core;
-using EPiServer.Find.Cms;
-using EPiServer.ServiceLocation;
-using Mediachase.Commerce.Catalog;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="CommerceReIndexInformation.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace BrilliantCut.Core
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Configuration;
+    using System.Globalization;
+    using System.Linq;
+
+    using EPiServer;
+    using EPiServer.Commerce.Catalog.ContentTypes;
+    using EPiServer.Core;
+    using EPiServer.Find.Cms;
+    using EPiServer.ServiceLocation;
+
+    using Mediachase.Commerce.Catalog;
+
     /// <summary>
     /// Allows find to index catalog content
+    /// Implements the <see cref="EPiServer.Find.Cms.IReindexInformation" />
     /// </summary>
+    /// <seealso cref="EPiServer.Find.Cms.IReindexInformation" />
     [ServiceConfiguration(typeof(IReindexInformation), Lifecycle = ServiceInstanceScope.Singleton)]
     public class CommerceReIndexInformation : IReindexInformation
     {
-        private readonly IContentLoader _contentLoader;
-        private readonly LanguageSelectorFactory _langugSelectorFactory;
-        private readonly ReferenceConverter _referenceConverter;
-
-        private bool? _allowIndexingCatalogContent; 
+        /// <summary>
+        /// The content loader
+        /// </summary>
+        private readonly IContentLoader contentLoader;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CommerceReIndexInformation"/> class.
+        /// The language selector factory
+        /// </summary>
+        private readonly LanguageSelectorFactory languageSelectorFactory;
+
+        /// <summary>
+        /// The reference converter
+        /// </summary>
+        private readonly ReferenceConverter referenceConverter;
+
+        /// <summary>
+        /// The allow indexing catalog content
+        /// </summary>
+        private bool? allowIndexingCatalogContent;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommerceReIndexInformation" /> class.
         /// </summary>
         /// <param name="referenceConverter">The reference converter.</param>
         /// <param name="contentLoader">The content loader.</param>
-        /// <param name="langugSelectorFactory">The language selector factory.</param>
-        public CommerceReIndexInformation(ReferenceConverter referenceConverter, IContentLoader contentLoader, LanguageSelectorFactory langugSelectorFactory)
+        /// <param name="languageSelectorFactory">The language selector factory.</param>
+        public CommerceReIndexInformation(
+            ReferenceConverter referenceConverter,
+            IContentLoader contentLoader,
+            LanguageSelectorFactory languageSelectorFactory)
         {
-            _contentLoader = contentLoader;
-            _langugSelectorFactory = langugSelectorFactory;
-            _referenceConverter = referenceConverter;
+            this.contentLoader = contentLoader;
+            this.languageSelectorFactory = languageSelectorFactory;
+            this.referenceConverter = referenceConverter;
         }
 
         /// <summary>
-        /// Determine if the class should be used to index catalog content.
+        /// Gets a value indicating whether [the class should be used to index catalog content].
         /// </summary>
+        /// <value><c>true</c> if [the class should be used to index catalog content]; otherwise, <c>false</c>.</value>
         public virtual bool AllowIndexingCatalogContent
         {
             get
             {
-                if (!_allowIndexingCatalogContent.HasValue)
+                if (this.allowIndexingCatalogContent.HasValue)
                 {
-                    bool allowIndexingCatalogContent;
-                    _allowIndexingCatalogContent = !bool.TryParse(ConfigurationManager.AppSettings["episerver:FindIndexCatalogContent"], out allowIndexingCatalogContent) || allowIndexingCatalogContent;
+                    return this.allowIndexingCatalogContent.Value;
                 }
 
-                return _allowIndexingCatalogContent.Value;
+                try
+                {
+                    bool allowIndexingCatalogContentSetting;
+                    this.allowIndexingCatalogContent = !bool.TryParse(
+                                                           ConfigurationManager.AppSettings["episerver:FindIndexCatalogContent"],
+                                                           result: out allowIndexingCatalogContentSetting)
+                                                       || allowIndexingCatalogContentSetting;
+                }
+                catch (NotSupportedException)
+                {
+                    return false;
+                }
+
+                return this.allowIndexingCatalogContent.Value;
             }
         }
 
         /// <summary>
-        /// Returns all descendants of the <see cref="Root"/>.
+        /// Gets all descendants of the <see cref="Root" />.
         /// </summary>
+        /// <value>The reindex targets.</value>
         public virtual IEnumerable<ReindexTarget> ReindexTargets
         {
             get
             {
-                if (!AllowIndexingCatalogContent)
+                if (!this.AllowIndexingCatalogContent)
                 {
                     yield break;
                 }
 
-                var catalogs = GetCatalogs();
-                foreach (var catalogContent in catalogs)
+                IEnumerable<CatalogContent> catalogs = this.GetCatalogs();
+                foreach (CatalogContent catalogContent in catalogs)
                 {
-                    var reindexTarget = new ReindexTarget
-                    {
-                        ContentLinks = GetContentToIndex(catalogContent),
-                        Languages = GetLanguagesToIndex(catalogContent)
-                    };
+                    ReindexTarget reindexTarget = new ReindexTarget
+                                                      {
+                                                          ContentLinks =
+                                                              this.GetContentToIndex(catalogContent: catalogContent),
+                                                          Languages = this.GetLanguagesToIndex(
+                                                              catalogContent: catalogContent)
+                                                      };
 
                     yield return reindexTarget;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Gets the reference of the catalog root.
+        /// </summary>
+        /// <value>The root.</value>
+        public virtual ContentReference Root
+        {
+            get
+            {
+                return this.referenceConverter.GetRootLink();
             }
         }
 
@@ -85,7 +141,9 @@ namespace BrilliantCut.Core
         /// <returns>The catalogs that will be indexed.</returns>
         protected virtual IEnumerable<CatalogContent> GetCatalogs()
         {
-            return _contentLoader.GetChildren<CatalogContent>(Root, _langugSelectorFactory.AutoDetect(true));
+            return this.contentLoader.GetChildren<CatalogContent>(
+                contentLink: this.Root,
+                settings: this.languageSelectorFactory.AutoDetect(true));
         }
 
         /// <summary>
@@ -95,32 +153,35 @@ namespace BrilliantCut.Core
         /// <returns>The content that will be indexed for a catalog</returns>
         protected virtual IEnumerable<ContentReference> GetContentToIndex(CatalogContent catalogContent)
         {
-            return _contentLoader.GetDescendents(catalogContent.ContentLink).Union(new List<ContentReference> { catalogContent.ContentLink });
+            if (catalogContent == null)
+            {
+                return new List<ContentReference>();
+            }
+
+            return this.contentLoader.GetDescendents(contentLink: catalogContent.ContentLink)
+                .Union(new List<ContentReference> { catalogContent.ContentLink });
         }
 
         /// <summary>
-        /// The languages the <paramref name="catalogContent"/> should be indexed in.
+        /// The languages the <paramref name="catalogContent" /> should be indexed in.
         /// </summary>
         /// <param name="catalogContent">The content that will be indexed.</param>
-        /// <returns>The languages the <paramref name="catalogContent"/> will be indexed in.</returns>
+        /// <returns>The languages the <paramref name="catalogContent" /> will be indexed in.</returns>
         protected virtual IEnumerable<CultureInfo> GetLanguagesToIndex(CatalogContent catalogContent)
         {
-            var languages = catalogContent.ExistingLanguages.ToList();
-            if (!languages.Select(x => x.Name).Contains(catalogContent.DefaultLanguage))
+            if (catalogContent == null)
             {
-                languages.Add(CultureInfo.GetCultureInfo(catalogContent.DefaultLanguage));
+                return new List<CultureInfo>();
+            }
+
+            List<CultureInfo> languages = catalogContent.ExistingLanguages.ToList();
+
+            if (!languages.Select(x => x.Name).Contains(value: catalogContent.DefaultLanguage))
+            {
+                languages.Add(CultureInfo.GetCultureInfo(name: catalogContent.DefaultLanguage));
             }
 
             return languages;
         }
-
-        /// <summary>
-        /// Gets the reference of the catalog root.
-        /// </summary>
-        public virtual ContentReference Root
-        {
-            get { return _referenceConverter.GetRootLink(); }
-        }
     }
 }
-

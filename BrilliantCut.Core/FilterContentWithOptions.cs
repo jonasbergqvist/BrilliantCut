@@ -1,49 +1,83 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BrilliantCut.Core.DataAnnotation;
-using BrilliantCut.Core.Extensions;
-using BrilliantCut.Core.Filters;
-using BrilliantCut.Core.FilterSettings;
-using BrilliantCut.Core.Models;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FilterContentWithOptions.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace BrilliantCut.Core
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using BrilliantCut.Core.DataAnnotation;
+    using BrilliantCut.Core.FilterSettings;
+    using BrilliantCut.Core.Models;
+
+    /// <summary>
+    /// Class FilterContentWithOptions.
+    /// </summary>
     public class FilterContentWithOptions
     {
-        private FacetFilterSetting _settings;
+        /// <summary>
+        /// The settings
+        /// </summary>
+        private FacetFilterSetting settings;
 
-        //[JsonIgnore]
-        //public IFilterContent FilterContent { get; set; }
+        // [JsonIgnore]
+        // public IFilterContent FilterContent { get; set; }
 
+        /// <summary>
+        /// Gets or sets the type of the filter content.
+        /// </summary>
+        /// <value>The type of the filter content.</value>
         public Type FilterContentType { get; set; }
 
-        public string Name { get; set; }
-
+        /// <summary>
+        /// Gets or sets the filter options.
+        /// </summary>
+        /// <value>The filter options.</value>
         public IEnumerable<IFilterOptionModel> FilterOptions { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>The name.</value>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the settings.
+        /// </summary>
+        /// <value>The settings.</value>
         public FacetFilterSetting Settings
         {
             get
             {
-                if (_settings != null && !String.IsNullOrEmpty(_settings.FilterPath))
+                if (this.settings != null && !string.IsNullOrEmpty(value: this.settings.FilterPath))
                 {
-                    return _settings;
+                    return this.settings;
                 }
 
-                var sortOrder = _settings != null ? _settings.SortOrder : 0;
-                var attribute = FilterContentType.GetCustomAttributes(typeof(FacetFilterAttribute), true).OfType<FacetFilterAttribute>().FirstOrDefault();
-                
-                var settings = attribute != null ? attribute.Setting : new CheckboxFilterSetting();
-                if (settings.SortOrder < 1)
+                int sortOrder = this.settings != null ? this.settings.SortOrder : 0;
+                FacetFilterAttribute attribute = this.FilterContentType
+                    .GetCustomAttributes(typeof(FacetFilterAttribute), true).OfType<FacetFilterAttribute>()
+                    .FirstOrDefault();
+
+                FacetFilterSetting facetFilterSetting = attribute != null ? attribute.Setting : new CheckboxFilterSetting();
+
+                if (facetFilterSetting.SortOrder < 1)
                 {
-                    settings.SortOrder = sortOrder;
+                    facetFilterSetting.SortOrder = sortOrder;
                 }
 
-                _settings = settings;
-                return _settings;
+                this.settings = facetFilterSetting;
+                return this.settings;
             }
-            set { _settings = value; }
+
+            set
+            {
+                this.settings = value;
+            }
         }
     }
 }

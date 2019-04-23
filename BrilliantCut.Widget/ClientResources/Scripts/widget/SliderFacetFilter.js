@@ -58,19 +58,19 @@
 
                 //var currentMinimum = this.slider.get('minimum');
                 //if (minMaxObject.min !== defaultMinMaxObject.min || currentMinimum === "min") {
-                    this.slider.set('minimum', minMaxObject.min);
+                    this.slider.set("minimum", minMaxObject.min);
 
                     if (this.slider.value <= minMaxObject.min) {
-                        this.slider.set('value', minMaxObject.min);
+                        this.slider.set("value", minMaxObject.min);
                     }
                 //}
 
                 //var currentMaximum = this.slider.get('maximum');
                 //if (minMaxObject.max !== defaultMinMaxObject.max || currentMaximum === "max") {
-                    this.slider.set('maximum', minMaxObject.max);
+                    this.slider.set("maximum", minMaxObject.max);
 
                     if (this.slider.value >= minMaxObject.max) {
-                        this.slider.set('value', minMaxObject.max);
+                        this.slider.set("value", minMaxObject.max);
                     }
                 //}
             }
@@ -148,7 +148,7 @@
                 max = "max";
             }
 
-            return { min: min, max: max }
+            return { min: min, max: max };
         },
 
         IsChecked: function (name) {
