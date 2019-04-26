@@ -63,7 +63,7 @@
                 filterModel = {
                     valueString: "",
                     listingMode: "0",
-                }
+                };
             }
 
             var queryParameters = {

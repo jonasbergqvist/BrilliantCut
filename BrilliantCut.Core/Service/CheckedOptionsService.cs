@@ -1,34 +1,51 @@
-﻿using System;
-using System.Collections.Generic;
-using BrilliantCut.Core.Models;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="CheckedOptionsService.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace BrilliantCut.Core.Service
 {
+    using System;
+    using System.Collections.Generic;
+
+    using BrilliantCut.Core.Models;
+
+    /// <summary>
+    /// Class CheckedOptionsService.
+    /// </summary>
     public class CheckedOptionsService
     {
+        /// <summary>
+        /// Creates the filter model.
+        /// </summary>
+        /// <param name="checkedOptionsString">The checked options string.</param>
+        /// <returns>The <see cref="FilterModel"/>.</returns>
         public FilterModel CreateFilterModel(string checkedOptionsString)
         {
-            var filterModel = new FilterModel() { CheckedItems = new Dictionary<string, List<object>>() };
+            FilterModel filterModel = new FilterModel { CheckedItems = new Dictionary<string, List<object>>() };
+
             if (checkedOptionsString == null)
             {
                 return filterModel;
             }
 
-            var currentKey = string.Empty;
-            var items = checkedOptionsString.Split(new[] { "__" }, StringSplitOptions.RemoveEmptyEntries);
-            for (var i = 0; i < items.Length; i++)
+            string currentKey = string.Empty;
+            string[] items = checkedOptionsString.Split(new[] { "__" }, options: StringSplitOptions.RemoveEmptyEntries);
+
+            for (int i = 0; i < items.Length; i++)
             {
                 if (i % 2 == 0)
                 {
-                    currentKey = items[i].Replace("__", string.Empty);
-                    filterModel.CheckedItems.Add(currentKey, new List<object>());
+                    currentKey = items[i].Replace("__", newValue: string.Empty);
+                    filterModel.CheckedItems.Add(key: currentKey, value: new List<object>());
                 }
-                else if (!String.IsNullOrEmpty(currentKey))
+                else if (!string.IsNullOrEmpty(value: currentKey))
                 {
-                    var options = items[i].Split(new[] { ".." }, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (var option in options)
+                    string[] options = items[i].Split(new[] { ".." }, options: StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string option in options)
                     {
-                        filterModel.CheckedItems[currentKey].Add(option.Replace("..", string.Empty));
+                        filterModel.CheckedItems[key: currentKey].Add(option.Replace("..", newValue: string.Empty));
                     }
                 }
             }

@@ -61,7 +61,7 @@
                     valueString: "",
                     listingMode: "0",
                     productGrouped: false
-                }
+                };
             }
 
             var listingMode = filterModel.listingMode;
