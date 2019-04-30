@@ -1,7 +1,8 @@
-#Update
-This project is not upto date with the newer versions. See it more as an inspiration than a solution.
-
 # BrilliantCut
+
+[![Platform](https://img.shields.io/badge/platform-.NET%204.6.1-blue.svg?style=flat)](https://msdn.microsoft.com/en-us/library/w0x726c2%28v=vs.110%29.aspx)
+[![Platform](https://img.shields.io/badge/EPiServer%20Commerce-%2012.0.0-orange.svg?style=flat)](http://world.episerver.com/commerce/)
+
 A brilliant cut is a dimond that contains several facets, and this project is all about facets. "BrilliantCut" makes it possible to filter the catalog UI by facets using EPiServer Find. The project includes facets like language, market, and category. It also includes a free text search, and the possibility to choose if the search should apply to children or descendants.
 The more important feature in the API is the possibility to create your own facets. Here is an example on a terms facet that is added for the property "Color" of content type "FashionVariant":
 

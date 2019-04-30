@@ -244,7 +244,7 @@
             if (item && item.properties) {
                 return item.properties.thumbnail;
             }
-            return '';
+            return "";
         },
 
         getTitleSelector: function (item) {
@@ -260,7 +260,7 @@
                         { name: item.name, resourceId: headingResources.id, id: reference.id, resourceType: headingResources.type, type: item.contentTypeName });
                 }
             }
-            return '';
+            return "";
         },
 
         getExistingModelFilter: function(filter) {

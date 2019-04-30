@@ -1,87 +1,183 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using EPiServer.Commerce.Catalog.ContentTypes;
-using EPiServer.Core;
-using EPiServer.Find;
-using EPiServer.Find.Api.Querying;
-using BrilliantCut.Core.DataAnnotation;
-using BrilliantCut.Core.Extensions;
-using BrilliantCut.Core.FilterSettings;
-using BrilliantCut.Core.Models;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="TextFilter.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace BrilliantCut.Core.Filters.Implementations
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using System.Reflection;
+
+    using BrilliantCut.Core.DataAnnotation;
+    using BrilliantCut.Core.Extensions;
+    using BrilliantCut.Core.FilterSettings;
+    using BrilliantCut.Core.Models;
+
+    using EPiServer.Commerce.Catalog.ContentTypes;
+    using EPiServer.Core;
+    using EPiServer.Find;
+    using EPiServer.Find.Api.Querying;
+
+    /// <summary>
+    /// Class TextFilter.
+    /// Implements the <see cref="IFilterContent" />
+    /// </summary>
+    /// <seealso cref="IFilterContent" />
     [TextboxFilter]
     public class TextFilter : IFilterContent
     {
+        /// <summary>
+        /// For method name
+        /// </summary>
         private const string ForMethodName = "For";
-        public string Name
-        {
-            get { return "Text"; }
-        }
 
+        /// <summary>
+        /// Gets the description.
+        /// </summary>
+        /// <value>The description.</value>
         public string Description
         {
-            get { return "Free text search"; }
+            get
+            {
+                return "Free text search";
+            }
         }
 
-        public IEnumerable<IFilterOptionModel> GetFilterOptions(SearchResults<object> searchResults, ListingMode mode, IContent currentContent)
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>The name.</value>
+        public string Name
         {
-            yield return new FilterOptionModel("FreeTextFilter", string.Empty, string.Empty, string.Empty, -1);
+            get
+            {
+                return "Text";
+            }
         }
 
+        /// <summary>
+        /// Gets or sets the sort order.
+        /// </summary>
+        /// <value>The sort order.</value>
+        public int SortOrder { get; set; }
+
+        /// <summary>
+        /// Adds the facet to query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="setting">The setting.</param>
+        /// <returns>The facet search.</returns>
+        public ISearch AddFacetToQuery(ISearch query, FacetFilterSetting setting)
+        {
+            return query;
+        }
+
+        /// <summary>
+        /// Filters the specified content.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <param name="query">The query.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>The filtered search.</returns>
         public ISearch Filter(IContent content, ISearch query, IEnumerable<object> values)
         {
-            var valueArray = values as string[] ?? values.ToArray();
+            object[] valueArray = values as string[] ?? values.ToArray();
             if (!valueArray.Any())
             {
                 return query;
             }
 
-            var value = valueArray.OfType<string>().First();
-            if (String.IsNullOrEmpty(value))
+            string value = valueArray.OfType<string>().First();
+
+            if (string.IsNullOrEmpty(value: value))
             {
                 return query;
             }
 
-            var typeSearchInterface = query.GetType().GetInterface(typeof(ITypeSearch<>).Name);
+            if (query == null)
+            {
+                return null;
+            }
+
+            Type typeSearchInterface = query.GetType().GetInterface(name: typeof(ITypeSearch<>).Name);
             if (typeSearchInterface == null)
             {
                 return query;
             }
 
-            var genericArgument = typeSearchInterface.GetGenericArguments().First();
-            var methodInfoFor = typeof(TypeSearchExtensions).GetMethods().First(x => x.Name == ForMethodName);
+            Type genericArgument = typeSearchInterface.GetGenericArguments().First();
+            MethodInfo methodInfoFor = typeof(TypeSearchExtensions).GetMethods().First(x => x.Name == ForMethodName);
+
             methodInfoFor = methodInfoFor.MakeGenericMethod(genericArgument);
 
-            var search = methodInfoFor.Invoke(null, new object[] { query, value }) as ITypeSearch<CatalogContentBase>;
+            ITypeSearch<CatalogContentBase> search =
+                methodInfoFor.Invoke(null, new object[] { query, value }) as ITypeSearch<CatalogContentBase>;
 
-            Expression<Func<CatalogContentBase, Filter>> nameFilterExpression = (x) => x.Name.AnyWordBeginsWith(value);
-            search = AddFilterExpression(nameFilterExpression, genericArgument, search);
+            Expression<Func<CatalogContentBase, Filter>> nameFilterExpression =
+                x => x.Name.AnyWordBeginsWith(value);
 
-            Expression<Func<CatalogContentBase, Filter>> codeFilterExpression = (x) => x.Code().AnyWordBeginsWith(value);
-            search = AddFilterExpression(codeFilterExpression, genericArgument, search);
+            search = AddFilterExpression(
+                filterExpression: nameFilterExpression,
+                genericArgument: genericArgument,
+                search: search);
+
+            Expression<Func<CatalogContentBase, Filter>> codeFilterExpression =
+                x => x.Code().AnyWordBeginsWith(value);
+
+            search = AddFilterExpression(
+                filterExpression: codeFilterExpression,
+                genericArgument: genericArgument,
+                search: search);
 
             return search;
         }
 
-        private static ITypeSearch<CatalogContentBase> AddFilterExpression(Expression<Func<CatalogContentBase, Filter>> filterExpression, Type genericArgument, ITypeSearch<CatalogContentBase> search)
+        /// <summary>
+        /// Gets the filter options.
+        /// </summary>
+        /// <param name="searchResults">The search results.</param>
+        /// <param name="mode">The mode.</param>
+        /// <param name="currentContent">Content of the current.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="IFilterOptionModel"/>.</returns>
+        public IEnumerable<IFilterOptionModel> GetFilterOptions(
+            SearchResults<object> searchResults,
+            ListingMode mode,
+            IContent currentContent)
         {
-            var delegateType = typeof(Func<,>).MakeGenericType(genericArgument, typeof(Filter));
-            var lambdaExpression = Expression.Lambda(delegateType, filterExpression.Body, filterExpression.Parameters[0]);
+            yield return new FilterOptionModel(
+                "FreeTextFilter",
+                text: string.Empty,
+                value: string.Empty,
+                defaultValue: string.Empty,
+                count: -1);
+        }
 
-            var methodInfoInclude = typeof(TypeSearchExtensions).GetMethods().First(x => x.Name == "Include");
+        /// <summary>
+        /// Adds the filter expression.
+        /// </summary>
+        /// <param name="filterExpression">The filter expression.</param>
+        /// <param name="genericArgument">The generic argument.</param>
+        /// <param name="search">The search.</param>
+        /// <returns>The <see cref="ITypeSearch{TSource}" /> of <see cref="CatalogContentBase"/>.</returns>
+        private static ITypeSearch<CatalogContentBase> AddFilterExpression(
+            Expression<Func<CatalogContentBase, Filter>> filterExpression,
+            Type genericArgument,
+            ITypeSearch<CatalogContentBase> search)
+        {
+            Type delegateType = typeof(Func<,>).MakeGenericType(genericArgument, typeof(Filter));
+            LambdaExpression lambdaExpression = Expression.Lambda(
+                delegateType,
+                filterExpression.Body,
+                filterExpression.Parameters[0]);
+
+            MethodInfo methodInfoInclude = typeof(TypeSearchExtensions).GetMethods().First(x => x.Name == "Include");
             methodInfoInclude = methodInfoInclude.MakeGenericMethod(genericArgument);
-            return methodInfoInclude.Invoke(null, new object[] { search, lambdaExpression, null }) as ITypeSearch<CatalogContentBase>;
+            return methodInfoInclude.Invoke(null, new object[] { search, lambdaExpression, null }) as
+                       ITypeSearch<CatalogContentBase>;
         }
-
-        public ISearch AddfacetToQuery(ISearch query, FacetFilterSetting setting)
-        {
-            return query;
-        }
-
-        public int SortOrder { get; set; }
     }
 }

@@ -1,23 +1,34 @@
-﻿using EPiServer.Commerce.Catalog.ContentTypes;
-using EPiServer.ServiceLocation;
-using EPiServer.Shell;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FilterCatalogListView.cs" company="Jonas Bergqvist">
+//     Copyright © 2019 Jonas Bergqvist.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace BrilliantCut.Core.UIDescriptors.ViewConfigurations
 {
+    using EPiServer.Commerce.Catalog.ContentTypes;
+    using EPiServer.ServiceLocation;
+    using EPiServer.Shell;
+
+    /// <summary>
+    /// Class FilterCatalogListView.
+    /// Implements the <see cref="EPiServer.Shell.ViewConfiguration{T}" />
+    /// </summary>
+    /// <seealso cref="EPiServer.Shell.ViewConfiguration{T}" />
     [ServiceConfiguration(typeof(ViewConfiguration))]
     public class FilterCatalogListView : ViewConfiguration<RootContent>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="FilterCatalogListView"/> class.
+        /// Initializes a new instance of the <see cref="FilterCatalogListView" /> class.
         /// </summary>
         public FilterCatalogListView()
         {
-            Key = "cataloglist";
-            LanguagePath = "/commerce/contentediting/views/cataloglist";
-            ControllerType = "brilliantcut/widget/FilterCataloglist";
-            IconClass = "epi-iconList";
-            SortOrder = 10;
-            Category = "catalog";
+            this.Key = "cataloglist";
+            this.LanguagePath = "/commerce/contentediting/views/cataloglist";
+            this.ControllerType = "brilliantcut/widget/FilterCataloglist";
+            this.IconClass = "epi-iconList";
+            this.SortOrder = 10;
+            this.Category = "catalog";
         }
     }
 }

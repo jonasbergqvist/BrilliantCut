@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>BrilliantCut.Core</id>
-    <version>0.2.1</version>
+    <version>1.0.0</version>
     <title>Brilliant Cut Core</title>
     <authors>Jonas Bergqvist</authors>
     <owners>Jonas Bergqvist</owners>
@@ -13,15 +13,15 @@
     <description>Facet support in commerce UI</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright Jonas Berqvist 2015</copyright>
-    <tags></tags>
+    <tags>EPiServer, Search, Commerce, UI</tags>
     <dependencies>
-      <dependency id="EPiServer.Commerce.Core" version="[8,10)" />
-      <dependency id="EPiServer.Commerce.UI" version="[8,10)" />
-      <!--dependency id="EPiServer.Find.Commerce" version="[8,10)" /-->
-      <dependency id="Newtonsoft.Json" version="[6,9)" />
+      <dependency id="EPiServer.Commerce.Core" version="[11,13)" />
+      <dependency id="EPiServer.Commerce.UI" version="[11,13)" />
+      <dependency id="EPiServer.Find.Commerce" version="[11,13)" />
+      <dependency id="Newtonsoft.Json" version="[9,12)" />
     </dependencies>
   </metadata>
   <files>
-    <file src="BrilliantCut.Core\bin\debug\BrilliantCut.Core.dll" target="lib\net45" />
+    <file src="BrilliantCut.Core\bin\release\BrilliantCut.Core.dll" target="lib\net461" />
   </files>
 </package>
